@@ -2,7 +2,7 @@ from django import forms
 
 from utils.api import serializers, UsernameSerializer
 
-from .models import AdminType, ProblemPermission, User, UserProfile
+from .models import AdminType, ProblemPermission, User, UserProfile, UserProfileLanguage
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -105,7 +105,11 @@ class EditUserProfileSerializer(serializers.Serializer):
     github = serializers.URLField(max_length=256, allow_blank=True, required=False)
     school = serializers.CharField(max_length=64, allow_blank=True, required=False)
     major = serializers.CharField(max_length=64, allow_blank=True, required=False)
-    language = serializers.CharField(max_length=32, allow_blank=True, required=False)
+    language = serializers.ChoiceField(
+        choices=[item[0] for item in UserProfileLanguage.choices()],
+        allow_blank=True,
+        required=False,
+    )
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):

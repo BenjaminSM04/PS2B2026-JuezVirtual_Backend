@@ -16,6 +16,20 @@ class ProblemPermission(object):
     ALL = "All"
 
 
+class UserProfileLanguage(object):
+    EN_US = "en-US"
+    ZH_CN = "zh-CN"
+    ES_LA = "es-LA"
+
+    @classmethod
+    def choices(cls):
+        return (
+            (cls.EN_US, "English (US)"),
+            (cls.ZH_CN, "\u7b80\u4f53\u4e2d\u6587"),
+            (cls.ES_LA, "Espanol Latino"),
+        )
+
+
 class UserManager(models.Manager):
     use_in_migrations = True
 
@@ -94,7 +108,7 @@ class UserProfile(models.Model):
     github = models.TextField(null=True)
     school = models.TextField(null=True)
     major = models.TextField(null=True)
-    language = models.TextField(null=True)
+    language = models.CharField(max_length=32, null=True, blank=True, choices=UserProfileLanguage.choices())
     # for ACM
     accepted_number = models.IntegerField(default=0)
     # for OI
