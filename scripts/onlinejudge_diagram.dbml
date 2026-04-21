@@ -1,0 +1,257 @@
+// OnlineJudge schema for diagram visualization (DBML)
+// Paste this into diagramdb.io / dbdiagram.io
+
+Table user {
+  id int [pk, increment]
+  password text [not null]
+  last_login timestamp
+  username text [not null, unique]
+  email text
+  create_time timestamp
+  admin_type text [not null, default: 'Regular User']
+  problem_permission text [not null, default: 'None']
+  reset_password_token text
+  reset_password_token_expire_time timestamp
+  auth_token text
+  two_factor_auth boolean [not null, default: false]
+  tfa_token text
+  session_keys json [not null]
+  open_api boolean [not null, default: false]
+  open_api_appkey text
+  is_disabled boolean [not null, default: false]
+}
+
+Table user_profile {
+  id int [pk, increment]
+  user_id int [not null, unique]
+  acm_problems_status json [not null]
+  oi_problems_status json [not null]
+  real_name text
+  avatar text [not null, default: '/public/avatar/default.png']
+  blog varchar(200)
+  mood text
+  github text
+  school text
+  major text
+  language varchar(32)
+  accepted_number int [not null, default: 0]
+  total_score bigint [not null, default: 0]
+  submission_number int [not null, default: 0]
+}
+
+Table announcement {
+  id int [pk, increment]
+  title text [not null]
+  content text [not null]
+  create_time timestamp [not null]
+  created_by_id int [not null]
+  last_update_time timestamp [not null]
+  visible boolean [not null, default: true]
+}
+
+Table contest {
+  id int [pk, increment]
+  title text [not null]
+  description text [not null]
+  real_time_rank boolean [not null]
+  password text
+  rule_type text [not null]
+  start_time timestamp [not null]
+  end_time timestamp [not null]
+  create_time timestamp [not null]
+  last_update_time timestamp [not null]
+  created_by_id int [not null]
+  visible boolean [not null, default: true]
+  allowed_ip_ranges json [not null]
+}
+
+Table contest_announcement {
+  id int [pk, increment]
+  contest_id int [not null]
+  title text [not null]
+  content text [not null]
+  created_by_id int [not null]
+  visible boolean [not null, default: true]
+  create_time timestamp [not null]
+}
+
+Table acm_contest_rank {
+  id int [pk, increment]
+  user_id int [not null]
+  contest_id int [not null]
+  submission_number int [not null, default: 0]
+  accepted_number int [not null, default: 0]
+  total_time int [not null, default: 0]
+  submission_info json [not null]
+
+  indexes {
+    (user_id, contest_id) [unique]
+  }
+}
+
+Table oi_contest_rank {
+  id int [pk, increment]
+  user_id int [not null]
+  contest_id int [not null]
+  submission_number int [not null, default: 0]
+  total_score int [not null, default: 0]
+  submission_info json [not null]
+
+  indexes {
+    (user_id, contest_id) [unique]
+  }
+}
+
+Table problem_tag {
+  id int [pk, increment]
+  name text [not null]
+}
+
+Table problem {
+  id int [pk, increment]
+  _id text [not null]
+  contest_id int
+  is_public boolean [not null, default: false]
+  title text [not null]
+  description text [not null]
+  input_description text [not null]
+  output_description text [not null]
+  samples json [not null]
+  test_case_id text [not null]
+  test_case_score json [not null]
+  hint text
+  languages json [not null]
+  template json [not null]
+  create_time timestamp [not null]
+  last_update_time timestamp
+  created_by_id int [not null]
+  time_limit int [not null]
+  memory_limit int [not null]
+  io_mode json [not null]
+  spj boolean [not null, default: false]
+  spj_language text
+  spj_code text
+  spj_version text
+  spj_compile_ok boolean [not null, default: false]
+  rule_type text [not null]
+  visible boolean [not null, default: true]
+  difficulty text [not null]
+  source text
+  total_score int [not null, default: 0]
+  submission_number bigint [not null, default: 0]
+  accepted_number bigint [not null, default: 0]
+  statistic_info json [not null]
+  share_submission boolean [not null, default: false]
+
+  indexes {
+    (_id)
+    (_id, contest_id) [unique]
+  }
+}
+
+Table problem_problem_tags {
+  id int [pk, increment]
+  problem_id int [not null]
+  problemtag_id int [not null]
+
+  indexes {
+    (problem_id, problemtag_id) [unique]
+  }
+}
+
+Table submission {
+  id text [pk]
+  contest_id int
+  problem_id int [not null]
+  create_time timestamp [not null]
+  user_id int [not null]
+  username text [not null]
+  code text [not null]
+  result int [not null, default: 6]
+  info json [not null]
+  language text [not null]
+  shared boolean [not null, default: false]
+  statistic_info json [not null]
+  ip text
+
+  indexes {
+    (user_id)
+    (result)
+  }
+}
+
+Table judge_server {
+  id int [pk, increment]
+  hostname text [not null]
+  ip text
+  judger_version text [not null]
+  cpu_core int [not null]
+  memory_usage float [not null]
+  cpu_usage float [not null]
+  last_heartbeat timestamp [not null]
+  create_time timestamp [not null]
+  task_number int [not null, default: 0]
+  service_url text
+  is_disabled boolean [not null, default: false]
+}
+
+Table options_sysoptions {
+  id int [pk, increment]
+  key text [not null, unique]
+  value json [not null]
+}
+
+Table django_migrations {
+  id int [pk, increment]
+  app varchar(255) [not null]
+  name varchar(255) [not null]
+  applied timestamp [not null]
+}
+
+Table django_content_type {
+  id int [pk, increment]
+  app_label varchar(100) [not null]
+  model varchar(100) [not null]
+
+  indexes {
+    (app_label, model) [unique]
+  }
+}
+
+Table auth_permission {
+  id int [pk, increment]
+  name varchar(255) [not null]
+  content_type_id int [not null]
+  codename varchar(100) [not null]
+
+  indexes {
+    (content_type_id, codename) [unique]
+  }
+}
+
+Table django_session {
+  session_key varchar(40) [pk]
+  session_data text [not null]
+  expire_date timestamp [not null]
+
+  indexes {
+    (expire_date)
+  }
+}
+
+Ref: user_profile.user_id > user.id
+Ref: announcement.created_by_id > user.id
+Ref: contest.created_by_id > user.id
+Ref: contest_announcement.contest_id > contest.id
+Ref: contest_announcement.created_by_id > user.id
+Ref: acm_contest_rank.user_id > user.id
+Ref: acm_contest_rank.contest_id > contest.id
+Ref: oi_contest_rank.user_id > user.id
+Ref: oi_contest_rank.contest_id > contest.id
+Ref: problem.contest_id > contest.id
+Ref: problem.created_by_id > user.id
+Ref: problem_problem_tags.problem_id > problem.id
+Ref: problem_problem_tags.problemtag_id > problem_tag.id
+Ref: submission.contest_id > contest.id
+Ref: submission.problem_id > problem.id
+Ref: auth_permission.content_type_id > django_content_type.id
