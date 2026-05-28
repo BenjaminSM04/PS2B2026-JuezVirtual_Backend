@@ -175,6 +175,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
+        'audit': {
+            'handlers': LOGGING_HANDLERS,
+            'level': 'INFO',
+            'propagate': False,
+        },
        '': {
            'handlers': LOGGING_HANDLERS,
            'level': 'WARNING',

@@ -89,7 +89,8 @@ class EditUserSerializer(serializers.Serializer):
     real_name = serializers.CharField(max_length=32, allow_blank=True, allow_null=True)
     password = serializers.CharField(min_length=6, allow_blank=True, required=False, default=None)
     email = serializers.EmailField(max_length=64)
-    admin_type = serializers.ChoiceField(choices=(AdminType.REGULAR_USER, AdminType.ADMIN, AdminType.SUPER_ADMIN))
+    admin_type = serializers.ChoiceField(choices=(AdminType.REGULAR_USER, AdminType.TEACHER,
+                                                  AdminType.ADMIN, AdminType.SUPER_ADMIN))
     problem_permission = serializers.ChoiceField(choices=(ProblemPermission.NONE, ProblemPermission.OWN,
                                                           ProblemPermission.ALL))
     open_api = serializers.BooleanField()

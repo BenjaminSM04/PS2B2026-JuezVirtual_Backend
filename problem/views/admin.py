@@ -18,10 +18,11 @@ from judge.dispatcher import SPJCompiler
 from options.options import SysOptions
 from submission.models import Submission, JudgeStatus
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer, APIError
+from utils.audit import audit_log
 from utils.constants import Difficulty
 from utils.shortcuts import rand_str, natural_sort_key
 from utils.tasks import delete_files
-from ..models import Problem, ProblemRuleType, ProblemTag
+from ..models import Problem, ProblemRuleType, ProblemTag, ProblemShareMode
 from ..serializers import (CreateContestProblemSerializer, CompileSPJSerializer,
                            CreateProblemSerializer, EditProblemSerializer, EditContestProblemSerializer,
                            ProblemAdminSerializer, TestCaseUploadForm, ContestProblemMakePublicSerializer,
@@ -222,6 +223,7 @@ class ProblemAPI(ProblemBase):
             except ProblemTag.DoesNotExist:
                 tag = ProblemTag.objects.create(name=item)
             problem.tags.add(tag)
+        audit_log(request.user, "problem.create", "Problem", problem.id, {"_id": problem._id})
         return self.success(ProblemAdminSerializer(problem).data)
 
     @problem_permission_required
@@ -247,8 +249,16 @@ class ProblemAPI(ProblemBase):
         keyword = request.GET.get("keyword", "").strip()
         if keyword:
             problems = problems.filter(Q(title__icontains=keyword) | Q(_id__icontains=keyword))
+        # scope: mine (default) | shared | all -- lets teachers discover problems shared by peers
+        # without exposing other teachers' private problems.
         if not user.can_mgmt_all_problem():
-            problems = problems.filter(created_by=user)
+            scope = request.GET.get("scope")
+            if scope == "shared":
+                problems = problems.filter(share_mode=ProblemShareMode.SHARED)
+            elif scope == "all":
+                problems = problems.filter(Q(created_by=user) | Q(share_mode=ProblemShareMode.SHARED))
+            else:
+                problems = problems.filter(created_by=user)
         return self.success(self.paginate_data(request, problems, ProblemAdminSerializer))
 
     @problem_permission_required
@@ -288,6 +298,7 @@ class ProblemAPI(ProblemBase):
                 tag = ProblemTag.objects.create(name=tag)
             problem.tags.add(tag)
 
+        audit_log(request.user, "problem.edit", "Problem", problem.id, {"_id": problem._id})
         return self.success()
 
     @problem_permission_required
@@ -303,7 +314,10 @@ class ProblemAPI(ProblemBase):
         # d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
         # if os.path.isdir(d):
         #     shutil.rmtree(d, ignore_errors=True)
+        problem_id = problem.id
+        problem_display_id = problem._id
         problem.delete()
+        audit_log(request.user, "problem.delete", "Problem", problem_id, {"_id": problem_display_id})
         return self.success()
 
 
@@ -365,7 +379,7 @@ class ContestProblemAPI(ProblemBase):
         except Contest.DoesNotExist:
             return self.error("Contest does not exist")
         problems = Problem.objects.filter(contest=contest).order_by("-create_time")
-        if user.is_admin():
+        if not user.is_super_admin():
             problems = problems.filter(contest__created_by=user)
         keyword = request.GET.get("keyword")
         if keyword:
@@ -472,11 +486,20 @@ class AddContestProblemAPI(APIView):
     @validate_serializer(AddContestProblemSerializer)
     def post(self, request):
         data = request.data
+        user = request.user
         try:
             contest = Contest.objects.get(id=data["contest_id"])
+            ensure_created_by(contest, user)
             problem = Problem.objects.get(id=data["problem_id"])
         except (Contest.DoesNotExist, Problem.DoesNotExist):
             return self.error("Contest or Problem does not exist")
+
+        # only standalone problems that the user owns or that are shared can be reused
+        if problem.contest is not None:
+            return self.error("Problem does not exist")
+        if not user.can_mgmt_all_problem() and problem.created_by != user \
+                and problem.share_mode != ProblemShareMode.SHARED:
+            return self.error("No permission to use this problem")
 
         if contest.status == ContestStatus.CONTEST_ENDED:
             return self.error("Contest has ended")

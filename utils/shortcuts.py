@@ -1,5 +1,6 @@
 import os
 import re
+import smtplib
 import datetime
 import random
 from base64 import b64encode
@@ -68,15 +69,30 @@ def natural_sort_key(s, _nsre=re.compile(r"(\d+)")):
 
 
 def send_email(smtp_config, from_name, to_email, to_name, subject, content):
+    required_keys = ("email", "server", "port", "password", "tls")
+    missing = [k for k in required_keys if k not in smtp_config or smtp_config[k] in (None, "")]
+    if missing:
+        raise ValueError(f"SMTP config is incomplete; missing keys: {', '.join(missing)}")
+
     envelope = Envelope(from_addr=(smtp_config["email"], from_name),
                         to_addr=(to_email, to_name),
                         subject=subject,
                         html_body=content)
-    return envelope.send(smtp_config["server"],
-                         login=smtp_config["email"],
-                         password=smtp_config["password"],
-                         port=smtp_config["port"],
-                         tls=smtp_config["tls"])
+    try:
+        return envelope.send(smtp_config["server"],
+                             login=smtp_config["email"],
+                             password=smtp_config["password"],
+                             port=smtp_config["port"],
+                             tls=smtp_config["tls"])
+    except smtplib.SMTPResponseException as e:
+        # qq mail can return gbk-encoded error bodies
+        try:
+            detail = e.smtp_error.decode("gbk") if isinstance(e.smtp_error, bytes) else str(e.smtp_error)
+        except Exception:
+            detail = str(e.smtp_error)
+        raise RuntimeError(f"SMTP error {e.smtp_code}: {detail}") from e
+    except smtplib.SMTPException as e:
+        raise RuntimeError(f"SMTP failure: {e}") from e
 
 
 def get_env(name, default=""):

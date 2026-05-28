@@ -9,8 +9,10 @@ from django.conf import settings
 
 from utils.api.tests import APITestCase
 
+from account.models import AdminType, ProblemPermission
+
 from .models import ProblemTag, ProblemIOMode
-from .models import Problem, ProblemRuleType
+from .models import Problem, ProblemRuleType, ProblemShareMode
 from contest.models import Contest
 from contest.tests import DEFAULT_CONTEST_DATA
 
@@ -281,6 +283,109 @@ class AddProblemFromPublicProblemAPITest(ProblemCreateTestBase):
         self.assertSuccess(resp)
         self.assertTrue(Problem.objects.all().exists())
         self.assertTrue(Problem.objects.filter(contest_id=self.contest["id"]).exists())
+
+
+class ProblemShareModeTest(ProblemCreateTestBase):
+    """Teacher ownership + share_mode based discovery and reuse."""
+
+    def _problem_data(self, _id, share_mode):
+        data = copy.deepcopy(DEFAULT_PROBLEM_DATA)
+        data["_id"] = _id
+        data["share_mode"] = share_mode
+        return data
+
+    def setUp(self):
+        self.list_url = self.reverse("problem_admin_api")
+        self.add_url = self.reverse("add_contest_problem_from_public_api")
+        self.contest_url = self.reverse("contest_admin_api")
+
+        self.teacher_a = self.create_user("teacher_a", "pass123", admin_type=AdminType.TEACHER,
+                                          problem_permission=ProblemPermission.OWN, login=False)
+        self.teacher_b = self.create_user("teacher_b", "pass123", admin_type=AdminType.TEACHER,
+                                          problem_permission=ProblemPermission.OWN, login=False)
+
+        self.a_shared = self.add_problem(self._problem_data("A-SHARED", ProblemShareMode.SHARED), self.teacher_a)
+        self.a_private = self.add_problem(self._problem_data("A-PRIVATE", ProblemShareMode.PRIVATE), self.teacher_a)
+        self.b_own = self.add_problem(self._problem_data("B-OWN", ProblemShareMode.SHARED), self.teacher_b)
+
+    def _login_b(self):
+        self.client.login(username="teacher_b", password="pass123")
+
+    def _ids(self, resp):
+        return [p["id"] for p in resp.data["data"]["results"]]
+
+    def test_scope_mine_shows_only_own(self):
+        self._login_b()
+        resp = self.client.get(f"{self.list_url}?limit=10&scope=mine")
+        self.assertSuccess(resp)
+        ids = self._ids(resp)
+        self.assertEqual(ids, [self.b_own.id])
+
+    def test_scope_shared_excludes_others_private(self):
+        self._login_b()
+        resp = self.client.get(f"{self.list_url}?limit=10&scope=shared")
+        self.assertSuccess(resp)
+        ids = self._ids(resp)
+        self.assertIn(self.a_shared.id, ids)
+        self.assertNotIn(self.a_private.id, ids)
+
+    def test_scope_all_is_own_plus_shared(self):
+        self._login_b()
+        resp = self.client.get(f"{self.list_url}?limit=10&scope=all")
+        self.assertSuccess(resp)
+        ids = self._ids(resp)
+        self.assertIn(self.b_own.id, ids)
+        self.assertIn(self.a_shared.id, ids)
+        self.assertNotIn(self.a_private.id, ids)
+
+    def test_teacher_cannot_edit_others_problem(self):
+        self._login_b()
+        data = self._problem_data("A-SHARED-EDIT", ProblemShareMode.SHARED)
+        data["id"] = self.a_shared.id
+        resp = self.client.put(self.list_url, data=data)
+        self.assertFailed(resp, "Problem does not exist")
+
+    def test_teacher_cannot_delete_others_problem(self):
+        self._login_b()
+        resp = self.client.delete(f"{self.list_url}?id={self.a_shared.id}")
+        self.assertFailed(resp, "Problem does not exist")
+        self.assertTrue(Problem.objects.filter(id=self.a_shared.id).exists())
+
+    def _create_contest_for_b(self):
+        self._login_b()
+        contest_data = copy.deepcopy(DEFAULT_CONTEST_DATA)
+        contest_data["password"] = ""
+        return self.client.post(self.contest_url, data=contest_data).data["data"]
+
+    def test_reuse_shared_problem_preserves_author(self):
+        contest_b = self._create_contest_for_b()
+        resp = self.client.post(self.add_url, data={"display_id": "X-1",
+                                                    "contest_id": contest_b["id"],
+                                                    "problem_id": self.a_shared.id})
+        self.assertSuccess(resp)
+        snapshot = Problem.objects.get(contest_id=contest_b["id"], _id="X-1")
+        self.assertNotEqual(snapshot.id, self.a_shared.id)
+        self.assertEqual(snapshot.created_by_id, self.teacher_a.id)
+
+    def test_cannot_reuse_others_private_problem(self):
+        contest_b = self._create_contest_for_b()
+        resp = self.client.post(self.add_url, data={"display_id": "X-2",
+                                                    "contest_id": contest_b["id"],
+                                                    "problem_id": self.a_private.id})
+        self.assertFailed(resp, "No permission to use this problem")
+
+    def test_cannot_add_problem_to_others_contest(self):
+        # contest owned by teacher A
+        self.client.login(username="teacher_a", password="pass123")
+        contest_data = copy.deepcopy(DEFAULT_CONTEST_DATA)
+        contest_data["password"] = ""
+        contest_a = self.client.post(self.contest_url, data=contest_data).data["data"]
+        # teacher B tries to inject a problem into A's contest
+        self._login_b()
+        resp = self.client.post(self.add_url, data={"display_id": "X-3",
+                                                    "contest_id": contest_a["id"],
+                                                    "problem_id": self.b_own.id})
+        self.assertFailed(resp, "Contest does not exist")
 
 
 class ParseProblemTemplateTest(APITestCase):

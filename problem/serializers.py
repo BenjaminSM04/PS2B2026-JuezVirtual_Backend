@@ -7,7 +7,7 @@ from utils.api import UsernameSerializer, serializers
 from utils.constants import Difficulty
 from utils.serializers import LanguageNameMultiChoiceField, SPJLanguageNameChoiceField, LanguageNameChoiceField
 
-from .models import Problem, ProblemRuleType, ProblemTag, ProblemIOMode
+from .models import Problem, ProblemRuleType, ProblemTag, ProblemIOMode, ProblemShareMode
 from .utils import parse_problem_template
 
 
@@ -70,6 +70,8 @@ class CreateOrEditProblemSerializer(serializers.Serializer):
     hint = serializers.CharField(allow_blank=True, allow_null=True)
     source = serializers.CharField(max_length=256, allow_blank=True, allow_null=True)
     share_submission = serializers.BooleanField()
+    share_mode = serializers.ChoiceField(choices=ProblemShareMode.choices(),
+                                          default=ProblemShareMode.SHARED, required=False)
 
 
 class CreateProblemSerializer(CreateOrEditProblemSerializer):
@@ -122,7 +124,7 @@ class ProblemSerializer(BaseProblemSerializer):
 
     class Meta:
         model = Problem
-        exclude = ("test_case_score", "test_case_id", "visible", "is_public",
+        exclude = ("test_case_score", "test_case_id", "visible", "is_public", "share_mode",
                    "spj_code", "spj_version", "spj_compile_ok")
 
 
@@ -131,7 +133,7 @@ class ProblemSafeSerializer(BaseProblemSerializer):
 
     class Meta:
         model = Problem
-        exclude = ("test_case_score", "test_case_id", "visible", "is_public",
+        exclude = ("test_case_score", "test_case_id", "visible", "is_public", "share_mode",
                    "spj_code", "spj_version", "spj_compile_ok",
                    "difficulty", "submission_number", "accepted_number", "statistic_info")
 

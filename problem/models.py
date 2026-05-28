@@ -30,6 +30,13 @@ class ProblemIOMode(Choices):
     file = "File IO"
 
 
+class ProblemShareMode(Choices):
+    # only the owner (and admins) can see/use it
+    PRIVATE = "Private"
+    # other teachers can select and reuse it in their contests
+    SHARED = "Shared"
+
+
 def _default_io_mode():
     return {"io_mode": ProblemIOMode.standard, "input": "input.txt", "output": "output.txt"}
 
@@ -81,6 +88,8 @@ class Problem(models.Model):
     # {JudgeStatus.ACCEPTED: 3, JudgeStaus.WRONG_ANSWER: 11}, the number means count
     statistic_info = JSONField(default=dict)
     share_submission = models.BooleanField(default=False)
+    # controls whether other teachers can reuse this problem (orthogonal to `visible`)
+    share_mode = models.TextField(default=ProblemShareMode.SHARED)
 
     class Meta:
         db_table = "problem"

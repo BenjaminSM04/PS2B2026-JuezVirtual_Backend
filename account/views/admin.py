@@ -9,6 +9,7 @@ from django.contrib.auth.hashers import make_password
 
 from submission.models import Submission
 from utils.api import APIView, validate_serializer
+from utils.audit import audit_log
 from utils.shortcuts import rand_str
 
 from ..decorators import super_admin_required
@@ -69,6 +70,8 @@ class UserAdminAPI(APIView):
             user.problem_permission = data["problem_permission"]
         elif data["admin_type"] == AdminType.SUPER_ADMIN:
             user.problem_permission = ProblemPermission.ALL
+        elif data["admin_type"] == AdminType.TEACHER:
+            user.problem_permission = ProblemPermission.OWN
         else:
             user.problem_permission = ProblemPermission.NONE
 
@@ -97,6 +100,8 @@ class UserAdminAPI(APIView):
             Submission.objects.filter(username=pre_username).update(username=user.username)
 
         UserProfile.objects.filter(user=user).update(real_name=data["real_name"])
+        audit_log(request.user, "user.edit", "User", user.id,
+                  {"admin_type": user.admin_type, "is_disabled": user.is_disabled})
         return self.success(UserAdminSerializer(user).data)
 
     @super_admin_required
@@ -130,6 +135,7 @@ class UserAdminAPI(APIView):
         if str(request.user.id) in ids:
             return self.error("Current user can not be deleted")
         User.objects.filter(id__in=ids).delete()
+        audit_log(request.user, "user.delete", "User", extra={"ids": ids})
         return self.success()
 
 

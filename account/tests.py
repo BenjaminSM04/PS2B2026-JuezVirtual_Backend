@@ -311,6 +311,8 @@ class ApplyResetPasswordAPITest(CaptchaTest):
         user = User.objects.first()
         user.email = "test@oj.com"
         user.save()
+        SysOptions.smtp_config = {"server": "smtp.example.com", "port": 465,
+                                  "email": "noreply@example.com", "password": "x", "tls": True}
         self.url = self.reverse("apply_reset_password_api")
         self.data = {"email": "test@oj.com", "captcha": self._set_captcha(self.client.session)}
 

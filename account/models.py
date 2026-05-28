@@ -6,6 +6,7 @@ from utils.models import JSONField
 
 class AdminType(object):
     REGULAR_USER = "Regular User"
+    TEACHER = "Teacher"
     ADMIN = "Admin"
     SUPER_ADMIN = "Super Admin"
 
@@ -67,8 +68,14 @@ class User(AbstractBaseUser):
     def is_super_admin(self):
         return self.admin_type == AdminType.SUPER_ADMIN
 
+    def is_teacher(self):
+        return self.admin_type == AdminType.TEACHER
+
     def is_admin_role(self):
         return self.admin_type in [AdminType.ADMIN, AdminType.SUPER_ADMIN]
+
+    def is_teacher_role(self):
+        return self.admin_type in [AdminType.TEACHER, AdminType.ADMIN, AdminType.SUPER_ADMIN]
 
     def can_mgmt_all_problem(self):
         return self.problem_permission == ProblemPermission.ALL

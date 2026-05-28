@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import timedelta
 from importlib import import_module
@@ -25,7 +26,9 @@ from ..serializers import (ApplyResetPasswordSerializer, ResetPasswordSerializer
                            RankInfoSerializer, UserChangeEmailSerializer, SSOSerializer)
 from ..serializers import (TwoFactorAuthCodeSerializer, UserProfileSerializer,
                            EditUserProfileSerializer, ImageUploadForm)
-from ..tasks import send_email_async
+from ..tasks import send_email_async, send_email_sync
+
+logger = logging.getLogger(__name__)
 
 
 class UserProfileAPI(APIView):
@@ -286,6 +289,13 @@ class ApplyResetPasswordAPI(APIView):
         captcha = Captcha(request)
         if not captcha.check(data["captcha"]):
             return self.error("Invalid captcha")
+        if not SysOptions.smtp_config:
+            return self.error("Email service is not configured. Please contact the administrator.")
+        if not SysOptions.website_base_url or SysOptions.website_base_url.startswith("http://127.0.0.1"):
+            logger.warning(
+                "website_base_url is %r — password reset link will point to localhost",
+                SysOptions.website_base_url,
+            )
         try:
             user = User.objects.get(email__iexact=data["email"])
         except User.DoesNotExist:
@@ -302,11 +312,25 @@ class ApplyResetPasswordAPI(APIView):
             "link": f"{SysOptions.website_base_url}/reset-password/{user.reset_password_token}"
         }
         email_html = render_to_string("reset_password_email.html", render_data)
-        send_email_async.send(from_name=SysOptions.website_name_shortcut,
-                              to_email=user.email,
-                              to_name=user.username,
-                              subject="Reset your password",
-                              content=email_html)
+        email_kwargs = {
+            "from_name": SysOptions.website_name_shortcut,
+            "to_email": user.email,
+            "to_name": user.username,
+            "subject": "Reset your password",
+            "content": email_html,
+        }
+        try:
+            send_email_async.send(**email_kwargs)
+        except Exception as enqueue_error:
+            logger.warning(
+                "Could not enqueue reset email via Dramatiq (%s); falling back to synchronous send",
+                enqueue_error,
+            )
+            try:
+                send_email_sync(**email_kwargs)
+            except Exception as send_error:
+                logger.exception("Synchronous send_email fallback also failed: %s", send_error)
+                return self.error("Could not send reset email. Please contact the administrator.")
         return self.success("Succeeded")
 
 
@@ -324,7 +348,6 @@ class ResetPasswordAPI(APIView):
         if user.reset_password_token_expire_time < now():
             return self.error("Token has expired")
         user.reset_password_token = None
-        user.two_factor_auth = False
         user.set_password(data["password"])
         user.save()
         return self.success("Succeeded")

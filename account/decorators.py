@@ -50,7 +50,13 @@ class admin_role_required(BasePermissionDecorator):
         return user.is_authenticated and user.is_admin_role()
 
 
-class problem_permission_required(admin_role_required):
+class teacher_role_required(BasePermissionDecorator):
+    def check_permission(self):
+        user = self.request.user
+        return user.is_authenticated and user.is_teacher_role()
+
+
+class problem_permission_required(teacher_role_required):
     def check_permission(self):
         if not super(problem_permission_required, self).check_permission():
             return False
@@ -138,7 +144,7 @@ def check_contest_permission(check_type="details"):
 
 def ensure_created_by(obj, user):
     e = APIError(msg=f"{obj.__class__.__name__} does not exist")
-    if not user.is_admin_role():
+    if not user.is_teacher_role():
         raise e
     if user.is_super_admin():
         return

@@ -6,10 +6,11 @@ from ipaddress import ip_network
 import dateutil.parser
 from django.http import FileResponse
 
-from account.decorators import check_contest_permission, ensure_created_by
+from account.decorators import check_contest_permission, ensure_created_by, teacher_role_required
 from account.models import User
 from submission.models import Submission, JudgeStatus
 from utils.api import APIView, validate_serializer
+from utils.audit import audit_log
 from utils.cache import cache
 from utils.constants import CacheKey
 from utils.shortcuts import rand_str
@@ -23,6 +24,7 @@ from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer
 
 class ContestAPI(APIView):
     @validate_serializer(CreateConetestSeriaizer)
+    @teacher_role_required
     def post(self, request):
         data = request.data
         data["start_time"] = dateutil.parser.parse(data["start_time"])
@@ -38,6 +40,7 @@ class ContestAPI(APIView):
             except ValueError:
                 return self.error(f"{ip_range} is not a valid cidr network")
         contest = Contest.objects.create(**data)
+        audit_log(request.user, "contest.create", "Contest", contest.id, {"title": contest.title})
         return self.success(ContestAdminSerializer(contest).data)
 
     @validate_serializer(EditConetestSeriaizer)
@@ -66,6 +69,7 @@ class ContestAPI(APIView):
         for k, v in data.items():
             setattr(contest, k, v)
         contest.save()
+        audit_log(request.user, "contest.edit", "Contest", contest.id, {"title": contest.title})
         return self.success(ContestAdminSerializer(contest).data)
 
     def get(self, request):
@@ -79,7 +83,7 @@ class ContestAPI(APIView):
                 return self.error("Contest does not exist")
 
         contests = Contest.objects.all().order_by("-create_time")
-        if request.user.is_admin():
+        if not request.user.is_super_admin():
             contests = contests.filter(created_by=request.user)
 
         keyword = request.GET.get("keyword")
@@ -127,7 +131,7 @@ class ContestAnnouncementAPI(APIView):
         """
         contest_announcement_id = request.GET.get("id")
         if contest_announcement_id:
-            if request.user.is_admin():
+            if not request.user.is_super_admin():
                 ContestAnnouncement.objects.filter(id=contest_announcement_id,
                                                    contest__created_by=request.user).delete()
             else:
@@ -151,7 +155,7 @@ class ContestAnnouncementAPI(APIView):
         if not contest_id:
             return self.error("Parameter error")
         contest_announcements = ContestAnnouncement.objects.filter(contest_id=contest_id)
-        if request.user.is_admin():
+        if not request.user.is_super_admin():
             contest_announcements = contest_announcements.filter(created_by=request.user)
         keyword = request.GET.get("keyword")
         if keyword:

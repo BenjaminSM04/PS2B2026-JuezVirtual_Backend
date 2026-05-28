@@ -21,6 +21,7 @@ from options.options import SysOptions
 from problem.models import Problem
 from submission.models import Submission
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
+from utils.audit import audit_log
 from utils.shortcuts import send_email, get_env
 from utils.xss_filter import XSSHtml
 from .models import JudgeServer
@@ -43,6 +44,8 @@ class SMTPAPI(APIView):
     @validate_serializer(CreateSMTPConfigSerializer)
     def post(self, request):
         SysOptions.smtp_config = request.data
+        audit_log(request.user, "smtp.create", "SMTPConfig",
+                  extra={"server": request.data.get("server"), "email": request.data.get("email")})
         return self.success()
 
     @super_admin_required
@@ -55,6 +58,8 @@ class SMTPAPI(APIView):
         if "password" in data:
             smtp["password"] = data["password"]
         SysOptions.smtp_config = smtp
+        audit_log(request.user, "smtp.update", "SMTPConfig",
+                  extra={"server": smtp.get("server"), "email": smtp.get("email")})
         return self.success()
 
 
@@ -97,11 +102,14 @@ class WebsiteConfigAPI(APIView):
     @super_admin_required
     @validate_serializer(CreateEditWebsiteConfigSerializer)
     def post(self, request):
+        changed_keys = []
         for k, v in request.data.items():
             if k == "website_footer":
                 with XSSHtml() as parser:
                     v = parser.clean(v)
             setattr(SysOptions, k, v)
+            changed_keys.append(k)
+        audit_log(request.user, "website_config.update", "WebsiteConfig", extra={"keys": changed_keys})
         return self.success()
 
 
@@ -117,6 +125,7 @@ class JudgeServerAPI(APIView):
         hostname = request.GET.get("hostname")
         if hostname:
             JudgeServer.objects.filter(hostname=hostname).delete()
+            audit_log(request.user, "judge_server.delete", "JudgeServer", extra={"hostname": hostname})
         return self.success()
 
     @validate_serializer(EditJudgeServerSerializer)
@@ -126,6 +135,8 @@ class JudgeServerAPI(APIView):
         JudgeServer.objects.filter(id=request.data["id"]).update(is_disabled=is_disabled)
         if not is_disabled:
             process_pending_task()
+        audit_log(request.user, "judge_server.update", "JudgeServer", request.data["id"],
+                  {"is_disabled": is_disabled})
         return self.success()
 
 
@@ -220,6 +231,42 @@ class ReleaseNotesAPI(APIView):
             local_version = json.load(f)["update"][0]["version"]
         releases["local_version"] = local_version
         return self.success(releases)
+
+
+class EmailHealthCheckAPI(APIView):
+    @super_admin_required
+    def get(self, request):
+        smtp_config = SysOptions.smtp_config or {}
+        required = ("server", "port", "email", "password", "tls")
+        smtp_missing = [k for k in required if k not in smtp_config or smtp_config[k] in (None, "")]
+        smtp_configured = not smtp_missing
+
+        website_base_url = SysOptions.website_base_url or ""
+        website_base_url_ok = bool(website_base_url) and not website_base_url.startswith("http://127.0.0.1")
+
+        redis_reachable = False
+        worker_alive = False
+        try:
+            import dramatiq
+            broker = dramatiq.get_broker()
+            client = getattr(broker, "client", None)
+            if client is not None:
+                client.ping()
+                redis_reachable = True
+                # Dramatiq publishes one heartbeat key per active worker
+                heartbeats = client.keys("dramatiq:__heartbeats__*")
+                worker_alive = bool(heartbeats)
+        except Exception:
+            pass
+
+        return self.success({
+            "smtp_configured": smtp_configured,
+            "smtp_missing_keys": smtp_missing,
+            "website_base_url": website_base_url,
+            "website_base_url_ok": website_base_url_ok,
+            "redis_reachable": redis_reachable,
+            "dramatiq_worker_alive": worker_alive,
+        })
 
 
 class DashboardInfoAPI(APIView):
