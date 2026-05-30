@@ -153,10 +153,14 @@ class ExportProblemSerializer(serializers.ModelSerializer):
     spj = serializers.SerializerMethodField()
     template = serializers.SerializerMethodField()
     source = serializers.SerializerMethodField()
+    created_by = serializers.SerializerMethodField()
     tags = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
 
     def get_display_id(self, obj):
         return obj._id
+
+    def get_created_by(self, obj):
+        return obj.created_by.username
 
     def _html_format_value(self, value):
         return {"format": "html", "value": value}
@@ -196,7 +200,8 @@ class ExportProblemSerializer(serializers.ModelSerializer):
         fields = ("display_id", "title", "description", "tags",
                   "input_description", "output_description",
                   "test_case_score", "hint", "time_limit", "memory_limit", "samples",
-                  "template", "spj", "rule_type", "source", "template")
+                  "template", "spj", "rule_type", "source", "template",
+                  "created_by", "share_mode")
 
 
 class AddContestProblemSerializer(serializers.Serializer):
@@ -257,6 +262,8 @@ class ImportProblemSerializer(serializers.Serializer):
     source = serializers.CharField(max_length=200, allow_blank=True, allow_null=True)
     answers = serializers.ListField(child=AnswerSerializer())
     tags = serializers.ListField(child=serializers.CharField())
+    created_by = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    share_mode = serializers.ChoiceField(choices=ProblemShareMode.choices(), required=False)
 
 
 class FPSProblemSerializer(serializers.Serializer):

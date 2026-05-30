@@ -1,8 +1,24 @@
+import re
+
 from django import forms
 
 from utils.api import serializers, UsernameSerializer
 
 from .models import AdminType, ProblemPermission, User, UserProfile, UserProfileLanguage
+
+
+def validate_password_strength(value):
+    # Política de contraseña fuerte: >= 8 caracteres, al menos una mayúscula y un dígito.
+    # Se ignora el valor vacío para no romper el password opcional en la edición admin.
+    if not value:
+        return value
+    if len(value) < 8:
+        raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres.")
+    if not re.search(r"[A-Z]", value):
+        raise serializers.ValidationError("La contraseña debe incluir al menos una letra mayúscula.")
+    if not re.search(r"\d", value):
+        raise serializers.ValidationError("La contraseña debe incluir al menos un dígito.")
+    return value
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -18,14 +34,14 @@ class UsernameOrEmailCheckSerializer(serializers.Serializer):
 
 class UserRegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=32)
-    password = serializers.CharField(min_length=6)
+    password = serializers.CharField(min_length=8, validators=[validate_password_strength])
     email = serializers.EmailField(max_length=64)
     captcha = serializers.CharField()
 
 
 class UserChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField()
-    new_password = serializers.CharField(min_length=6)
+    new_password = serializers.CharField(min_length=8, validators=[validate_password_strength])
     tfa_code = serializers.CharField(required=False, allow_blank=True)
 
 
@@ -87,7 +103,8 @@ class EditUserSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     username = serializers.CharField(max_length=32)
     real_name = serializers.CharField(max_length=32, allow_blank=True, allow_null=True)
-    password = serializers.CharField(min_length=6, allow_blank=True, required=False, default=None)
+    password = serializers.CharField(min_length=8, allow_blank=True, required=False, default=None,
+                                     validators=[validate_password_strength])
     email = serializers.EmailField(max_length=64)
     admin_type = serializers.ChoiceField(choices=(AdminType.REGULAR_USER, AdminType.TEACHER,
                                                   AdminType.ADMIN, AdminType.SUPER_ADMIN))
@@ -120,7 +137,7 @@ class ApplyResetPasswordSerializer(serializers.Serializer):
 
 class ResetPasswordSerializer(serializers.Serializer):
     token = serializers.CharField()
-    password = serializers.CharField(min_length=6)
+    password = serializers.CharField(min_length=8, validators=[validate_password_strength])
     captcha = serializers.CharField()
 
 

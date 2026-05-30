@@ -12,6 +12,7 @@ from django.db.models import Q
 from django.http import StreamingHttpResponse, FileResponse
 
 from account.decorators import problem_permission_required, ensure_created_by
+from account.models import User
 from contest.models import Contest, ContestStatus
 from fps.parser import FPSHelper, FPSParser
 from judge.dispatcher import SPJCompiler
@@ -569,6 +570,16 @@ class ExportProblemAPI(APIView):
         return resp
 
 
+def resolve_import_creator(created_by_username, importer):
+    # Si el payload trae un autor y ese usuario existe, se respeta; si falta o no existe,
+    # cae al usuario que está importando el ejercicio.
+    if created_by_username:
+        existing = User.objects.filter(username=created_by_username).first()
+        if existing:
+            return existing
+    return importer
+
+
 class ImportProblemAPI(CSRFExemptAPIView, TestCaseZipProcessor):
     request_parsers = ()
 
@@ -611,6 +622,11 @@ class ImportProblemAPI(CSRFExemptAPIView, TestCaseZipProcessor):
                         rule_type = problem_info["rule_type"]
                         test_case_score = problem_info["test_case_score"]
 
+                        # Resolver autor (respeta payload si el usuario existe, si no cae al importador)
+                        # y share_mode (default Shared para zips viejos sin el campo).
+                        resolved_creator = resolve_import_creator(problem_info.get("created_by"), request.user)
+                        share_mode = problem_info.get("share_mode") or ProblemShareMode.SHARED
+
                         # process test case
                         _, test_case_id = self.process_zip(tmp_file, spj=spj, dir=f"{i}/testcase/")
 
@@ -635,7 +651,8 @@ class ImportProblemAPI(CSRFExemptAPIView, TestCaseZipProcessor):
                                                                  "language"] if spj else None,
                                                              spj_version=rand_str(8) if spj else "",
                                                              languages=SysOptions.language_names,
-                                                             created_by=request.user,
+                                                             created_by=resolved_creator,
+                                                             share_mode=share_mode,
                                                              visible=False,
                                                              difficulty=Difficulty.MID,
                                                              total_score=sum(item["score"] for item in test_case_score)

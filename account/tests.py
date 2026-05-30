@@ -175,7 +175,7 @@ class UserRegisterAPITest(CaptchaTest):
         self.register_url = self.reverse("user_register_api")
         self.captcha = rand_str(4)
 
-        self.data = {"username": "test_user", "password": "testuserpassword",
+        self.data = {"username": "test_user", "password": "TestUser123",
                      "real_name": "real_name", "email": "test@qduoj.com",
                      "captcha": self._set_captcha(self.client.session)}
 
@@ -212,6 +212,17 @@ class UserRegisterAPITest(CaptchaTest):
         self.data["username"] = "test_user1"
         response = self.client.post(self.register_url, data=self.data)
         self.assertDictEqual(response.data, {"error": "error", "data": "Email already exists"})
+
+    def test_register_with_weak_password(self):
+        # Sin mayúscula ni dígito, y menos de 8 caracteres → rechazado por la política fuerte.
+        for weak in ["alllower1", "ALLUPPER1", "NoDigits", "Ab1"]:
+            self.data["username"] = "weak_user"
+            self.data["email"] = "weak@qduoj.com"
+            self.data["captcha"] = self._set_captcha(self.client.session)
+            self.data["password"] = weak
+            response = self.client.post(self.register_url, data=self.data)
+            self.assertEqual(response.data["error"], "error")
+            self.assertFalse(User.objects.filter(username="weak_user").exists())
 
 
 class SessionManagementAPITest(APITestCase):
@@ -351,12 +362,12 @@ class ResetPasswordAPITest(CaptchaTest):
         user.save()
         self.data = {"token": user.reset_password_token,
                      "captcha": self._set_captcha(self.client.session),
-                     "password": "test456"}
+                     "password": "Test4567"}
 
     def test_reset_password_with_correct_token(self):
         resp = self.client.post(self.url, data=self.data)
         self.assertSuccess(resp)
-        self.assertTrue(self.client.login(username="test", password="test456"))
+        self.assertTrue(self.client.login(username="test", password="Test4567"))
 
     def test_reset_password_with_invalid_token(self):
         self.data["token"] = "aaaaaaaaaaa"
@@ -402,7 +413,7 @@ class UserChangePasswordAPITest(APITestCase):
         # Create user at first
         self.username = "test_user"
         self.old_password = "testuserpassword"
-        self.new_password = "new_password"
+        self.new_password = "NewPassword1"
         self.user = self.create_user(username=self.username, password=self.old_password, login=False)
 
         self.data = {"old_password": self.old_password, "new_password": self.new_password}
@@ -529,7 +540,7 @@ class AdminUserTest(APITestCase):
 
     def test_edit_user_password(self):
         data = self.data
-        new_password = "testpassword"
+        new_password = "TestPassword1"
         data["password"] = new_password
         response = self.client.put(self.url, data=data)
         self.assertSuccess(response)

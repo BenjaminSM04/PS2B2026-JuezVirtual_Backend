@@ -388,6 +388,27 @@ class ProblemShareModeTest(ProblemCreateTestBase):
         self.assertFailed(resp, "Contest does not exist")
 
 
+class ResolveImportCreatorTest(APITestCase):
+    """Fallback de created_by al importar un ejercicio (respeta autor si existe, si no cae al importador)."""
+
+    def setUp(self):
+        self.importer = self.create_user("importer", "pass123", login=False)
+        self.author = self.create_user("orig_author", "pass123", login=False)
+
+    def test_existing_author_is_respected(self):
+        from .views.admin import resolve_import_creator
+        self.assertEqual(resolve_import_creator("orig_author", self.importer).id, self.author.id)
+
+    def test_missing_author_falls_back_to_importer(self):
+        from .views.admin import resolve_import_creator
+        self.assertEqual(resolve_import_creator(None, self.importer).id, self.importer.id)
+        self.assertEqual(resolve_import_creator("", self.importer).id, self.importer.id)
+
+    def test_unknown_author_falls_back_to_importer(self):
+        from .views.admin import resolve_import_creator
+        self.assertEqual(resolve_import_creator("ghost_user", self.importer).id, self.importer.id)
+
+
 class ParseProblemTemplateTest(APITestCase):
     def test_parse(self):
         template_str = """
