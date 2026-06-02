@@ -17,7 +17,7 @@ from utils.constants import ContestRuleType
 from options.options import SysOptions
 from utils.api import APIView, validate_serializer, CSRFExemptAPIView
 from utils.captcha import Captcha
-from utils.shortcuts import rand_str, img2base64, datetime2str
+from utils.shortcuts import rand_str, img2base64, datetime2str, dramatiq_worker_alive
 from ..decorators import login_required
 from ..models import User, UserProfile, AdminType
 from ..serializers import (ApplyResetPasswordSerializer, ResetPasswordSerializer,
@@ -231,7 +231,7 @@ class UserRegisterAPI(APIView):
         user = User.objects.create(username=data["username"], email=data["email"])
         user.set_password(data["password"])
         user.save()
-        UserProfile.objects.create(user=user)
+        UserProfile.objects.create(user=user, real_name=data.get("real_name") or None)
         return self.success("Succeeded")
 
 
@@ -319,17 +319,29 @@ class ApplyResetPasswordAPI(APIView):
             "subject": "Reset your password",
             "content": email_html,
         }
-        try:
-            send_email_async.send(**email_kwargs)
-        except Exception as enqueue_error:
-            logger.warning(
-                "Could not enqueue reset email via Dramatiq (%s); falling back to synchronous send",
-                enqueue_error,
-            )
+        # Solo encolamos async si hay un worker rundramatiq vivo; de lo
+        # contrario el correo quedaría encolado sin procesar y el usuario
+        # vería "Succeeded" sin recibir nada (envío silencioso). Sin worker,
+        # enviamos síncrono y propagamos cualquier error SMTP real.
+        if dramatiq_worker_alive():
+            try:
+                send_email_async.send(**email_kwargs)
+            except Exception as enqueue_error:
+                logger.warning(
+                    "Could not enqueue reset email via Dramatiq (%s); falling back to synchronous send",
+                    enqueue_error,
+                )
+                try:
+                    send_email_sync(**email_kwargs)
+                except Exception as send_error:
+                    logger.exception("Synchronous send_email fallback also failed: %s", send_error)
+                    return self.error("Could not send reset email. Please contact the administrator.")
+        else:
+            logger.warning("No live Dramatiq worker detected; sending reset email synchronously")
             try:
                 send_email_sync(**email_kwargs)
             except Exception as send_error:
-                logger.exception("Synchronous send_email fallback also failed: %s", send_error)
+                logger.exception("Synchronous send_email failed: %s", send_error)
                 return self.error("Could not send reset email. Please contact the administrator.")
         return self.success("Succeeded")
 
@@ -346,6 +358,9 @@ class ResetPasswordAPI(APIView):
         except User.DoesNotExist:
             return self.error("Token does not exist")
         if user.reset_password_token_expire_time < now():
+            # Invalida el token vencido para que no pueda reintentarse/adivinarse.
+            user.reset_password_token = None
+            user.save()
             return self.error("Token has expired")
         user.reset_password_token = None
         user.set_password(data["password"])

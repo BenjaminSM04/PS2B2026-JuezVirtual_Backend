@@ -12,7 +12,7 @@ from utils.api.tests import APIClient, APITestCase
 from utils.shortcuts import rand_str
 from options.options import SysOptions
 
-from .models import AdminType, ProblemPermission, User
+from .models import AdminType, ProblemPermission, User, UserProfile
 from utils.constants import ContestRuleType
 
 
@@ -196,6 +196,17 @@ class UserRegisterAPITest(CaptchaTest):
     def test_register_with_correct_info(self):
         response = self.client.post(self.register_url, data=self.data)
         self.assertDictEqual(response.data, {"error": None, "data": "Succeeded"})
+        # el real_name del formulario de registro queda guardado en el perfil
+        profile = UserProfile.objects.get(user__username=self.data["username"])
+        self.assertEqual(profile.real_name, self.data["real_name"])
+
+    def test_register_without_real_name(self):
+        self.data.pop("real_name")
+        self.data["captcha"] = self._set_captcha(self.client.session)
+        response = self.client.post(self.register_url, data=self.data)
+        self.assertDictEqual(response.data, {"error": None, "data": "Succeeded"})
+        profile = UserProfile.objects.get(user__username=self.data["username"])
+        self.assertIsNone(profile.real_name)
 
     def test_username_already_exists(self):
         self.test_register_with_correct_info()
@@ -324,6 +335,11 @@ class ApplyResetPasswordAPITest(CaptchaTest):
         user.save()
         SysOptions.smtp_config = {"server": "smtp.example.com", "port": 465,
                                   "email": "noreply@example.com", "password": "x", "tls": True}
+        # Por defecto simulamos que hay un worker vivo para que se tome el
+        # camino async (send_email_async.send está mockeado por la clase).
+        worker_patcher = mock.patch("account.views.oj.dramatiq_worker_alive", return_value=True)
+        self.worker_alive_mock = worker_patcher.start()
+        self.addCleanup(worker_patcher.stop)
         self.url = self.reverse("apply_reset_password_api")
         self.data = {"email": "test@oj.com", "captcha": self._set_captcha(self.client.session)}
 
@@ -350,6 +366,23 @@ class ApplyResetPasswordAPITest(CaptchaTest):
         user.save()
         self._refresh_captcha()
         self.test_apply_reset_password()
+
+    def test_sync_send_when_no_worker(self, send_email_send):
+        # Sin worker vivo: no se encola async, se envía síncrono.
+        self.worker_alive_mock.return_value = False
+        with mock.patch("account.views.oj.send_email_sync") as sync_send:
+            resp = self.client.post(self.url, data=self.data)
+            self.assertSuccess(resp)
+            sync_send.assert_called_once()
+        send_email_send.assert_not_called()
+
+    def test_sync_send_failure_returns_error(self, send_email_send):
+        # Sin worker y SMTP falla: el usuario recibe error, no "Succeeded".
+        self.worker_alive_mock.return_value = False
+        with mock.patch("account.views.oj.send_email_sync", side_effect=RuntimeError("SMTP boom")):
+            resp = self.client.post(self.url, data=self.data)
+            self.assertDictEqual(resp.data, {"error": "error",
+                                             "data": "Could not send reset email. Please contact the administrator."})
 
 
 class ResetPasswordAPITest(CaptchaTest):
@@ -380,6 +413,9 @@ class ResetPasswordAPITest(CaptchaTest):
         user.save()
         resp = self.client.post(self.url, data=self.data)
         self.assertDictEqual(resp.data, {"error": "error", "data": "Token has expired"})
+        # El token vencido queda invalidado para evitar reintentos/adivinación.
+        user.refresh_from_db()
+        self.assertIsNone(user.reset_password_token)
 
 
 class UserChangeEmailAPITest(APITestCase):

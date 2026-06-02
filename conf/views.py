@@ -22,7 +22,7 @@ from problem.models import Problem
 from submission.models import Submission
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.audit import audit_log
-from utils.shortcuts import send_email, get_env
+from utils.shortcuts import send_email, get_env, dramatiq_worker_alive
 from utils.xss_filter import XSSHtml
 from .models import JudgeServer
 from .serializers import (CreateEditWebsiteConfigSerializer,
@@ -254,8 +254,7 @@ class EmailHealthCheckAPI(APIView):
                 client.ping()
                 redis_reachable = True
                 # Dramatiq publishes one heartbeat key per active worker
-                heartbeats = client.keys("dramatiq:__heartbeats__*")
-                worker_alive = bool(heartbeats)
+                worker_alive = dramatiq_worker_alive()
         except Exception:
             pass
 

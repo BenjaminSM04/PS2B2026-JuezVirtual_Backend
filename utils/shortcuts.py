@@ -103,6 +103,25 @@ def DRAMATIQ_WORKER_ARGS(time_limit=3600_000, max_retries=0, max_age=7200_000):
     return {"max_retries": max_retries, "time_limit": time_limit, "max_age": max_age}
 
 
+def dramatiq_worker_alive():
+    """True si Redis es accesible y hay al menos un worker rundramatiq vivo.
+
+    Dramatiq publica una clave de heartbeat por worker activo. Si no hay
+    heartbeats, encolar una tarea async la dejaría sin procesar (envío
+    silencioso). Cualquier fallo (Redis caído, broker mal configurado) -> False.
+    """
+    try:
+        import dramatiq
+        broker = dramatiq.get_broker()
+        client = getattr(broker, "client", None)
+        if client is None:
+            return False
+        client.ping()
+        return bool(client.keys("dramatiq:__heartbeats__*"))
+    except Exception:
+        return False
+
+
 def check_is_id(value):
     try:
         return int(value) > 0
