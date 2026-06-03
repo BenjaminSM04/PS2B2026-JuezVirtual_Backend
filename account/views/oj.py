@@ -18,6 +18,7 @@ from options.options import SysOptions
 from utils.api import APIView, validate_serializer, CSRFExemptAPIView
 from utils.captcha import Captcha
 from utils.shortcuts import rand_str, img2base64, datetime2str, dramatiq_worker_alive
+from utils.audit import audit_log
 from ..decorators import login_required
 from ..models import User, UserProfile, AdminType
 from ..serializers import (ApplyResetPasswordSerializer, ResetPasswordSerializer,
@@ -169,6 +170,7 @@ class UserLoginAPI(APIView):
                 return self.error("Your account has been disabled")
             if not user.two_factor_auth:
                 auth.login(request, user)
+                audit_log(user, "user.login", "User", user.id)
                 return self.success("Succeeded")
 
             # `tfa_code` not in post data
@@ -177,6 +179,7 @@ class UserLoginAPI(APIView):
 
             if OtpAuth(user.tfa_token).valid_totp(data["tfa_code"]):
                 auth.login(request, user)
+                audit_log(user, "user.login", "User", user.id, extra={"tfa": True})
                 return self.success("Succeeded")
             else:
                 return self.error("Invalid two factor verification code")
