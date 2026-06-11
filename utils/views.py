@@ -2,13 +2,23 @@ import os
 from django.conf import settings
 from account.serializers import ImageUploadForm, FileUploadForm
 from utils.shortcuts import rand_str
-from utils.api import CSRFExemptAPIView
+from utils.api import SameOriginCSRFExemptAPIView
 import logging
 
 logger = logging.getLogger(__name__)
 
+# Sin extensiones ejecutables/renderizables por el navegador (.html, .svg, .xml...):
+# se sirven same-origin desde UPLOAD_PREFIX y permitirian XSS almacenado.
+ALLOWED_FILE_SUFFIXES = [
+    ".pdf", ".zip", ".rar", ".7z", ".gz", ".tar",
+    ".txt", ".md", ".csv", ".in", ".out",
+    ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
+    ".c", ".cpp", ".h", ".hpp", ".py", ".java",
+    ".png", ".jpg", ".jpeg", ".gif", ".bmp"
+]
 
-class SimditorImageUploadAPIView(CSRFExemptAPIView):
+
+class SimditorImageUploadAPIView(SameOriginCSRFExemptAPIView):
     request_parsers = ()
 
     def post(self, request):
@@ -44,7 +54,7 @@ class SimditorImageUploadAPIView(CSRFExemptAPIView):
             "file_path": f"{settings.UPLOAD_PREFIX}/{img_name}"})
 
 
-class SimditorFileUploadAPIView(CSRFExemptAPIView):
+class SimditorFileUploadAPIView(SameOriginCSRFExemptAPIView):
     request_parsers = ()
 
     def post(self, request):
@@ -58,6 +68,11 @@ class SimditorFileUploadAPIView(CSRFExemptAPIView):
             })
 
         suffix = os.path.splitext(file.name)[-1].lower()
+        if suffix not in ALLOWED_FILE_SUFFIXES:
+            return self.response({
+                "success": False,
+                "msg": "Unsupported file format"
+            })
         file_name = rand_str(10) + suffix
         try:
             with open(os.path.join(settings.UPLOAD_DIR, file_name), "wb") as f:

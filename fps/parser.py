@@ -6,7 +6,8 @@ import string
 import hashlib
 import json
 import os
-import xml.etree.ElementTree as ET
+# defusedxml bloquea XXE y bombas de entidades en XML subido por usuarios
+import defusedxml.ElementTree as ET
 
 
 class FPSParser(object):
@@ -14,7 +15,8 @@ class FPSParser(object):
         if fps_path:
             self._etree = ET.parse(fps_path).getroot()
         elif string_data:
-            self._ertree = ET.fromstring(string_data).getroot()
+            # fromstring ya devuelve el elemento raiz (no tiene getroot)
+            self._etree = ET.fromstring(string_data)
         else:
             raise ValueError("You must tell me the file path or directly give me the data for the file")
         version = self._etree.attrib.get("version", "No Version")

@@ -31,17 +31,18 @@ from html.parser import HTMLParser
 
 
 class XSSHtml(HTMLParser):
+    # "embed" se quito de la whitelist: era para Flash y solo deja superficie
+    # de ataque (src externo controlable por el autor del contenido)
     allow_tags = ['a', 'img', 'br', 'strong', 'b', 'code', 'pre',
                   'p', 'div', 'em', 'span', 'h1', 'h2', 'h3', 'h4',
                   'h5', 'h6', 'blockquote', 'ul', 'ol', 'tr', 'th', 'td',
-                  'hr', 'li', 'u', 'embed', 's', 'table', 'thead', 'tbody',
+                  'hr', 'li', 'u', 's', 'table', 'thead', 'tbody',
                   'caption', 'small', 'q', 'sup', 'sub', 'font']
     common_attrs = ["style", "class", "name"]
-    nonend_tags = ["img", "hr", "br", "embed"]
+    nonend_tags = ["img", "hr", "br"]
     tags_own_attrs = {
         "img": ["src", "width", "height", "alt", "align"],
         "a": ["href", "target", "rel", "title"],
-        "embed": ["src", "width", "height", "type", "allowfullscreen", "loop", "play", "wmode", "menu"],
         "table": ["border", "cellpadding", "cellspacing"],
         "font": ["color"]
     }
@@ -124,21 +125,6 @@ class XSSHtml(HTMLParser):
         attrs = self._limit_attr(attrs, {
             "target": ["_blank", "_self"]
         })
-        return attrs
-
-    def node_embed(self, attrs):
-        attrs = self._common_attr(attrs)
-        attrs = self._get_link(attrs, "src")
-        attrs = self._limit_attr(attrs, {
-            "type": ["application/x-shockwave-flash"],
-            "wmode": ["transparent", "window", "opaque"],
-            "play": ["true", "false"],
-            "loop": ["true", "false"],
-            "menu": ["true", "false"],
-            "allowfullscreen": ["true", "false"]
-        })
-        attrs["allowscriptaccess"] = "never"
-        attrs["allownetworking"] = "none"
         return attrs
 
     def _true_url(self, url):

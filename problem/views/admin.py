@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import re
 # import shutil
 import tempfile
 import zipfile
@@ -18,7 +19,7 @@ from fps.parser import FPSHelper, FPSParser
 from judge.dispatcher import SPJCompiler
 from options.options import SysOptions
 from submission.models import Submission, JudgeStatus
-from utils.api import APIView, CSRFExemptAPIView, validate_serializer, APIError
+from utils.api import APIView, SameOriginCSRFExemptAPIView, validate_serializer, APIError
 from utils.audit import audit_log
 from utils.constants import Difficulty
 from utils.shortcuts import rand_str, natural_sort_key
@@ -53,6 +54,10 @@ class TestCaseZipProcessor(object):
         md5_cache = {}
 
         for item in test_case_list:
+            # filter_name_list solo genera nombres {n}.in/{n}.out; este guard
+            # evita que una refactorizacion futura reintroduzca zip-slip
+            if not re.match(r"^\d+\.(in|out)$", item):
+                raise APIError("Invalid test case file name")
             with open(os.path.join(test_case_dir, item), "wb") as f:
                 content = zip_file.read(f"{dir}{item}").replace(b"\r\n", b"\n")
                 size_cache[item] = len(content)
@@ -113,7 +118,7 @@ class TestCaseZipProcessor(object):
                     return sorted(ret, key=natural_sort_key)
 
 
-class TestCaseAPI(CSRFExemptAPIView, TestCaseZipProcessor):
+class TestCaseAPI(SameOriginCSRFExemptAPIView, TestCaseZipProcessor):
     request_parsers = ()
 
     def get(self, request):
@@ -580,7 +585,7 @@ def resolve_import_creator(created_by_username, importer):
     return importer
 
 
-class ImportProblemAPI(CSRFExemptAPIView, TestCaseZipProcessor):
+class ImportProblemAPI(SameOriginCSRFExemptAPIView, TestCaseZipProcessor):
     request_parsers = ()
 
     def post(self, request):
@@ -665,7 +670,7 @@ class ImportProblemAPI(CSRFExemptAPIView, TestCaseZipProcessor):
         return self.success({"import_count": count})
 
 
-class FPSProblemImport(CSRFExemptAPIView):
+class FPSProblemImport(SameOriginCSRFExemptAPIView):
     request_parsers = ()
 
     def _create_problem(self, problem_data, creator):

@@ -2,6 +2,8 @@ import functools
 import json
 import logging
 
+from urllib.parse import urlsplit
+
 from django.http import HttpResponse, QueryDict
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -161,6 +163,22 @@ class CSRFExemptAPIView(APIView):
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(CSRFExemptAPIView, self).dispatch(request, *args, **kwargs)
+
+
+class SameOriginCSRFExemptAPIView(CSRFExemptAPIView):
+    """
+    Para endpoints usados desde el navegador cuyos uploaders no mandan el token
+    CSRF (Simditor, el-upload). Sigue exenta de CSRF, pero si la request trae
+    Origin/Referer (los navegadores siempre lo mandan en POST cross-site) el
+    host debe coincidir con el de la request; sin esos headers (server-to-server)
+    pasa igual que antes.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        if request.method not in ("GET", "HEAD", "OPTIONS", "TRACE"):
+            source = request.META.get("HTTP_ORIGIN") or request.META.get("HTTP_REFERER")
+            if source and urlsplit(source).netloc != request.get_host():
+                return self.error(err="forbidden", msg="Cross-origin request rejected")
+        return super().dispatch(request, *args, **kwargs)
 
 
 def validate_serializer(serializer):

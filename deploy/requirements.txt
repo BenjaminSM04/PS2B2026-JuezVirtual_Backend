@@ -1,4 +1,5 @@
 coverage==6.5.0
+defusedxml==0.7.1
 django-cas-ng==5.0.1
 django-dbconn-retry==0.1.7
 django-dramatiq==0.11.6
