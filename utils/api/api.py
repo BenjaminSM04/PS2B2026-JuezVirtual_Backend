@@ -173,6 +173,7 @@ class SameOriginCSRFExemptAPIView(CSRFExemptAPIView):
     host debe coincidir con el de la request; sin esos headers (server-to-server)
     pasa igual que antes.
     """
+    @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         if request.method not in ("GET", "HEAD", "OPTIONS", "TRACE"):
             source = request.META.get("HTTP_ORIGIN") or request.META.get("HTTP_REFERER")

@@ -6,6 +6,7 @@ from datetime import timedelta
 from zipfile import ZipFile
 
 from django.conf import settings
+from rest_framework.test import APIClient
 
 from utils.api.tests import APITestCase
 
@@ -21,7 +22,7 @@ from .utils import parse_problem_template
 
 DEFAULT_PROBLEM_DATA = {"_id": "A-110", "title": "test", "description": "<p>test</p>", "input_description": "test",
                         "output_description": "test", "time_limit": 1000, "memory_limit": 256, "difficulty": "Low",
-                        "visible": True, "tags": ["test"], "languages": ["C", "C++", "Java", "Python2"], "template": {},
+                        "visible": True, "tags": ["test"], "languages": ["C", "C++", "Java", "Python3"], "template": {},
                         "samples": [{"input": "test", "output": "test"}], "spj": False, "spj_language": "C",
                         "spj_code": "", "spj_compile_ok": True, "test_case_id": "499b26290cc7994e0b497212e842ea85",
                         "test_case_score": [{"output_name": "1.out", "input_name": "1.in", "output_size": 0,
@@ -82,6 +83,11 @@ class TestCaseUploadAPITest(APITestCase):
         self.url = self.reverse("test_case_api")
         self.create_super_admin()
 
+    def csrf_enforcing_client(self):
+        client = APIClient(enforce_csrf_checks=True)
+        self.assertTrue(client.login(username="root", password="root"))
+        return client
+
     def test_filter_file_name(self):
         self.assertEqual(self.api.filter_name_list(["1.in", "1.out", "2.in", ".DS_Store"], spj=False),
                          ["1.in", "1.out"])
@@ -131,6 +137,19 @@ class TestCaseUploadAPITest(APITestCase):
                 name = item["input_name"]
                 with open(os.path.join(test_case_dir, name), "r", encoding="utf-8") as f:
                     self.assertEqual(f.read(), name + "\n" + name + "\n" + "end")
+
+    def test_upload_test_case_zip_with_csrf_checks_enforced(self):
+        with open(self.make_test_case_zip(), "rb") as f:
+            resp = self.csrf_enforcing_client().post(self.url,
+                                                     data={"spj": "false", "file": f}, format="multipart")
+            self.assertSuccess(resp)
+
+    def test_upload_test_case_zip_rejects_cross_origin(self):
+        with open(self.make_test_case_zip(), "rb") as f:
+            resp = self.csrf_enforcing_client().post(self.url,
+                                                     data={"spj": "false", "file": f}, format="multipart",
+                                                     HTTP_ORIGIN="http://evil.example")
+            self.assertFailed(resp, "Cross-origin request rejected")
 
 
 class ProblemAdminAPITest(APITestCase):
