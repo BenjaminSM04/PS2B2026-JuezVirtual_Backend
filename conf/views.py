@@ -4,14 +4,11 @@ import os
 import re
 import shutil
 import smtplib
-import time
 from datetime import datetime
 
 import pytz
-import requests
 from django.conf import settings
 from django.utils import timezone
-from requests.exceptions import RequestException
 
 from account.decorators import super_admin_required
 from account.models import User
@@ -221,15 +218,14 @@ class TestCasePruneAPI(APIView):
 
 class ReleaseNotesAPI(APIView):
     def get(self, request):
+        # Servimos las notas locales (docs/data.json) en vez de las del upstream
+        # QingdaoU: este fork tiene su propio historial de versiones (LizardJudge).
         try:
-            resp = requests.get("https://raw.githubusercontent.com/QingdaoU/OnlineJudge/master/docs/data.json?_=" + str(time.time()),
-                                timeout=3)
-            releases = resp.json()
-        except (RequestException, ValueError):
+            with open("docs/data.json", "r", encoding="utf-8") as f:
+                releases = json.load(f)
+        except (OSError, ValueError):
             return self.success()
-        with open("docs/data.json", "r") as f:
-            local_version = json.load(f)["update"][0]["version"]
-        releases["local_version"] = local_version
+        releases["local_version"] = releases["update"][0]["version"]
         return self.success(releases)
 
 

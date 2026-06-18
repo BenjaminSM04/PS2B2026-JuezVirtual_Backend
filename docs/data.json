@@ -1,199 +1,61 @@
 {
   "update": [
     {
-      "version": "2024-02-04",
+      "version": "2.0",
       "level": "Important",
-      "title": "OnlineJudge 1.16.0 更新",
+      "title": "LizardJudge Univalle 2.0",
       "details": [
-        "更新基底映像档，从 `python:3.8-alpine3.14` 改为 `python:3.12-alpine`。",
-        "更新评测的程序语言版本：",
-        "C/C++: GCC 13",
-        "Java: Temurin 21",
-        "Python 2: 移除",
-        "Python 3: CPython 3.12",
-        "Golang: Golang 1.22",
-        "Node.js: Node.js 20",
-        "PHP: 暫時移除"
+        "<strong>Lenguajes de evaluación configurados</strong>",
+        "C — GCC 13 (estándar C17)",
+        "C++ — GCC 13 (estándar C++20)",
+        "Java — Temurin 21",
+        "Python 3 — CPython 3.12",
+        "Golang — Go 1.22",
+        "JavaScript — Node.js 20",
+        "Se removieron Python 2 y PHP respecto a versiones antiguas del upstream.",
+        "<strong>Rol Docente</strong>",
+        "Nuevo rol Docente, intermedio entre administrador y usuario regular.",
+        "Los docentes ven y editan únicamente sus propios recursos (ejercicios, concursos, anuncios).",
+        "Pueden publicar anuncios globales; el permiso de ejercicios queda forzado a \"solo los propios\".",
+        "Panel de inicio dedicado al docente con métricas y accesos rápidos.",
+        "<strong>Propiedad y compartición de ejercicios</strong>",
+        "Modo de compartición (Privado / Compartido) independiente del estado \"visible\".",
+        "Filtros Míos / Compartidos / Todos en el listado de ejercicios, con distintivos de autoría.",
+        "Autor visible en listados, detalle de ejercicio y ranking de concursos.",
+        "Reutilizar un ejercicio compartido en un concurso crea una copia (snapshot) que conserva la autoría original.",
+        "<strong>Importación y exportación</strong>",
+        "La exportación/importación incluye autor (created_by) y modo de compartición.",
+        "Los ejercicios importados (formato QDUOJ y FPS) quedan visibles por defecto.",
+        "A los ejercicios FPS sin etiquetas se les asigna automáticamente la etiqueta \"SinEtiqueta\" para evitar errores al visualizarlos.",
+        "<strong>Seguridad</strong>",
+        "Protección contra XXE y bombas de entidades en la importación FPS (defusedxml).",
+        "Lista blanca de extensiones en la subida de archivos (previene XSS almacenado).",
+        "Validación de Origin/Referer (CSRF de mismo origen) en los endpoints de subida.",
+        "Filtro XSS endurecido y guardas contra zip-slip en los casos de prueba.",
+        "Se eliminó el DSN de Sentry embebido del upstream.",
+        "Política de contraseña fuerte (mínimo 8 caracteres, una mayúscula y un dígito) en registro, cambio, reseteo y edición administrativa.",
+        "<strong>Correo y reseteo de contraseña</strong>",
+        "Reseteo de contraseña confiable: verificación de SMTP, envío síncrono de respaldo si el worker está caído y errores SMTP reales propagados al usuario.",
+        "Se preserva la autenticación de dos factores (2FA) al resetear la contraseña; el token se invalida al expirar.",
+        "Diagnóstico de salud del correo en el panel de configuración.",
+        "<strong>Auditoría</strong>",
+        "Registro de auditoría en todas las operaciones administrativas críticas.",
+        "<strong>Interfaz y experiencia de usuario</strong>",
+        "Identidad visual LizardJudge Univalle.",
+        "Corrección del renderizado de LaTeX/KaTeX en producción.",
+        "Estadística de ejercicios mejorada (gráfico de veredictos y desglose), contadores animados, estados vacíos y mejoras responsive.",
+        "Flujo de inicio de sesión con 2FA corregido y rutas de concurso protegidas (requieren sesión).",
+        "<strong>Idiomas</strong>",
+        "Español (Latinoamérica) como idioma por defecto, con inglés como respaldo. El chino quedó deshabilitado en el selector."
       ]
     },
     {
-      "version": "2021-11-20",
-      "level": "Important",
-      "title": "2021-11-20",
-      "details": [
-        "<span style=\"color:  red;\">升级 django-dramatiq 至 0.10.0，解决数据库连接无法释放的问题</span>",
-        "django2.x即将停止支持，更新django到3.x LTS，相应地更新了全部相关依赖",
-        "合并底包版本到python3.8-alpine3.14，为移除python2做准备",
-        "按上游包的生产环境规范，修改依赖psycopg2_binary为psycopg2",
-        "TODO:本地开发环境搭建文档应做相应修改和提交。"
-      ]
-    },
-    {
-      "version": "2021-09-28",
+      "version": "1.16",
       "level": "Recommend",
-      "title": "2021-09-28",
+      "title": "Base: QingdaoU OnlineJudge",
       "details": [
-        "修复 Golang 编译运行的一些问题",
-        "支持 JavaScript 语言，注意，升级后需要按照 <a href='https://opensource.qduoj.com/#/onlinejudge/guide/update_compile_options'>文档</a>来 reset_languages，如果有自定义配置将会被重置，需要先备份。",
-        "增加了一些语言的编辑器语法高亮配置"
-      ]
-    },
-    {
-      "version": "2021-08-07",
-      "level": "Recommend",
-      "title": "2021-08-07",
-      "details": [
-        "升级 gcc、g++ 编译器到 9.4 版本",
-        "导入用户的时候支持导入真实姓名",
-        "修复前端 katex 配置的一些问题",
-        "修复编辑器无法显示表格的问题",
-        "增加了一些语言的编辑器语法高亮配置"
-      ]
-    },
-    {
-      "version": "2020-07-09",
-      "level": "Recommend",
-      "title": "2020-07-09",
-      "details": [
-        "Add Golang language to judge server",
-        "Fix some frontend bugs"
-      ]
-    },
-    {
-      "version": "2019-09-22",
-      "level": "Recommend",
-      "title": "2019-09-22",
-      "details": [
-        "Fix bugs in contest password verification",
-        "Do not delete test case files when contest is deleted",
-        "Update some compiler runtime config"
-      ]
-    },
-    {
-      "version": "2019-04-05",
-      "level": "Recommend",
-      "title": "2019-04-05",
-      "details": [
-        "Fix bugs in Free Problem Set parser"
-      ]
-    },
-    {
-      "version": "2019-04-03",
-      "level": "Important",
-      "title": "2019-04-03",
-      "details": [
-        "Fix bugs in judge server scheduler"
-      ]
-    },
-    {
-      "version": "2019-03-25",
-      "level": "Recommend",
-      "title": "2019-03-25",
-      "details": [
-        "Update Django to version 2.1 and Python to version 3.7",
-        "Replace celery with dramatiq",
-        "Add problem file IO Mode",
-        "You can add attachments in all editor",
-        "You can upload source code file in submission editor",
-        "Frontend and UI improvements",
-        "Fixed a lot of bugs"
-      ]
-    },
-    {
-      "version": "2018-12-15",
-      "level": "Recommend",
-      "title": "Update at 2018-12-15",
-      "details": [
-        "Fix bugs when root user is renamed",
-        "Use more secure ssl ciphers",
-        "Fix minor bugs in rejudge function and fps related api",
-        "Frontend and UI improvements"
-      ]
-    },
-    {
-      "version": "2018-09-07",
-      "level": "Recommend",
-      "title": "Update at 2018-09-07",
-      "details": [
-        "Fix Problem title overflow, by @queensferryme",
-        "Fix the pagination in problem export page",
-        "Add a gadget to reset code to problem template",
-        "Support for contest submissions download (accepted answer only)",
-        "Progress is preserved when uploading files",
-        "UI improvements"
-      ]
-    },
-    {
-      "version": "2018-08-15",
-      "level": "Important",
-      "title": "Update at 2018-08-15",
-      "details": [
-        "<span style=\"color:  red;\">Fix some vulnerabilities, by @andyliu24 @plusls</span>",
-        "Add export and import problem function (beta), if you have any question, please <a href='https://docs.onlinejudge.me/#/onlinejudge/guide/qq_group'>give us feedback</a>"
-      ]
-    },
-    {
-      "version": "2018-07-15",
-      "level": "Recommend",
-      "title": "Update at 2018-07-15",
-      "details": [
-        "Add Traditional Chinese, by <a href='https://github.com/QingdaoU/OnlineJudgeFE/pull/27'>xdavidwu</a>",
-        "Fix a bug in the navigation bar",
-        "Move language switch to profile settings page"
-      ]
-    },
-    {
-      "version": "2018-06-02",
-      "level": "Recommend",
-      "title": "Update at 2018-06-02",
-      "details": [
-        "Add Simple Chinese, by <a href='https://github.com/QingdaoU/OnlineJudgeFE/issues/22'>hirCodd</a>",
-        "Integrate with katex",
-        "Update libraries to latest version",
-        "The first page in management is changed to dashboard"
-      ]
-    },
-    {
-      "version": "2018-05-25",
-      "level": "Important",
-      "title": "Update at 2018-05-05",
-      "details": [
-        "Fix a bug that user is logged out when re-creating container",
-        "<span style=\"color:  red;\">Fix a bug that JudgeServer may use a lot of memory and then getting stuck(Please update docker-compose.yml at first)</span>"
-      ]
-    },
-    {
-      "version": "2018-03-27",
-      "level": "Important",
-      "title": "Update at 2018-03-27",
-      "details": [
-        "<span style=\"color:  red;\">Fix some bugs about problem submission statistics</span>",
-        "Fix some bugs that may cause 'compile error' when submitted code contains unicode characters"
-      ]
-    },
-    {
-      "version": "2018-03-23",
-      "level": "Recommend",
-      "title": "Update at 2018-03-23",
-      "details": [
-        "Fix a bug about Java language memory usage",
-        "Update Java to version 1.8",
-        "[important] Google analytics is added with developer's account, it is only used for statistics",
-        "Problem export and import function will be released in next week",
-        "Other bugs and enhancements"
-      ]
-    },
-    {
-      "version": "2018-01-04",
-      "level": "Recommend",
-      "title": "Update at 2018-01-04",
-      "details": [
-        "Fix some issues under IE/Edge",
-        "Add backend error reporter",
-        "New email template",
-        "A more flexible throttling function",
-        "Add admin dashboard (this page)",
-        "Other bugs and enhancements"
+        "LizardJudge Univalle es un fork personalizado de <a href='https://github.com/QingdaoU/OnlineJudge' target='_blank'>QingdaoU/OnlineJudge</a> (rama 1.16).",
+        "Todos los cambios listados en la versión 2.0 son respecto a ese repositorio original."
       ]
     }
   ]
