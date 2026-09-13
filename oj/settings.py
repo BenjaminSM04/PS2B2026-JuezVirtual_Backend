@@ -210,7 +210,8 @@ def redis_config(db):
         "LOCATION": f"{REDIS_URL}/{db}",
         "TIMEOUT": None,
         "KEY_PREFIX": "",
-        "KEY_FUNCTION": make_key
+        "KEY_FUNCTION": make_key,
+        "OPTIONS": {"SOCKET_CONNECT_TIMEOUT": 3, "SOCKET_TIMEOUT": 3},
     }
 
 

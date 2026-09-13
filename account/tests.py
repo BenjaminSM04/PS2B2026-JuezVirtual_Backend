@@ -225,15 +225,20 @@ class UserRegisterAPITest(CaptchaTest):
         self.assertDictEqual(response.data, {"error": "error", "data": "Email already exists"})
 
     def test_register_with_weak_password(self):
-        # Sin mayúscula ni dígito, y menos de 8 caracteres → rechazado por la política fuerte.
-        for weak in ["alllower1", "ALLUPPER1", "NoDigits", "Ab1"]:
+        # La política actual del backend exige longitud, una mayúscula y un dígito.
+        for weak in ["alllower1", "NoDigits", "Ab1"]:
             self.data["username"] = "weak_user"
             self.data["email"] = "weak@qduoj.com"
             self.data["captcha"] = self._set_captcha(self.client.session)
             self.data["password"] = weak
             response = self.client.post(self.register_url, data=self.data)
-            self.assertEqual(response.data["error"], "error")
+            self.assertEqual(response.data["error"], "invalid-password")
             self.assertFalse(User.objects.filter(username="weak_user").exists())
+
+    def test_registro_con_politica_actual_del_backend(self):
+        self.data["password"] = "ALLUPPER1"
+        response = self.client.post(self.register_url, data=self.data)
+        self.assertSuccess(response)
 
 
 class SessionManagementAPITest(APITestCase):

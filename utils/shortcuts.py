@@ -72,7 +72,7 @@ def send_email(smtp_config, from_name, to_email, to_name, subject, content):
     required_keys = ("email", "server", "port", "password", "tls")
     missing = [k for k in required_keys if k not in smtp_config or smtp_config[k] in (None, "")]
     if missing:
-        raise ValueError(f"SMTP config is incomplete; missing keys: {', '.join(missing)}")
+        raise ValueError("SMTP config is incomplete; missing keys: " + ", ".join(missing))
 
     envelope = Envelope(from_addr=(smtp_config["email"], from_name),
                         to_addr=(to_email, to_name),

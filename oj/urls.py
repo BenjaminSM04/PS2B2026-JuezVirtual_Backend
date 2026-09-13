@@ -1,6 +1,9 @@
 from django.conf.urls import include, url
+from utils.health import readiness, version
 
 urlpatterns = [
+    url(r"^healthz$", readiness, name="readiness"),
+    url(r"^api/version/?$", version, name="runtime_version"),
     url(r"^api/", include("account.urls.oj")),
     url(r"^api/admin/", include("account.urls.admin")),
     url(r"^api/", include("announcement.urls.oj")),

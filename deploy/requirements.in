@@ -1,0 +1,23 @@
+# Dependencias de ejecución; regenerar requirements.lock con pip-compile y hashes.
+defusedxml==0.7.1
+django-cas-ng==5.0.1
+django-dbconn-retry==0.1.7
+django-dramatiq==0.11.6
+django-redis==5.4.0
+Django==3.2.25
+djangorestframework==3.14.0
+dramatiq==1.16.0
+Envelopes==0.4
+gunicorn==21.2.0
+jsonfield==3.1.0
+otpauth==1.0.1
+pillow==10.2.0
+psycopg2==2.9.9
+python-dateutil==2.8.2
+qrcode==7.4.2
+raven==6.10.0
+requests==2.32.5
+redis==5.0.8
+# Django 3.2 necesita distutils, retirado de Python 3.12.
+setuptools==75.8.0
+XlsxWriter==3.1.9

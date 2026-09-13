@@ -74,5 +74,5 @@ class SubmissionAPITest(SubmissionPrepare):
         resp = self.client.post(self.url, self.submission_data)
         self.assertFailed(resp)
         self.assertDictEqual(resp.data, {"error": "error",
-                                         "data": "Python3 is now allowed in the problem"})
+                                         "data": "Python3 is not allowed in the problem"})
         judge_task.assert_not_called()

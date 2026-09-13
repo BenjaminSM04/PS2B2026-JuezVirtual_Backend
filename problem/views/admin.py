@@ -549,11 +549,11 @@ class ExportProblemAPI(APIView):
             info = json.load(f)
         for k, v in info["test_cases"].items():
             zip_file.write(filename=os.path.join(problem_test_case_dir, v["input_name"]),
-                           arcname=f"{index}/testcase/{v['input_name']}",
+                           arcname="{}/testcase/{}".format(index, v["input_name"]),
                            compress_type=compression)
             if not info["spj"]:
                 zip_file.write(filename=os.path.join(problem_test_case_dir, v["output_name"]),
-                               arcname=f"{index}/testcase/{v['output_name']}",
+                               arcname="{}/testcase/{}".format(index, v["output_name"]),
                                compress_type=compression)
 
     @validate_serializer(ExportProblemRequestSerialzier)

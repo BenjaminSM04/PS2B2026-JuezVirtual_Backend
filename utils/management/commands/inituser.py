@@ -15,7 +15,7 @@ class Command(BaseCommand):
         password = options["password"]
         action = options["action"]
 
-        if not(username and password and action):
+        if not (username and password and action):
             self.stdout.write(self.style.ERROR("Invalid args"))
             exit(1)
 

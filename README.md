@@ -1,4 +1,48 @@
-# OnlineJudge 2.0
+# LizardJudge — Backend
+
+Repositorio actual: https://github.com/incubadoradesarrollo-source/B-LIZARD-JUDGE
+
+## Entrega continua
+
+Backend Django 3.2.25 con PostgreSQL y Redis. La imagen de producción se publica en
+`ghcr.io/incubadoradesarrollo-source/b-lizard-judge` con `latest` y el SHA completo.
+Escucha en el puerto 8000 como UID 900/GID 903 y requiere migraciones previas.
+El Compose se mantiene en `incubadoradesarrollo-source/D-LIZARD-JUDGE`.
+
+Los PR ejecutan análisis estático, comprobación de migraciones, pruebas y arranque de la imagen.
+Cada push a `main` publica solamente después de aprobarlas. Las ejecuciones manuales fuera
+de `main` no publican ni despliegan. CI conserva la imagen ya comprobada, sin reconstruirla
+en el job de publicación. El webhook queda desactivado mientras `COOLIFY_DEPLOY_ENABLED=false`.
+
+Para validar localmente con Docker y Bash:
+
+```bash
+docker build --target ci -t lizard-backend-ci:local .
+bash ci/check.sh
+docker build --target runtime --build-arg APP_REVISION=prueba-local -t lizard-backend:local .
+bash ci/smoke.sh
+```
+
+Las pruebas usan PostgreSQL y Redis efímeros, nunca datos de producción. Las dependencias
+completas se fijan con hashes en `deploy/requirements.lock` y `deploy/requirements-ci.lock`;
+sus fuentes son los archivos `.in`. No utilizar el listado histórico para producción.
+
+Los secretos se proporcionan al ejecutar: `POSTGRES_PASSWORD` y `JUDGE_SERVER_TOKEN`
+(mínimo 32 caracteres). También se configuran `POSTGRES_HOST`, `POSTGRES_DB`, `POSTGRES_USER`,
+`REDIS_HOST`, `DJANGO_ALLOWED_HOSTS` y `COOKIE_SECURE`. Conservar `/data/config/secret.key`
+y los directorios persistentes; nunca ejecutar `init_db.sh` en producción. El comando
+`migrate` aplica migraciones sin borrar datos; `serve` rechaza esquemas pendientes.
+
+`/healthz` comprueba base de datos y caché; `/api/version/` identifica el commit.
+No existe administrador predeterminado: usar `python manage.py create_admin --username admin --email correo@dominio`
+desde la terminal del contenedor y escribir la contraseña cuando se solicite.
+
+Para Coolify, configurar los secretos GitHub `COOLIFY_WEBHOOK` y `COOLIFY_TOKEN` (permiso
+`deploy`) y activar la variable `COOLIFY_DEPLOY_ENABLED=true` solo al terminar la configuración.
+El runtime conserva Python 3.12 del proyecto; Django 3.2 está fuera de soporte y esta combinación
+no tiene soporte oficial de Django. La modernización requiere un trabajo independiente.
+
+## Referencia y atribución del proyecto original
 
 [![Python](https://img.shields.io/badge/python-3.8.0-blue.svg?style=flat-square)](https://www.python.org/downloads/release/python-362/)
 [![Django](https://img.shields.io/badge/django-3.2.9-blue.svg?style=flat-square)](https://www.djangoproject.com/)

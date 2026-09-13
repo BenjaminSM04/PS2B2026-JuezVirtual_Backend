@@ -1,0 +1,45 @@
+# Entorno aislado y desechable para CI; nunca conectar a servicios de producción.
+services:
+  postgres:
+    image: postgres:10-alpine@sha256:63cfb6eac6b362c7c994f22c3804c61b31898cf0cb52f8e7e86bd99a244f4366
+    environment:
+      POSTGRES_DB: onlinejudge
+      POSTGRES_USER: onlinejudge
+      POSTGRES_PASSWORD: prueba-efimera
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "onlinejudge"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  redis:
+    image: redis:7-alpine@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  tests:
+    image: lizard-backend-ci:local
+    environment: &environment
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: onlinejudge
+      POSTGRES_USER: onlinejudge
+      POSTGRES_PASSWORD: prueba-efimera
+      REDIS_HOST: redis
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      COOKIE_SECURE: "false"
+      JUDGE_SERVER_TOKEN: token-aislado-exclusivamente-para-pruebas
+    depends_on: &dependencies
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  app:
+    image: lizard-backend:local
+    environment: *environment
+    command: ["serve"]
+    volumes:
+      - app-data:/data
+    depends_on: *dependencies
+volumes:
+  app-data:
