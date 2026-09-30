@@ -11,6 +11,9 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('submission', '0006_auto_20170830_1154'),
+        # Las claves foráneas requieren los modelos de destino al instalar desde cero.
+        ('contest', '0005_auto_20170823_0918'),
+        ('problem', '0008_auto_20170923_1318'),
     ]
 
     operations = [
