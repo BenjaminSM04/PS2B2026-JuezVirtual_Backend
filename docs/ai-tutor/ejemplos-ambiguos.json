@@ -1,0 +1,248 @@
+[
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-ambiguo-1",
+    "problem": "Sumar dos enteros.",
+    "language": "C",
+    "faulty_code": "int total = 0\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
+    ],
+    "concept": "Sintaxis de declaración",
+    "explanation": "Evidencia parcial: se mantienen varias causas posibles sin concluir un diagnóstico.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Cómo termina una declaración en C?",
+      "location": "Inspecciona la declaración de total.",
+      "strategy": "Contrasta esa línea con la gramática de declaraciones."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-ambiguo-2",
+    "problem": "Imprimir el único elemento de un vector.",
+    "language": "C++",
+    "faulty_code": "std::vector<int> v(1); std::cout << v.at(1);\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
+    ],
+    "concept": "Rango de índices",
+    "explanation": "Evidencia parcial: se mantienen varias causas posibles sin concluir un diagnóstico.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Qué índices admite un vector de tamaño uno?",
+      "location": "Examina el argumento del acceso at.",
+      "strategy": "Dibuja los índices válidos y compara el acceso."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-ambiguo-3",
+    "problem": "Calcular la suma de a y b.",
+    "language": "Java",
+    "faulty_code": "int total = 1; total += a; total += b;\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
+    ],
+    "concept": "Elemento neutro de la suma",
+    "explanation": "Evidencia parcial: se mantienen varias causas posibles sin concluir un diagnóstico.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Qué significa iniciar un acumulador?",
+      "location": "Inspecciona el valor inicial de total.",
+      "strategy": "Traza dos entradas cero y compara los estados."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-ambiguo-4",
+    "problem": "Procesar n=100000 elementos dentro de un segundo; work tiene costo constante.",
+    "language": "Python3",
+    "faulty_code": "for i in range(n):\n    for j in range(n):\n        work(i, j)\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
+    ],
+    "concept": "Costo de recorridos anidados",
+    "explanation": "Evidencia parcial: se mantienen varias causas posibles sin concluir un diagnóstico.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Cómo se combinan dos recorridos completos?",
+      "location": "Cuenta las llamadas dentro del segundo bucle.",
+      "strategy": "Estima las operaciones para varios tamaños y busca trabajo repetido."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-ambiguo-5",
+    "problem": "Calcular una media real con precisión fraccionaria.",
+    "language": "Golang",
+    "faulty_code": "media := (a + b) / 2 // a y b son int\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
+    ],
+    "concept": "División entera y real",
+    "explanation": "Evidencia parcial: se mantienen varias causas posibles sin concluir un diagnóstico.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿La media siempre pertenece a los enteros?",
+      "location": "Revisa los tipos de los operandos de la división.",
+      "strategy": "Prueba dos números de distinta paridad y compara la precisión."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-ambiguo-6",
+    "problem": "Imprimir el resultado según el formato solicitado; no se dispone de más evidencia.",
+    "language": "JavaScript",
+    "faulty_code": "console.log(calcular(datos));\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
+    ],
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "Evidencia parcial: se mantienen varias causas posibles sin concluir un diagnóstico.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Qué evidencia separaría un error de formato de uno de cálculo?",
+      "location": "Revisa el límite entre calcular y la impresión.",
+      "strategy": "Obtén un caso reproducible y compara valor y formato por separado."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  }
+]

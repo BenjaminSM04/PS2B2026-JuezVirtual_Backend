@@ -1,0 +1,233 @@
+[
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-negativo-1",
+    "problem": "Sumar dos enteros.",
+    "language": "C",
+    "faulty_code": "int total = 0\n",
+    "verdict": 6,
+    "category": "compilation",
+    "evidence": [
+      "Declaración sin terminador; diagnóstico esperado, no ejecutado."
+    ],
+    "concept": "Sintaxis de declaración",
+    "explanation": "La declaración mostrada carece de terminador.",
+    "uncertainty": {
+      "confidence": 0.8,
+      "alternatives": [],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Cómo termina una declaración en C?",
+      "location": "Inspecciona la declaración de total.",
+      "strategy": "Contrasta esa línea con la gramática de declaraciones."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-negativo-2",
+    "problem": "Imprimir el único elemento de un vector.",
+    "language": "C++",
+    "faulty_code": "std::vector<int> v(1); std::cout << v.at(1);\n",
+    "verdict": 6,
+    "category": "runtime",
+    "evidence": [
+      "El vector tiene tamaño 1 y se solicita at(1); excepción esperada, no ejecutada."
+    ],
+    "concept": "Rango de índices",
+    "explanation": "El índice solicitado no pertenece al vector.",
+    "uncertainty": {
+      "confidence": 0.8,
+      "alternatives": [],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Qué índices admite un vector de tamaño uno?",
+      "location": "Examina el argumento del acceso at.",
+      "strategy": "Dibuja los índices válidos y compara el acceso."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-negativo-3",
+    "problem": "Calcular la suma de a y b.",
+    "language": "Java",
+    "faulty_code": "int total = 1; total += a; total += b;\n",
+    "verdict": 6,
+    "category": "logic",
+    "evidence": [
+      "Para a=0 y b=0 la traza da 1; el enunciado exige 0."
+    ],
+    "concept": "Elemento neutro de la suma",
+    "explanation": "El estado inicial añade una unidad a toda respuesta.",
+    "uncertainty": {
+      "confidence": 0.8,
+      "alternatives": [],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Qué significa iniciar un acumulador?",
+      "location": "Inspecciona el valor inicial de total.",
+      "strategy": "Traza dos entradas cero y compara los estados."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-negativo-4",
+    "problem": "Procesar n=100000 elementos dentro de un segundo; work tiene costo constante.",
+    "language": "Python3",
+    "faulty_code": "for i in range(n):\n    for j in range(n):\n        work(i, j)\n",
+    "verdict": 6,
+    "category": "complexity",
+    "evidence": [
+      "El fragmento realiza n*n llamadas; timeout supuesto en este ejemplo sintético."
+    ],
+    "concept": "Costo de recorridos anidados",
+    "explanation": "Diez mil millones de operaciones no caben en el presupuesto planteado.",
+    "uncertainty": {
+      "confidence": 0.8,
+      "alternatives": [],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Cómo se combinan dos recorridos completos?",
+      "location": "Cuenta las llamadas dentro del segundo bucle.",
+      "strategy": "Estima las operaciones para varios tamaños y busca trabajo repetido."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-negativo-5",
+    "problem": "Calcular una media real con precisión fraccionaria.",
+    "language": "Golang",
+    "faulty_code": "media := (a + b) / 2 // a y b son int\n",
+    "verdict": 6,
+    "category": "concept",
+    "evidence": [
+      "Para a=1 y b=2 una división entre enteros produce 1 frente a 1.5."
+    ],
+    "concept": "División entera y real",
+    "explanation": "La representación elegida pierde la parte fraccionaria.",
+    "uncertainty": {
+      "confidence": 0.8,
+      "alternatives": [],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿La media siempre pertenece a los enteros?",
+      "location": "Revisa los tipos de los operandos de la división.",
+      "strategy": "Prueba dos números de distinta paridad y compara la precisión."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-negativo-6",
+    "problem": "Imprimir el resultado según el formato solicitado; no se dispone de más evidencia.",
+    "language": "JavaScript",
+    "faulty_code": "console.log(calcular(datos));\n",
+    "verdict": 6,
+    "category": "unknown",
+    "evidence": [
+      "WA hipotético sin entrada ni salida observada, no ejecutado."
+    ],
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "Este fragmento no distingue formato incorrecto de cálculo incorrecto.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Qué evidencia separaría un error de formato de uno de cálculo?",
+      "location": "Revisa el límite entre calcular y la impresión.",
+      "strategy": "Obtén un caso reproducible y compara valor y formato por separado."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  }
+]
