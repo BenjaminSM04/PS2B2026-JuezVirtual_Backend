@@ -1,4 +1,5 @@
 from collections.abc import Mapping
+import math
 
 from rest_framework import serializers
 
@@ -31,6 +32,11 @@ class UncertaintySerializer(StrictSerializer):
     confidence = serializers.FloatField(min_value=0, max_value=1)
     alternatives = serializers.ListField(child=serializers.CharField(max_length=200), max_length=6)
     reason = serializers.CharField(max_length=1200)
+
+    def validate_confidence(self, value):
+        if not math.isfinite(value):
+            raise serializers.ValidationError("La confianza debe ser un número finito entre cero y uno.")
+        return value
 
 
 class ProvenanceSerializer(StrictSerializer):

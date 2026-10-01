@@ -2,16 +2,16 @@
   {
     "schema_version": "1.0",
     "example_id": "sintetico-ambiguo-1",
-    "problem": "Sumar dos enteros.",
+    "problem": "Calcular el resultado de una operación y respetar el formato solicitado. Solo se muestra el punto de impresión; faltan la implementación de calcular y el caso que falló.",
     "language": "C",
-    "faulty_code": "int total = 0\n",
+    "faulty_code": "printf(\"%d\\n\", calcular(a, b));\n",
     "verdict": -1,
     "category": "unknown",
     "evidence": [
       "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
     ],
-    "concept": "Sintaxis de declaración",
-    "explanation": "Evidencia parcial: se mantienen varias causas posibles sin concluir un diagnóstico.",
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "El veredicto incorrecto no permite distinguir un valor mal calculado de una representación incorrecta. El fragmento por sí solo no demuestra la causa.",
     "uncertainty": {
       "confidence": 0.3,
       "alternatives": [
@@ -21,9 +21,9 @@
       "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
     },
     "hints": {
-      "concept": "¿Cómo termina una declaración en C?",
-      "location": "Inspecciona la declaración de total.",
-      "strategy": "Contrasta esa línea con la gramática de declaraciones."
+      "concept": "¿Qué observaciones permiten separar un error de cálculo de uno de formato?",
+      "location": "Inspecciona la implementación de calcular, no incluida, y el punto de impresión mostrado.",
+      "strategy": "Obtén un caso reproducible y compara primero el valor calculado y después su formato."
     },
     "provenance": {
       "kind": "synthetic",
@@ -43,16 +43,16 @@
   {
     "schema_version": "1.0",
     "example_id": "sintetico-ambiguo-2",
-    "problem": "Imprimir el único elemento de un vector.",
+    "problem": "Calcular el resultado de una operación y respetar el formato solicitado. Solo se muestra el punto de impresión; faltan la implementación de calcular y el caso que falló.",
     "language": "C++",
-    "faulty_code": "std::vector<int> v(1); std::cout << v.at(1);\n",
+    "faulty_code": "std::cout << calcular(a, b);\n",
     "verdict": -1,
     "category": "unknown",
     "evidence": [
       "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
     ],
-    "concept": "Rango de índices",
-    "explanation": "Evidencia parcial: se mantienen varias causas posibles sin concluir un diagnóstico.",
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "El veredicto incorrecto no permite distinguir un valor mal calculado de una representación incorrecta. El fragmento por sí solo no demuestra la causa.",
     "uncertainty": {
       "confidence": 0.3,
       "alternatives": [
@@ -62,9 +62,9 @@
       "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
     },
     "hints": {
-      "concept": "¿Qué índices admite un vector de tamaño uno?",
-      "location": "Examina el argumento del acceso at.",
-      "strategy": "Dibuja los índices válidos y compara el acceso."
+      "concept": "¿Qué observaciones permiten separar un error de cálculo de uno de formato?",
+      "location": "Inspecciona la implementación de calcular, no incluida, y el punto de impresión mostrado.",
+      "strategy": "Obtén un caso reproducible y compara primero el valor calculado y después su formato."
     },
     "provenance": {
       "kind": "synthetic",
@@ -84,16 +84,16 @@
   {
     "schema_version": "1.0",
     "example_id": "sintetico-ambiguo-3",
-    "problem": "Calcular la suma de a y b.",
+    "problem": "Calcular el resultado de una operación y respetar el formato solicitado. Solo se muestra el punto de impresión; faltan la implementación de calcular y el caso que falló.",
     "language": "Java",
-    "faulty_code": "int total = 1; total += a; total += b;\n",
+    "faulty_code": "System.out.println(calcular(a, b));\n",
     "verdict": -1,
     "category": "unknown",
     "evidence": [
       "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
     ],
-    "concept": "Elemento neutro de la suma",
-    "explanation": "Evidencia parcial: se mantienen varias causas posibles sin concluir un diagnóstico.",
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "El veredicto incorrecto no permite distinguir un valor mal calculado de una representación incorrecta. El fragmento por sí solo no demuestra la causa.",
     "uncertainty": {
       "confidence": 0.3,
       "alternatives": [
@@ -103,9 +103,9 @@
       "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
     },
     "hints": {
-      "concept": "¿Qué significa iniciar un acumulador?",
-      "location": "Inspecciona el valor inicial de total.",
-      "strategy": "Traza dos entradas cero y compara los estados."
+      "concept": "¿Qué observaciones permiten separar un error de cálculo de uno de formato?",
+      "location": "Inspecciona la implementación de calcular, no incluida, y el punto de impresión mostrado.",
+      "strategy": "Obtén un caso reproducible y compara primero el valor calculado y después su formato."
     },
     "provenance": {
       "kind": "synthetic",
@@ -125,16 +125,16 @@
   {
     "schema_version": "1.0",
     "example_id": "sintetico-ambiguo-4",
-    "problem": "Procesar n=100000 elementos dentro de un segundo; work tiene costo constante.",
+    "problem": "Calcular el resultado de una operación y respetar el formato solicitado. Solo se muestra el punto de impresión; faltan la implementación de calcular y el caso que falló.",
     "language": "Python3",
-    "faulty_code": "for i in range(n):\n    for j in range(n):\n        work(i, j)\n",
+    "faulty_code": "print(calcular(a, b))\n",
     "verdict": -1,
     "category": "unknown",
     "evidence": [
       "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
     ],
-    "concept": "Costo de recorridos anidados",
-    "explanation": "Evidencia parcial: se mantienen varias causas posibles sin concluir un diagnóstico.",
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "El veredicto incorrecto no permite distinguir un valor mal calculado de una representación incorrecta. El fragmento por sí solo no demuestra la causa.",
     "uncertainty": {
       "confidence": 0.3,
       "alternatives": [
@@ -144,9 +144,9 @@
       "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
     },
     "hints": {
-      "concept": "¿Cómo se combinan dos recorridos completos?",
-      "location": "Cuenta las llamadas dentro del segundo bucle.",
-      "strategy": "Estima las operaciones para varios tamaños y busca trabajo repetido."
+      "concept": "¿Qué observaciones permiten separar un error de cálculo de uno de formato?",
+      "location": "Inspecciona la implementación de calcular, no incluida, y el punto de impresión mostrado.",
+      "strategy": "Obtén un caso reproducible y compara primero el valor calculado y después su formato."
     },
     "provenance": {
       "kind": "synthetic",
@@ -166,16 +166,16 @@
   {
     "schema_version": "1.0",
     "example_id": "sintetico-ambiguo-5",
-    "problem": "Calcular una media real con precisión fraccionaria.",
+    "problem": "Calcular el resultado de una operación y respetar el formato solicitado. Solo se muestra el punto de impresión; faltan la implementación de calcular y el caso que falló.",
     "language": "Golang",
-    "faulty_code": "media := (a + b) / 2 // a y b son int\n",
+    "faulty_code": "fmt.Println(calcular(a, b))\n",
     "verdict": -1,
     "category": "unknown",
     "evidence": [
       "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
     ],
-    "concept": "División entera y real",
-    "explanation": "Evidencia parcial: se mantienen varias causas posibles sin concluir un diagnóstico.",
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "El veredicto incorrecto no permite distinguir un valor mal calculado de una representación incorrecta. El fragmento por sí solo no demuestra la causa.",
     "uncertainty": {
       "confidence": 0.3,
       "alternatives": [
@@ -185,9 +185,9 @@
       "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
     },
     "hints": {
-      "concept": "¿La media siempre pertenece a los enteros?",
-      "location": "Revisa los tipos de los operandos de la división.",
-      "strategy": "Prueba dos números de distinta paridad y compara la precisión."
+      "concept": "¿Qué observaciones permiten separar un error de cálculo de uno de formato?",
+      "location": "Inspecciona la implementación de calcular, no incluida, y el punto de impresión mostrado.",
+      "strategy": "Obtén un caso reproducible y compara primero el valor calculado y después su formato."
     },
     "provenance": {
       "kind": "synthetic",
@@ -207,16 +207,16 @@
   {
     "schema_version": "1.0",
     "example_id": "sintetico-ambiguo-6",
-    "problem": "Imprimir el resultado según el formato solicitado; no se dispone de más evidencia.",
+    "problem": "Calcular el resultado de una operación y respetar el formato solicitado. Solo se muestra el punto de impresión; faltan la implementación de calcular y el caso que falló.",
     "language": "JavaScript",
-    "faulty_code": "console.log(calcular(datos));\n",
+    "faulty_code": "console.log(calcular(a, b));\n",
     "verdict": -1,
     "category": "unknown",
     "evidence": [
       "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
     ],
     "concept": "Diagnóstico con evidencia incompleta",
-    "explanation": "Evidencia parcial: se mantienen varias causas posibles sin concluir un diagnóstico.",
+    "explanation": "El veredicto incorrecto no permite distinguir un valor mal calculado de una representación incorrecta. El fragmento por sí solo no demuestra la causa.",
     "uncertainty": {
       "confidence": 0.3,
       "alternatives": [
@@ -226,9 +226,9 @@
       "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
     },
     "hints": {
-      "concept": "¿Qué evidencia separaría un error de formato de uno de cálculo?",
-      "location": "Revisa el límite entre calcular y la impresión.",
-      "strategy": "Obtén un caso reproducible y compara valor y formato por separado."
+      "concept": "¿Qué observaciones permiten separar un error de cálculo de uno de formato?",
+      "location": "Inspecciona la implementación de calcular, no incluida, y el punto de impresión mostrado.",
+      "strategy": "Obtén un caso reproducible y compara primero el valor calculado y después su formato."
     },
     "provenance": {
       "kind": "synthetic",

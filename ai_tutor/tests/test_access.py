@@ -60,8 +60,8 @@ class TutorAccessTests(ProblemCreateTestBase):
         other = self.create_user("otro", "clave", admin_type=AdminType.TEACHER, problem_permission=ProblemPermission.OWN)
         self.assertFailed(self.config(True))
         for role, permission, disabled in ((AdminType.REGULAR_USER, ProblemPermission.NONE, False),
-                                          (AdminType.TEACHER, ProblemPermission.NONE, False),
-                                          (AdminType.ADMIN, ProblemPermission.ALL, True)):
+                                           (AdminType.TEACHER, ProblemPermission.NONE, False),
+                                           (AdminType.ADMIN, ProblemPermission.ALL, True)):
             other.admin_type, other.problem_permission, other.is_disabled = role, permission, disabled
             other.save()
             self.assertFailed(self.config(True))

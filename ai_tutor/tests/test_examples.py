@@ -56,3 +56,9 @@ class ExampleValidationTests(SimpleTestCase):
         record = copy.deepcopy(self.records[0])
         record["provenance"].update(kind="historical", authorization=None)
         self.assertFalse(TutorExampleSerializer(data=record).is_valid())
+
+    def test_non_finite_confidence_is_rejected(self):
+        for confidence in (float("nan"), float("inf"), float("-inf")):
+            record = copy.deepcopy(self.records[0])
+            record["uncertainty"]["confidence"] = confidence
+            self.assertFalse(TutorExampleSerializer(data=record).is_valid())

@@ -10,6 +10,7 @@ from wsgiref.util import FileWrapper
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.deletion import ProtectedError
 from django.http import StreamingHttpResponse, FileResponse
 
 from account.decorators import problem_permission_required, ensure_created_by
@@ -322,7 +323,11 @@ class ProblemAPI(ProblemBase):
         #     shutil.rmtree(d, ignore_errors=True)
         problem_id = problem.id
         problem_display_id = problem._id
-        problem.delete()
+        try:
+            problem.delete()
+        except ProtectedError:
+            return self.error("El problema contiene historial de entrenamiento protegido. Puedes ocultarlo en lugar de eliminarlo.",
+                              err="protected-tutor-history")
         audit_log(request.user, "problem.delete", "Problem", problem_id, {"_id": problem_display_id})
         return self.success()
 

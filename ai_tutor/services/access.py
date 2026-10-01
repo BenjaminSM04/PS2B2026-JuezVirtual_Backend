@@ -54,5 +54,5 @@ def set_config(user, problem_id, enabled):
         config.updated_by = user
         config.save()
         transaction.on_commit(lambda: audit_log(user, "tutor_config_changed", "Problem", problem.id,
-                                               {"enabled_before": previous, "enabled_after": enabled}))
+                                                {"enabled_before": previous, "enabled_after": enabled}))
     return config_data(problem)

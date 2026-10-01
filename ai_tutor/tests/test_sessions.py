@@ -183,6 +183,16 @@ class TutorSessionTests(ProblemCreateTestBase):
         with self.assertRaises(IntegrityError), transaction.atomic():
             TutorSession.objects.filter(pk=session["id"]).update(highest_help_level=4)
 
+    def test_admin_delete_explains_protected_history_and_preserves_submission(self):
+        session = self.start()
+        submission = self.submission()
+        self.assertSuccess(self.attempt(session, submission))
+        self.client.login(username="admin", password="admin")
+        response = self.client.delete(f"/api/admin/problem?id={self.problem.id}")
+        self.assertEqual(response.data["error"], "protected-tutor-history")
+        self.assertTrue(Submission.objects.filter(pk=submission.id).exists())
+        self.assertTrue(TutorSession.objects.filter(pk=session["id"]).exists())
+
 
 class TutorConcurrencyTests(TransactionTestCase):
     def setUp(self):
