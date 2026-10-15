@@ -3,6 +3,7 @@ from unittest.mock import patch
 from rest_framework.test import APIClient
 
 from account.models import AdminType, ProblemPermission
+from ai_tutor.tests.config_factory import create_active_config
 from contest.models import Contest
 from contest.tests import DEFAULT_CONTEST_DATA
 from problem.tests import DEFAULT_PROBLEM_DATA, ProblemCreateTestBase
@@ -73,6 +74,7 @@ class TutorAccessTests(ProblemCreateTestBase):
         self.assertFailed(self.client.put(self.config_url, {"problem_id": self.problem.id}))
 
     def test_availability_is_safe_for_anonymous_disabled_and_hidden_problem(self):
+        create_active_config(self.problem, self.owner)
         self.assertSuccess(self.config(True))
         self.client.logout()
         response = self.client.get(self.availability_url, {"problem_id": self.problem.id})
