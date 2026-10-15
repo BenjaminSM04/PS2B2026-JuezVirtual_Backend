@@ -1,6 +1,6 @@
 from django.db import transaction
 
-from ai_tutor.models import TutorAttempt, TutorSession
+from ai_tutor.models import TutorAttempt, TutorProblemConfigVersion, TutorSession
 from ai_tutor.services.access import authorize
 from submission.models import JudgeStatus, Submission
 from utils.api import APIError
@@ -34,7 +34,12 @@ def read_session(user, problem_id):
 def create_or_recover(user, problem_id):
     # Todas las escrituras toman primero el problema y después la sesión.
     problem = authorize(user, problem_id, lock=True)
-    session, _ = TutorSession.objects.get_or_create(user=user, problem=problem, state="active")
+    session = TutorSession.objects.filter(user=user, problem=problem, state="active").first()
+    if session is None:
+        version = TutorProblemConfigVersion.objects.filter(problem=problem, status="active").first()
+        if version is None:
+            raise APIError("El problema requiere una configuración pedagógica activa.", err="tutor-config-required")
+        session = TutorSession.objects.create(user=user, problem=problem, config_version=version)
     session = TutorSession.objects.select_for_update().get(pk=session.pk)
     submissions = Submission.objects.select_for_update().filter(
         user_id=user.id, problem=problem, contest__isnull=True, create_time__gte=session.created_at,
@@ -65,6 +70,8 @@ def advance_help_level(session_id, level):
     if not isinstance(level, int) or isinstance(level, bool) or not 0 <= level <= 3:
         raise ValueError("El nivel debe ser un entero entre cero y tres.")
     session = TutorSession.objects.select_for_update().get(pk=session_id, state="active")
+    if session.config_version_id and level > session.config_version.hint_policy["max_help_level"]:
+        raise ValueError("El nivel supera la política de la versión de esta sesión.")
     if level > session.highest_help_level:
         session.highest_help_level = level
         session.save(update_fields=["highest_help_level", "updated_at"])

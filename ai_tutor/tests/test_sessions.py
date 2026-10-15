@@ -11,6 +11,7 @@ from rest_framework.test import APIClient
 from account.models import User
 from ai_tutor.models import TutorAttempt, TutorProblemConfig, TutorSession
 from ai_tutor.services.sessions import advance_help_level, create_or_recover, register_attempt
+from ai_tutor.tests.config_factory import create_active_config
 from contest.models import Contest
 from contest.tests import DEFAULT_CONTEST_DATA
 from problem.tests import DEFAULT_PROBLEM_DATA, ProblemCreateTestBase
@@ -22,6 +23,7 @@ class TutorSessionTests(ProblemCreateTestBase):
         self.owner = self.create_admin()
         self.problem = self.add_problem(DEFAULT_PROBLEM_DATA, self.owner)
         TutorProblemConfig.objects.create(problem=self.problem, enabled=True)
+        create_active_config(self.problem, self.owner)
         self.student = self.create_user("alumno", "clave")
         self.session_url = "/api/ai_tutor/session"
         self.attempt_url = "/api/ai_tutor/attempt"
@@ -200,6 +202,7 @@ class TutorConcurrencyTests(TransactionTestCase):
         self.user = User.objects.create(username="concurrente")
         self.problem = ProblemCreateTestBase.add_problem(DEFAULT_PROBLEM_DATA, self.user)
         TutorProblemConfig.objects.create(problem=self.problem, enabled=True)
+        create_active_config(self.problem, self.user)
 
     def parallel(self, function):
         barrier = Barrier(2)
