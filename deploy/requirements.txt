@@ -4,7 +4,7 @@ django-cas-ng==5.0.1
 django-dbconn-retry==0.1.7
 django-dramatiq==0.11.6
 django-redis==5.4.0
-Django==3.2.25
+Django==5.2.17
 djangorestframework==3.14.0
 dramatiq==1.16.0
 entrypoints==0.4
