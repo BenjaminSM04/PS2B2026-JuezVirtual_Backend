@@ -2,6 +2,8 @@
 
 Responsable de la tarjeta: Auza056. Autor de esta propuesta: BenjaminSM04.
 Estado: pendiente de revisión humana por otro integrante. Ningún ejemplo adjunto está aprobado.
+El procedimiento reproducible del ejercicio entre dos revisores está en
+`docs/ai-tutor/ejercicio-acuerdo.md`; sus resultados se registran allí, no en esta guía.
 
 ## Contrato y uso
 
@@ -53,7 +55,9 @@ corrección pedagógica o ausencia de una solución. Esos puntos requieren lectu
 
 `provenance.kind` distingue synthetic de historical. reference identifica el origen sin datos personales.
 historical exige authorization como referencia verificable a una autorización; el comando no verifica su validez institucional.
-synthetic exige authorization=null. La recolección autorizada se implementará en PB-05.
+synthetic exige authorization=null. La recolección autorizada se implementó en PB-05 con
+`ai_tutor/dataset/anonymize.py` y el comando `export_authorized_submissions`
+(exportación real solo con `--authorization-file`; sin autorización, constancia de no uso; detalles en `docs/ai-tutor/origen-datos.md`).
 
 `review` contiene author, authored_at, reviewer, reviewed_at, approved_at, status y notes.
 Estados: draft (escrito), review (listo para revisar), approved (decisión humana favorable), rejected (decisión desfavorable).
@@ -63,6 +67,10 @@ Estos metadatos son declaraciones: la herramienta no autentica al revisor ni ree
 Registrar la revisión real con un enlace a PR/comentario o acta en notes, jamás simular aprobación.
 
 ## Lista para dos revisores y desacuerdos
+
+El paso a paso de este trabajo, incluyendo la plantilla de coincidencias y el registro
+de desacuerdos, está en `docs/ai-tutor/ejercicio-acuerdo.md`. Los criterios siguientes
+resumen lo mínimo exigido:
 
 - Leer enunciado, fragmento y evidencia; separar lo observado de lo supuesto.
 - Asignar categoría siguiendo inclusiones/exclusiones, concepto y confianza.
