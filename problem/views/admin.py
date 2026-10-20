@@ -31,7 +31,7 @@ from ..serializers import (CreateContestProblemSerializer, CompileSPJSerializer,
                            AddContestProblemSerializer, ExportProblemSerializer,
                            ExportProblemRequestSerialzier, UploadProblemForm, ImportProblemSerializer,
                            FPSProblemSerializer)
-from ..utils import TEMPLATE_BASE, build_problem_template
+from ..utils import TEMPLATE_BASE, build_problem_template, resolve_import_difficulty
 
 
 class TestCaseZipProcessor(object):
@@ -659,7 +659,7 @@ class ImportProblemAPI(SameOriginCSRFExemptAPIView, TestCaseZipProcessor):
                                                              created_by=resolved_creator,
                                                              share_mode=share_mode,
                                                              visible=True,
-                                                             difficulty=Difficulty.MID,
+                                                             difficulty=resolve_import_difficulty(problem_info),
                                                              total_score=sum(item["score"] for item in test_case_score)
                                                              if rule_type == ProblemRuleType.OI else 0,
                                                              test_case_id=test_case_id
