@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 APP=/app
 DATA=/data
@@ -6,7 +7,7 @@ DATA=/data
 mkdir -p $DATA/log $DATA/config $DATA/ssl $DATA/test_case $DATA/public/upload $DATA/public/avatar $DATA/public/website
 
 if [ ! -f "$DATA/config/secret.key" ]; then
-    echo $(cat /dev/urandom | head -1 | md5sum | head -c 32) > "$DATA/config/secret.key"
+    (umask 077; python -c 'import secrets; print(secrets.token_urlsafe(64))' > "$DATA/config/secret.key")
 fi
 
 if [ ! -f "$DATA/public/avatar/default.png" ]; then
@@ -59,8 +60,7 @@ n=0
 while [ $n -lt 5 ]
 do
     python manage.py migrate --no-input &&
-    python manage.py inituser --username=root --password=rootroot --action=create_super_admin &&
-    echo "from options.options import SysOptions; SysOptions.judge_server_token='$JUDGE_SERVER_TOKEN'" | python manage.py shell &&
+    python -c 'import os; os.environ.setdefault("DJANGO_SETTINGS_MODULE", "oj.settings"); import django; django.setup(); from options.options import SysOptions; SysOptions.judge_server_token = os.environ["JUDGE_SERVER_TOKEN"]' &&
     echo "from conf.models import JudgeServer; JudgeServer.objects.update(task_number=0)" | python manage.py shell &&
     break
     n=$(($n+1))
@@ -68,10 +68,21 @@ do
     sleep 8
 done
 
-addgroup -g 903 spj
-adduser -u 900 -S -G spj server
+if [ "$n" -eq 5 ]; then
+    echo "No se completaron las migraciones. Se cancela el arranque." >&2
+    exit 1
+fi
+
+# Los administradores se crean explícitamente; nunca con credenciales conocidas.
+if ! getent group spj >/dev/null 2>&1; then
+    addgroup -g 903 spj
+fi
+if ! id server >/dev/null 2>&1; then
+    adduser -u 900 -S -G spj server
+fi
 
 chown -R server:spj $DATA $APP/dist
+chmod 600 "$DATA/config/secret.key"
 find $DATA/test_case -type d -exec chmod 710 {} \;
 find $DATA/test_case -type f -exec chmod 640 {} \;
 exec supervisord -c /app/deploy/supervisord.conf

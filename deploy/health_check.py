@@ -6,6 +6,6 @@ if __name__ == "__main__":
             info = server.supervisor.getAllProcessInfo()
             error_states = list(filter(lambda x: x["state"] != 20, info))
             exit(len(error_states))
-    except Exception as e:
-        print(e.with_traceback())
+    except Exception:
+        print("No se pudo consultar el estado de los procesos.")
         exit(1)
