@@ -18,7 +18,9 @@ jobs:
           POSTGRES_USER: onlinejudge
           POSTGRES_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}
         ports: ['5432:5432']
-        options: --health-cmd 'pg_isready -U onlinejudge -d onlinejudge' --health-interval 5s --health-retries 15
+        options: >-
+          --health-cmd "pg_isready -U onlinejudge -d onlinejudge"
+          --health-interval 5s --health-retries 15
       redis:
         image: redis:7-alpine
         ports: ['6379:6379']
