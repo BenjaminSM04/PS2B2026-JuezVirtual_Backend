@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 import os
-import raven
+import sentry_sdk
 from copy import deepcopy
 from utils.shortcuts import get_env
 
@@ -37,11 +37,10 @@ VENDOR_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_dramatiq',
-    'django_dbconn_retry',
 ]
 
 if use_sentry:
-    VENDOR_APPS.append('raven.contrib.django.raven_compat')
+    sentry_sdk.init(dsn=SENTRY_DSN, send_default_pii=False)
 
 
 LOCAL_APPS = [
@@ -55,6 +54,7 @@ LOCAL_APPS = [
     'options',
     'judge',
     'ai_tutor',
+    'practice.apps.PracticeConfig',
 ]
 
 INSTALLED_APPS = VENDOR_APPS + LOCAL_APPS
@@ -141,7 +141,7 @@ UPLOAD_DIR = f"{DATA_DIR}{UPLOAD_PREFIX}"
 STATICFILES_DIRS = [os.path.join(DATA_DIR, "public")]
 
 
-LOGGING_HANDLERS = ['console', 'sentry'] if use_sentry else ['console']
+LOGGING_HANDLERS = ['console']
 LOGGING = {
    'version': 1,
    'disable_existing_loggers': False,
@@ -157,11 +157,6 @@ LOGGING = {
            'class': 'logging.StreamHandler',
            'formatter': 'standard'
        },
-       'sentry': {
-           'level': 'ERROR',
-           'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-           'formatter': 'standard'
-       }
    },
    'loggers': {
        'django.request': {
@@ -255,3 +250,7 @@ RAVEN_CONFIG = {
 IP_HEADER = "HTTP_X_REAL_IP"
 
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+
+AI_TUTOR_MODEL_ENABLED = get_env("AI_TUTOR_MODEL_ENABLED", "0") == "1"
+AI_TUTOR_ENGINE_URL = get_env("AI_TUTOR_ENGINE_URL", "http://oj-tutor:8080")
+AI_TUTOR_ENGINE_TIMEOUT = 2

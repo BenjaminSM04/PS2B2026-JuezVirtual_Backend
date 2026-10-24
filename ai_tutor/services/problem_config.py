@@ -45,7 +45,7 @@ def activate_version(user, problem_id, version_id):
         return version
     if version.status != "draft":
         raise APIError("Una versión retirada no puede reactivarse. Cree otro borrador.", err="tutor-config-retired")
-    validate_content({key: getattr(version, key) for key in ("schema_version", "concepts", "hint_policy")})
+    validate_content({key: getattr(version, key) for key in ("schema_version", "concepts", "hint_policy", "concept_explanations")})
     previous = TutorProblemConfigVersion.objects.filter(problem=problem, status="active").first()
     if previous:
         TutorProblemConfigVersion.objects.filter(pk=previous.pk).update(status="retired")

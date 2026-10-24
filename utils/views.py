@@ -2,7 +2,8 @@ import os
 from django.conf import settings
 from account.serializers import ImageUploadForm, FileUploadForm
 from utils.shortcuts import rand_str
-from utils.api import SameOriginCSRFExemptAPIView
+from utils.api import APIView
+from account.decorators import problem_permission_required
 import logging
 
 logger = logging.getLogger(__name__)
@@ -18,9 +19,10 @@ ALLOWED_FILE_SUFFIXES = [
 ]
 
 
-class SimditorImageUploadAPIView(SameOriginCSRFExemptAPIView):
+class SimditorImageUploadAPIView(APIView):
     request_parsers = ()
 
+    @problem_permission_required
     def post(self, request):
         form = ImageUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -54,9 +56,10 @@ class SimditorImageUploadAPIView(SameOriginCSRFExemptAPIView):
             "file_path": f"{settings.UPLOAD_PREFIX}/{img_name}"})
 
 
-class SimditorFileUploadAPIView(SameOriginCSRFExemptAPIView):
+class SimditorFileUploadAPIView(APIView):
     request_parsers = ()
 
+    @problem_permission_required
     def post(self, request):
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():

@@ -23,5 +23,14 @@ class MyRedisCache(RedisCache):
         super().__init__(server, params)
         self._client_cls = MyRedisClient
 
+    # El limitador histórico guarda números Redis, no objetos serializados de
+    # Django. django-redis 7 añadió hset con serialización: conservar explícitamente
+    # ambos extremos del protocolo anterior y sus claves sin prefijo nuevo.
+    def hset(self, key, field, value):
+        return self.client.get_client(write=True).hset(key, field, value)
+
+    def hget(self, key, field):
+        return self.client.get_client(write=True).hget(key, field)
+
     def __getattr__(self, item):
         return getattr(self.client, item)
