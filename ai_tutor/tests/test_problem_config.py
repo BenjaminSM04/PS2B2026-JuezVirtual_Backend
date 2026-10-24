@@ -194,6 +194,8 @@ class ProblemConfigTests(ProblemCreateTestBase):
         with self.assertRaises(IntegrityError), transaction.atomic():
             TutorProblemConfigVersion.objects.filter(pk=first.id).update(concepts=["Otro concepto"])
         with self.assertRaises(IntegrityError), transaction.atomic():
+            TutorProblemConfigVersion.objects.filter(pk=first.id).update(concept_explanations={"Otro": "Texto distinto"})
+        with self.assertRaises(IntegrityError), transaction.atomic():
             TutorProblemConfigVersion.objects.filter(pk=first.id).update(id=first.id + 1000)
         activate_version(self.owner, self.problem.id, first.id)
         session = create_or_recover(self.owner, self.problem.id)
@@ -342,6 +344,10 @@ class ProblemConfigMigrationTests(TransactionTestCase):
             executor.migrate([self.migrate_to])
             session = TutorSession.objects.get(pk=old_session.pk)
             self.assertIsNone(session.config_version_id)
+            # Los servicios actuales requieren el esquema actual; la transición
+            # histórica se comprueba antes de restaurar las migraciones siguientes.
+            executor = MigrationExecutor(connection)
+            executor.migrate(executor.loader.graph.leaf_nodes())
             self.assertEqual(create_or_recover(user, problem.id).id, session.id)
             self.assertFalse(TutorProblemConfigVersion.objects.exists())
             with self.assertRaises(APIError):
@@ -359,4 +365,5 @@ class ProblemConfigMigrationTests(TransactionTestCase):
             executor.migrate([self.migrate_to])
             self.assertIsNone(TutorSession.objects.get(pk=session.id).config_version_id)
         finally:
-            MigrationExecutor(connection).migrate([self.migrate_to])
+            executor = MigrationExecutor(connection)
+            executor.migrate(executor.loader.graph.leaf_nodes())

@@ -19,9 +19,12 @@ def _owned_session(user, session_id):
 
 
 def _snapshot(session, submission):
+    # La entrega pudo finalizar después de otra pista. Su nivel corresponde al
+    # instante de envío, no al momento de consultar o reconciliar el resultado.
+    hint = session.feedback.filter(action="hint", created_at__lte=submission.create_time).order_by("-level").first()
     attempt, _ = TutorAttempt.objects.get_or_create(
         session=session, submission=submission,
-        defaults={"language": submission.language, "result": submission.result, "help_level": session.highest_help_level})
+        defaults={"language": submission.language, "result": submission.result, "help_level": hint.level if hint else 0})
     return attempt
 
 

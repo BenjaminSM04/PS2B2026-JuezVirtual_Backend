@@ -1,4 +1,5 @@
 from django.urls import path
+from ai_tutor.views.oj import TutorFeedbackAPI, TutorRatingAPI
 
 from ai_tutor.views import (
     TutorActiveConfigAPI, TutorAttemptAPI, TutorAvailabilityAPI, TutorConfigAPI,
@@ -6,6 +7,8 @@ from ai_tutor.views import (
 )
 
 urlpatterns = [
+    path("ai_tutor/feedback", TutorFeedbackAPI.as_view(), name="tutor_feedback_api"),
+    path("ai_tutor/rating", TutorRatingAPI.as_view(), name="tutor_rating_api"),
     path("admin/ai_tutor/config", TutorConfigAPI.as_view(), name="tutor_config_api"),
     path("admin/ai_tutor/config/versions", TutorConfigVersionAPI.as_view(), name="tutor_config_versions_api"),
     path("admin/ai_tutor/config/active", TutorActiveConfigAPI.as_view(), name="tutor_config_active_api"),

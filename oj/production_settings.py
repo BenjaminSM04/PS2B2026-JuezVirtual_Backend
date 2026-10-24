@@ -18,6 +18,13 @@ REDIS_CONF = {
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [item.strip() for item in get_env("ALLOWED_HOSTS", "localhost,127.0.0.1,oj-backend,testserver").split(",") if item.strip()]
+CSRF_TRUSTED_ORIGINS = [item.strip() for item in get_env("CSRF_TRUSTED_ORIGINS", "").split(",") if item.strip()]
+SESSION_COOKIE_SECURE = get_env("COOKIE_SECURE", "0") == "1"
+CSRF_COOKIE_SECURE = SESSION_COOKIE_SECURE
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+if get_env("TRUST_PROXY_HTTPS", "0") == "1":
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 DATA_DIR = "/data"

@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path as url
 
 from ..views import SMTPAPI, JudgeServerAPI, WebsiteConfigAPI, TestCasePruneAPI, SMTPTestAPI
 from ..views import ReleaseNotesAPI, DashboardInfoAPI, EmailHealthCheckAPI

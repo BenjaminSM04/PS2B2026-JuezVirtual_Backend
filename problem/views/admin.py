@@ -22,6 +22,7 @@ from options.options import SysOptions
 from submission.models import Submission, JudgeStatus
 from utils.api import APIView, SameOriginCSRFExemptAPIView, validate_serializer, APIError
 from utils.audit import audit_log
+from utils.archive import validate_archive
 from utils.constants import Difficulty
 from utils.shortcuts import rand_str, natural_sort_key
 from utils.tasks import delete_files
@@ -42,6 +43,7 @@ class TestCaseZipProcessor(object):
         except zipfile.BadZipFile:
             raise APIError("Bad zip file")
         name_list = zip_file.namelist()
+        validate_archive(zip_file)
         test_case_list = self.filter_name_list(name_list, spj=spj, dir=dir)
         if not test_case_list:
             raise APIError("Empty file")
@@ -119,7 +121,7 @@ class TestCaseZipProcessor(object):
                     return sorted(ret, key=natural_sort_key)
 
 
-class TestCaseAPI(SameOriginCSRFExemptAPIView, TestCaseZipProcessor):
+class TestCaseAPI(APIView, TestCaseZipProcessor):
     request_parsers = ()
 
     def get(self, request):
@@ -590,7 +592,7 @@ def resolve_import_creator(created_by_username, importer):
     return importer
 
 
-class ImportProblemAPI(SameOriginCSRFExemptAPIView, TestCaseZipProcessor):
+class ImportProblemAPI(APIView, TestCaseZipProcessor):
     request_parsers = ()
 
     def post(self, request):
@@ -606,6 +608,7 @@ class ImportProblemAPI(SameOriginCSRFExemptAPIView, TestCaseZipProcessor):
 
         count = 0
         with zipfile.ZipFile(tmp_file, "r") as zip_file:
+            validate_archive(zip_file)
             name_list = zip_file.namelist()
             for item in name_list:
                 if "/problem.json" in item:
@@ -677,7 +680,7 @@ class ImportProblemAPI(SameOriginCSRFExemptAPIView, TestCaseZipProcessor):
         return self.success({"import_count": count})
 
 
-class FPSProblemImport(SameOriginCSRFExemptAPIView):
+class FPSProblemImport(APIView):
     request_parsers = ()
 
     def _create_problem(self, problem_data, creator):

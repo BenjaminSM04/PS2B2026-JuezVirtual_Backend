@@ -61,7 +61,7 @@ class DispatcherBase(object):
         if data:
             kwargs["json"] = data
         try:
-            return requests.post(url, **kwargs).json()
+            return requests.post(url, timeout=(3, 65), **kwargs).json()
         except Exception as e:
             logger.exception(e)
 

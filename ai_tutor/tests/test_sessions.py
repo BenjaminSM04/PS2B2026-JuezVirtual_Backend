@@ -132,7 +132,8 @@ class TutorSessionTests(ProblemCreateTestBase):
         advance_help_level(current.id, 2)
         advance_help_level(current.id, 1)
         self.assertSuccess(self.attempt(session, submission))
-        self.assertEqual(TutorAttempt.objects.get().help_level, 2)
+        # La entrega se envió antes del avance interno; conserva nivel cero.
+        self.assertEqual(TutorAttempt.objects.get().help_level, 0)
         current.refresh_from_db()
         self.assertEqual(current.highest_help_level, 2)
         with self.assertRaises(ValueError):
@@ -231,3 +232,25 @@ class TutorConcurrencyTests(TransactionTestCase):
         ids = self.parallel(lambda user: register_attempt(user, session.id, submission.id).id)
         self.assertEqual(ids[0], ids[1])
         self.assertEqual(TutorAttempt.objects.count(), 1)
+
+    def test_simultaneous_feedback_has_one_response_and_metric(self):
+        import uuid
+        from ai_tutor.services.feedback import feedback
+        from ai_tutor.models import TutorFeedback, TutorMetric
+        session = create_or_recover(self.user, self.problem.id)
+        Submission.objects.create(problem=self.problem, user_id=self.user.id, username=self.user.username,
+                                  code="x", language="C", result=-1)
+        request = uuid.uuid4()
+        ids = self.parallel(lambda user: feedback(user, session.id, request, "hint", level=1).id)
+        self.assertEqual(ids[0], ids[1])
+        self.assertEqual(TutorFeedback.objects.count(), 1)
+        self.assertEqual(TutorMetric.objects.count(), 1)
+
+    def test_simultaneous_accepted_results_create_one_achievement(self):
+        from practice.models import Achievement
+        from practice.services import record_accepted
+        submission = Submission.objects.create(problem=self.problem, user_id=self.user.id, username=self.user.username,
+                                                code="x", language="C", result=0)
+        Achievement.objects.all().delete()
+        self.parallel(lambda user: record_accepted(Submission.objects.get(pk=submission.id)))
+        self.assertEqual(Achievement.objects.count(), 1)

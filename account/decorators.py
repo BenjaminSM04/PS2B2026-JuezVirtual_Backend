@@ -1,6 +1,9 @@
 import functools
 import hashlib
 import time
+from contextvars import ContextVar
+
+_request_context = ContextVar("permission_request")
 
 from problem.models import Problem
 from contest.models import Contest, ContestType, ContestStatus, ContestRuleType
@@ -20,14 +23,19 @@ class BasePermissionDecorator(object):
         return JSONResponse.response({"error": "permission-denied", "data": data})
 
     def __call__(self, *args, **kwargs):
-        self.request = args[1]
-
-        if self.check_permission():
-            if self.request.user.is_disabled:
-                return self.error("Your account is disabled")
-            return self.func(*args, **kwargs)
-        else:
+        token = _request_context.set(args[1])
+        try:
+            if self.check_permission():
+                if self.request.user.is_disabled:
+                    return self.error("Your account is disabled")
+                return self.func(*args, **kwargs)
             return self.error("Please login first")
+        finally:
+            _request_context.reset(token)
+
+    @property
+    def request(self):
+        return _request_context.get()
 
     def check_permission(self):
         raise NotImplementedError()
@@ -36,6 +44,11 @@ class BasePermissionDecorator(object):
 class login_required(BasePermissionDecorator):
     def check_permission(self):
         return self.request.user.is_authenticated
+
+
+class session_required(login_required):
+    def check_permission(self):
+        return super().check_permission() and getattr(self.request, "auth_method", "session") == "session"
 
 
 class super_admin_required(BasePermissionDecorator):

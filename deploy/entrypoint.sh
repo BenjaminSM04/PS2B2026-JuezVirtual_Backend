@@ -60,6 +60,7 @@ n=0
 while [ $n -lt 5 ]
 do
     python manage.py migrate --no-input &&
+    python manage.py reconcile_mascot &&
     python -c 'import os; os.environ.setdefault("DJANGO_SETTINGS_MODULE", "oj.settings"); import django; django.setup(); from options.options import SysOptions; SysOptions.judge_server_token = os.environ["JUDGE_SERVER_TOKEN"]' &&
     echo "from conf.models import JudgeServer; JudgeServer.objects.update(task_number=0)" | python manage.py shell &&
     break
