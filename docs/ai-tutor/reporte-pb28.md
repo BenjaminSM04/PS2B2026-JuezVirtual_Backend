@@ -14,8 +14,9 @@ Evidencia disponible en el repositorio de integración:
   teclado, modo oscuro, movimiento reducido y anchos 320/375/1280. Veredictos
   sembrados expresamente; no sustituye la prueba del juez.
 - `scripts/verify_judge.py`: juez real por digest, token y seis lenguajes. Pruebas
-  directas del protocolo distintas del flujo navegador/cola; no inferir un E2E
-  de envío en navegador a partir de juntar ambas evidencias.
+  directas del protocolo; `verify_submission_e2e.py` comprueba por separado seis
+  envíos desde Chromium mediante la API y Dramatiq hasta el juez, sin sembrar
+  sus veredictos, y un único logro por problema.
 - `scripts/test_tutor_engine.py`: regresiones de programa inline y artefacto GGUF
   distinto del cargado. Sin descargar ni fingir aprobación de un modelo.
 - Suite Django completa sobre PostgreSQL 17; fuentes en tests, no identidad o
