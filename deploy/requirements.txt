@@ -9,7 +9,7 @@ dramatiq==2.2.1
 entrypoints==0.4
 Envelopes==0.4
 flake8-coding==1.3.2
-flake8-quotes==3.3.2
+flake8-quotes==3.4.0
 flake8==7.0.0
 gunicorn==26.2.0
 jsonfield==3.1.0
