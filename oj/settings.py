@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import sentry_sdk
 from copy import deepcopy
-from utils.shortcuts import get_env, get_env_bool
+from utils.shortcuts import get_env, get_env_bool, get_env_number
 
 production_env = get_env("OJ_ENV", "dev") == "production"
 # Sentry solo se activa con un DSN propio (el del upstream estaba hardcoded)
@@ -253,4 +253,6 @@ DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 AI_TUTOR_MODEL_ENABLED = get_env_bool("AI_TUTOR_MODEL_ENABLED")
 AI_TUTOR_ENGINE_URL = get_env("AI_TUTOR_ENGINE_URL", "http://oj-tutor:8080")
-AI_TUTOR_ENGINE_TIMEOUT = 2
+# Presupuesto total (s) de una petición al motor; debe ser mayor que MODEL_TIMEOUT_S
+# del motor. Ocupa un worker del backend hasta ese tiempo, de ahí el tope de 30.
+AI_TUTOR_ENGINE_TIMEOUT = get_env_number("AI_TUTOR_ENGINE_TIMEOUT", 10, 1, 30)

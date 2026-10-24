@@ -4,7 +4,7 @@ from unittest import mock
 from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase
 
-from utils.shortcuts import env_list, get_env_bool
+from utils.shortcuts import env_list, get_env_bool, get_env_number
 
 VAR = "OJ_TEST_BOOL"
 
@@ -36,6 +36,27 @@ class GetEnvBoolTests(SimpleTestCase):
             os.environ.pop(VAR, None)
             self.assertIs(get_env_bool(VAR), False)
             self.assertIs(get_env_bool(VAR, True), True)
+
+
+class GetEnvNumberTests(SimpleTestCase):
+    NOMBRE = "OJ_TEST_NUMERO"
+
+    def test_valores_validos(self):
+        for valor, esperado in (("1", 1), ("10", 10), (" 2.5 ", 2.5), ("30", 30)):
+            with _entorno(**{self.NOMBRE: valor}):
+                self.assertEqual(get_env_number(self.NOMBRE, 10, 1, 30), esperado, valor)
+
+    def test_valor_invalido_o_fuera_de_rango_falla_cerrado(self):
+        for valor in ("0", "0.9", "31", "-5", "abc", "", "  ", "nan", "inf", "-inf"):
+            with _entorno(**{self.NOMBRE: valor}):
+                with self.assertRaises(ImproperlyConfigured, msg=repr(valor)) as ctx:
+                    get_env_number(self.NOMBRE, 10, 1, 30)
+                self.assertIn(self.NOMBRE, str(ctx.exception))
+
+    def test_ausente_usa_default(self):
+        with mock.patch.dict(os.environ):
+            os.environ.pop(self.NOMBRE, None)
+            self.assertEqual(get_env_number(self.NOMBRE, 10, 1, 30), 10)
 
 
 class EnvListTests(SimpleTestCase):

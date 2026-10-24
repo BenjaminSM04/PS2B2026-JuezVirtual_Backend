@@ -10,6 +10,13 @@ import subprocess
 from ai_tutor.dataset.pipeline import load_dataset, canonical, sha
 
 
+def training_dtype(torch):
+    """bf16 solo con soporte nativo (capacidad >= 8.0); en Turing/T4 se emula y conviene fp16."""
+    if not torch.cuda.is_available():
+        return torch.float32
+    return torch.bfloat16 if torch.cuda.get_device_capability(0)[0] >= 8 else torch.float16
+
+
 def train_model(dataset_directory, selection_path, output_directory, resume=False, quantized=True):
     partitions, dataset_manifest = load_dataset(dataset_directory)
     selection = json.loads(Path(selection_path).read_text(encoding="utf-8"))
@@ -47,7 +54,7 @@ def train_model(dataset_directory, selection_path, output_directory, resume=Fals
     output.mkdir(parents=True, exist_ok=True)
     (output / "training-input.json").write_text(canonical({"dataset": dataset_manifest["version"], "selection": sha(selection_path)}))
     set_seed(2026)
-    dtype = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else torch.float32
+    dtype = training_dtype(torch)
     config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=dtype) if quantized else None
     tokenizer = AutoTokenizer.from_pretrained(selection["model_id"], revision=selection["revision"], trust_remote_code=False,
                                               token=os.environ.get("HF_TOKEN"))
@@ -76,14 +83,15 @@ def train_model(dataset_directory, selection_path, output_directory, resume=Fals
     arguments = TrainingArguments(output_dir=str(output), seed=2026, data_seed=2026, num_train_epochs=3,
         per_device_train_batch_size=1, per_device_eval_batch_size=1, gradient_accumulation_steps=8,
         learning_rate=0.0002, eval_strategy="epoch", save_strategy="epoch", save_total_limit=2,
-        report_to="none", logging_steps=10, bf16=dtype == torch.bfloat16, dataloader_num_workers=0)
+        report_to="none", logging_steps=10, bf16=dtype == torch.bfloat16, fp16=dtype == torch.float16, dataloader_num_workers=0)
     trainer = Trainer(model=model, args=arguments, train_dataset=encode(partitions["train"]), eval_dataset=encode(partitions["validation"]),
         data_collator=DataCollatorForSeq2Seq(tokenizer=tokenizer, padding=True), processing_class=tokenizer)
     result = trainer.train(resume_from_checkpoint=True if resume else None)
     trainer.save_model(str(output / "adapter"))
     tokenizer.save_pretrained(str(output / "adapter"))
     metrics = {"training": result.metrics, "validation": trainer.evaluate(), "hardware": {"platform": platform.platform(),
-        "cuda": torch.version.cuda, "device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"},
+        "cuda": torch.version.cuda, "device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu",
+        "dtype": str(dtype).replace("torch.", "")},
         "dataset_version": dataset_manifest["version"], "selection_sha256": sha(selection_path),
         "files": {str(file.relative_to(output)): sha(file) for file in (output / "adapter").rglob("*") if file.is_file()}}
     (output / "training-result.json").write_text(canonical(metrics), encoding="utf-8")

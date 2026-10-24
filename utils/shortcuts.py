@@ -123,6 +123,25 @@ def get_env_bool(name, default=False):
         f"Valor no válido para {name}: {raw!r}. Use 1/true/yes/on/si o 0/false/no/off.")
 
 
+def get_env_number(name, default, minimum, maximum):
+    """Lee un número finito de configuración del entorno dentro de [minimum, maximum].
+
+    Un valor no numérico, no finito o fuera de rango (incluido vacío) lanza
+    ImproperlyConfigured en lugar de degradar en silencio. Ausente -> default.
+    """
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    try:
+        value = float(raw)
+    except ValueError:
+        value = None
+    if value is None or not minimum <= value <= maximum:  # NaN también falla
+        raise ImproperlyConfigured(
+            f"Valor no válido para {name}: {raw!r}. Use un número entre {minimum} y {maximum}.")
+    return value
+
+
 def _split_env_list(raw):
     return [item.strip() for item in raw.split(",") if item.strip()]
 
