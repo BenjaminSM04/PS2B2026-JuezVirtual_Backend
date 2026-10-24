@@ -1,4 +1,7 @@
 """Lógica compartida por los comandos que registran decisiones humanas de revisión."""
+import hashlib
+import json
+
 from django.utils import timezone
 
 CLOSED_STATUSES = ("approved", "rejected")
@@ -6,7 +9,8 @@ DECISIONS = ("review", "approved", "rejected")
 
 # Columnas de contenido de la planilla: solo lectura para la persona que revisa.
 CONTENT_COLUMNS = ("example_id", "language", "category", "verdict", "concept", "problem", "faulty_code",
-                   "evidence", "explanation", "hint_concept", "hint_location", "hint_strategy", "author")
+                   "evidence", "explanation", "hint_concept", "hint_location", "hint_strategy", "author",
+                   "uncertainty", "provenance", "content_sha256")
 # Columnas que llena la persona que revisa.
 HUMAN_COLUMNS = ("decision", "reviewer", "notes")
 SHEET_COLUMNS = CONTENT_COLUMNS + HUMAN_COLUMNS
@@ -25,12 +29,20 @@ def record_decision(item, reviewer, decision, notes, now=None):
 
 def sheet_content(item):
     """Valores de las columnas de contenido tal como se exportan y se comparan."""
+    # Vincular también campos futuros y metadatos a la versión realmente vista.
+    # Se excluyen únicamente decisiones de revisión, que este comando modifica.
+    content = {key: value for key, value in item.items() if key != "review"}
+    content["author"] = item["review"]["author"]
+    canonical = json.dumps(content, sort_keys=True, ensure_ascii=True, separators=(",", ":"))
     return {"example_id": item["example_id"], "language": item["language"], "category": item["category"],
             "verdict": str(item["verdict"]), "concept": item["concept"], "problem": item["problem"],
             "faulty_code": item["faulty_code"], "evidence": "\n".join(item["evidence"]),
             "explanation": item["explanation"], "hint_concept": item["hints"]["concept"],
             "hint_location": item["hints"]["location"], "hint_strategy": item["hints"]["strategy"],
-            "author": item["review"]["author"]}
+            "author": item["review"]["author"],
+            "uncertainty": json.dumps(item["uncertainty"], sort_keys=True, ensure_ascii=False),
+            "provenance": json.dumps(item["provenance"], sort_keys=True, ensure_ascii=False),
+            "content_sha256": hashlib.sha256(canonical.encode()).hexdigest()}
 
 
 def normalize_cell(value):

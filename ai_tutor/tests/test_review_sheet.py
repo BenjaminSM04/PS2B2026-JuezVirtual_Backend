@@ -169,6 +169,15 @@ class ReviewSheetTests(SimpleTestCase):
         rows[2]["notes"] = ""
         self.assert_rejected(rows, "Fila 4")
 
+    def test_source_changes_in_uncertainty_or_provenance_invalidate_sheet(self):
+        for field, key in (("uncertainty", "reason"), ("provenance", "reference")):
+            with self.subTest(field=field):
+                rows = self.filled(count=1)
+                changed = copy.deepcopy(self.records)
+                changed[0][field][key] += " contenido posterior a la revisión"
+                source = self.write_source(changed, "cambiado.json")
+                self.assert_rejected(rows, "se vuelve a exportar la planilla", source=source)
+
     def test_empty_rows_and_rows_without_decision_are_ignored(self):
         rows = self.filled(count=1)
         blank = dict.fromkeys(SHEET_COLUMNS, "")

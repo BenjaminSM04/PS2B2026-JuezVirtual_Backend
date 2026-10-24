@@ -17,6 +17,23 @@ def training_dtype(torch):
     return torch.bfloat16 if torch.cuda.get_device_capability(0)[0] >= 8 else torch.float16
 
 
+def training_source(selection, candidate):
+    """No confundir el GGUF medido con los pesos safetensors de origen."""
+    source = selection.get("training_model")
+    if source is None:
+        if "gguf" in selection["model_id"].casefold():
+            raise ValueError("El candidato GGUF requiere training_model con procedencia safetensors revisada.")
+        return {key: selection[key] for key in ("model_id", "revision", "license")}
+    required = {"model_id", "revision", "license", "provenance"}
+    if not isinstance(source, dict) or not required <= source.keys() or any(not isinstance(source[key], str) or not source[key].strip() for key in required):
+        raise ValueError("training_model requiere model_id, revision, license y provenance no vacíos.")
+    if "gguf" in source["model_id"].casefold() or not re.fullmatch(r"[0-9a-f]{40}", source["revision"]):
+        raise ValueError("training_model debe identificar pesos entrenables y su revisión inmutable.")
+    if candidate.get("training_model") != source:
+        raise ValueError("training_model no coincide con la procedencia incluida en el benchmark revisado.")
+    return source
+
+
 def train_model(dataset_directory, selection_path, output_directory, resume=False, quantized=True):
     partitions, dataset_manifest = load_dataset(dataset_directory)
     selection = json.loads(Path(selection_path).read_text(encoding="utf-8"))
@@ -36,6 +53,7 @@ def train_model(dataset_directory, selection_path, output_directory, resume=Fals
         raise ValueError("Se requieren al menos dos candidatos medidos y una selección coincidente.")
     if any(response.get("human_review") != "approved" for response in selected[0]["responses"]):
         raise ValueError("La muestra del modelo elegido requiere revisión humana real.")
+    source = training_source(selection, selected[0]["candidate"])
     output = Path(output_directory)
     if output.exists() and not resume:
         raise ValueError("El destino ya existe; use reanudación explícita.")
@@ -56,11 +74,11 @@ def train_model(dataset_directory, selection_path, output_directory, resume=Fals
     set_seed(2026)
     dtype = training_dtype(torch)
     config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=dtype) if quantized else None
-    tokenizer = AutoTokenizer.from_pretrained(selection["model_id"], revision=selection["revision"], trust_remote_code=False,
+    tokenizer = AutoTokenizer.from_pretrained(source["model_id"], revision=source["revision"], trust_remote_code=False,
                                               token=os.environ.get("HF_TOKEN"))
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    model = AutoModelForCausalLM.from_pretrained(selection["model_id"], revision=selection["revision"], trust_remote_code=False,
+    model = AutoModelForCausalLM.from_pretrained(source["model_id"], revision=source["revision"], trust_remote_code=False,
         use_safetensors=True, token=os.environ.get("HF_TOKEN"), quantization_config=config,
         device_map="auto" if torch.cuda.is_available() else None, dtype=dtype)
     if quantized:
@@ -92,7 +110,7 @@ def train_model(dataset_directory, selection_path, output_directory, resume=Fals
     metrics = {"training": result.metrics, "validation": trainer.evaluate(), "hardware": {"platform": platform.platform(),
         "cuda": torch.version.cuda, "device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu",
         "dtype": str(dtype).replace("torch.", "")},
-        "dataset_version": dataset_manifest["version"], "selection_sha256": sha(selection_path),
+        "dataset_version": dataset_manifest["version"], "selection_sha256": sha(selection_path), "training_model": source,
         "files": {str(file.relative_to(output)): sha(file) for file in (output / "adapter").rglob("*") if file.is_file()}}
     (output / "training-result.json").write_text(canonical(metrics), encoding="utf-8")
     # No publicar ni registrar variables de entorno que puedan contener credenciales.

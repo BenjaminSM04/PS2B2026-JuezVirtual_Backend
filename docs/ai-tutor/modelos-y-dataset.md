@@ -42,6 +42,21 @@ son artefactos diferentes. No atribuir una medición de uno al otro.
    `decision=selected`, `reviewer`, `benchmark_file`, `benchmark_sha256` y
    `rubric_version`. El entrenamiento comprueba el archivo, su hash, dos candidatos
    y la revisión de las respuestas seleccionadas antes de importar librerías grandes.
+   Si el candidato es GGUF, sus pesos no sirven para Transformers: añadir en
+   la selección y en `candidate` del benchmark el mismo objeto `training_model`
+   con `model_id` del repositorio safetensors, `revision` propia de 40 hex,
+   `license` y `provenance` (referencia documental revisada que vincula ambos
+   artefactos). No asumir que los commits de dos repositorios son iguales.
+   El entrenador rechaza la relación ausente o cambiada y carga tokenizer/pesos
+   exclusivamente desde esa fuente fijada. Guarda la identidad en su resultado.
+   Ejemplo de estructura, sin autorizar una selección real:
+
+   ```json
+   {"training_model": {"model_id": "organizacion/modelo-base", "revision": "COMMIT_REAL_DE_40_HEXADECIMALES", "license": "LICENCIA_VERIFICADA", "provenance": "REFERENCIA_REVISADA_DE_LA_CONVERSION_GGUF"}}
+   ```
+
+   El benchmark preliminar publicado no contiene esta aprobación: volver a
+   medir/revisar con la muestra aprobada antes de producir la selección final.
 7. Ejecutar `train_tutor_model --help` y el notebook `notebooks/tutor_lora.ipynb`.
    El notebook no tiene celdas ejecutadas ni resultados fingidos. Dependencias
    específicas en `deploy/requirements-training.txt`, separadas del backend.

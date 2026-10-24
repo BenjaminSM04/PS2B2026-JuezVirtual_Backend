@@ -4,6 +4,14 @@ Guía paso a paso para revisar los borradores con una planilla en lugar de un co
 Estado: las herramientas existen; **ninguna revisión se ha hecho**. Las herramientas solo registran
 lo que una persona decide: no revisan, no aprueban y no sustituyen la lectura pedagógica.
 
+Desde el 24/10/2026 se incluyen `uncertainty`, `provenance` y `content_sha256`.
+Debe reexportarse la planilla antigua antes de empezar: se rechaza si le faltan
+columnas o si el JSON cambió después de exportarla, incluso en campos que no
+aparecían en la primera versión. El hash vincula el contenido completo y el autor;
+no firma ni autentica la identidad de una persona. Revise también la incertidumbre.
+Al abrir el CSV, importe sus columnas como texto para que Excel no interprete
+fragmentos de código como fórmulas.
+
 ## Quién revisa
 
 - Según `docs/estado-sprints.md` del deploy, PB-04 es de Auza056 y PB-07 de SamuelVicente937 y Auza056.
