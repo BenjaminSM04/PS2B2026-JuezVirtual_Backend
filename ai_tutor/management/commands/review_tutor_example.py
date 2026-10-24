@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
-from django.utils import timezone
+from ai_tutor.dataset.review import is_closed, record_decision
 from ai_tutor.dataset.schema import TutorExampleSerializer
 
 
@@ -22,11 +22,9 @@ class Command(BaseCommand):
         if len(selected) != 1:
             raise CommandError("El ejemplo debe existir exactamente una vez.")
         item = selected[0]
-        if item["review"]["status"] in ("approved", "rejected"):
+        if is_closed(item):
             raise CommandError("Una decisión cerrada se conserva; cree una nueva revisión versionada.")
-        now = timezone.now().isoformat()
-        item["review"].update(reviewer=options["reviewer"], reviewed_at=now, status=options["decision"],
-                             approved_at=now if options["decision"] == "approved" else None, notes=options["notes"])
+        record_decision(item, options["reviewer"], options["decision"], options["notes"])
         serializer = TutorExampleSerializer(data=item)
         if not serializer.is_valid():
             raise CommandError("La revisión no cumple el contrato: " + str(serializer.errors))

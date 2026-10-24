@@ -1,4 +1,4 @@
-from utils.shortcuts import get_env
+from utils.shortcuts import env_list, get_env, get_env_bool
 
 DATABASES = {
     'default': {
@@ -18,13 +18,13 @@ REDIS_CONF = {
 
 DEBUG = False
 
-ALLOWED_HOSTS = [item.strip() for item in get_env("ALLOWED_HOSTS", "localhost,127.0.0.1,oj-backend,testserver").split(",") if item.strip()]
-CSRF_TRUSTED_ORIGINS = [item.strip() for item in get_env("CSRF_TRUSTED_ORIGINS", "").split(",") if item.strip()]
-SESSION_COOKIE_SECURE = get_env("COOKIE_SECURE", "0") == "1"
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,oj-backend,testserver")
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", "DJANGO_CSRF_TRUSTED_ORIGINS")
+SESSION_COOKIE_SECURE = get_env_bool("COOKIE_SECURE")
 CSRF_COOKIE_SECURE = SESSION_COOKIE_SECURE
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
-if get_env("TRUST_PROXY_HTTPS", "0") == "1":
+if get_env_bool("TRUST_PROXY_HTTPS"):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 DATA_DIR = "/data"

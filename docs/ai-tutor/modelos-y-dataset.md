@@ -17,6 +17,14 @@ son artefactos diferentes. No atribuir una medición de uno al otro.
    `review_tutor_example --help` permite registrar una decisión humana explícita
    en un archivo nuevo; autor y revisor deben ser distintos. No ejecutar una
    aprobación para desbloquear artificialmente las fases siguientes.
+   Para revisar muchos borradores, `export_tutor_review_sheet ORIGEN.json PLANILLA.csv`
+   genera una planilla (CSV UTF-8 con BOM, una fila por ejemplo no cerrado) y
+   `apply_tutor_review_sheet ORIGEN.json PLANILLA.csv SALIDA.json --reviewer USUARIO`
+   aplica solo las filas con `decision`. Una planilla corresponde a un revisor
+   identificado, con las mismas reglas que el comando individual (revisor distinto
+   del autor, notas obligatorias, decisiones cerradas intactas), y se rechaza completa
+   si una fila falla. La planilla no altera contenido pedagógico: las correcciones se
+   hacen en el JSON de origen y se vuelve a exportar. Guía para el equipo en `kit-revision.md`.
 3. `tutor_dataset build ejemplos-aprobados.json artefactos/dataset-v1` rechaza
    cualquier registro no aprobado. Agrupa variantes por problema normalizado,
    divide por semilla 2026 y verifica IDs, grupos y código sin contaminación.

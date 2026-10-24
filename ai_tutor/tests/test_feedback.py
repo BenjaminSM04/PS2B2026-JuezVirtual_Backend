@@ -170,8 +170,51 @@ class GuardTests(ProblemCreateTestBase):
         cache.clear()
         response = MagicMock()
         response.iter_content.return_value = [b'{', b'"content": "Revisa el acumulador.", "uncertainty":"", "model_version":"fixture"}']
-        clock = iter([0, 0.5, 4])
+        clock = iter([0, 0, 0.5, 4])
         with self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=2, AI_TUTOR_ENGINE_URL="http://oj-tutor:8080"), \
                 patch("ai_tutor.services.engine.requests.post", return_value=response), \
                 patch("ai_tutor.services.engine.time", MagicMock(monotonic=lambda: next(clock, 4))):
             self.assertIsNone(generate({"fixture": True}))
+        self.assertTrue(cache.get("tutor:engine-open"))
+
+    def _engine_response(self):
+        from unittest.mock import MagicMock
+        response = MagicMock()
+        response.iter_content.return_value = [b'{"content": "Revisa el acumulador.", "uncertainty": "", "model_version": "fixture"}']
+        return response
+
+    def test_engine_read_timeout_is_the_remaining_budget(self):
+        # El motor solo responde al terminar de generar: un read timeout corto (0.5 s) lo cortaría siempre.
+        from ai_tutor.services.engine import generate
+        from unittest.mock import MagicMock
+        for configured, expected in ((7, 7), (10, 10), (99, 30)):
+            cache.clear()
+            with self.subTest(configured=configured), \
+                    self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=configured, AI_TUTOR_ENGINE_URL="http://oj-tutor:8080"), \
+                    patch("ai_tutor.services.engine.requests.post", return_value=self._engine_response()) as post, \
+                    patch("ai_tutor.services.engine.time", MagicMock(monotonic=lambda: 100)):
+                self.assertEqual(generate({"fixture": True})["content"], "Revisa el acumulador.")
+                self.assertEqual(post.call_args.kwargs["timeout"], (1, expected))
+                self.assertIsNone(cache.get("tutor:engine-open"))
+
+    def test_engine_remaining_budget_excludes_elapsed_time(self):
+        from ai_tutor.services.engine import generate
+        from unittest.mock import MagicMock
+        cache.clear()
+        clock = iter([0, 0.25])
+        with self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=10, AI_TUTOR_ENGINE_URL="http://oj-tutor:8080"), \
+                patch("ai_tutor.services.engine.requests.post", return_value=self._engine_response()) as post, \
+                patch("ai_tutor.services.engine.time", MagicMock(monotonic=lambda: next(clock, 0.25))):
+            generate({"fixture": True})
+        self.assertEqual(post.call_args.kwargs["timeout"], (1, 9.75))
+
+    def test_engine_read_timeout_falls_back_and_opens_circuit(self):
+        import requests
+        from ai_tutor.services.engine import generate
+        cache.clear()
+        with self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=10, AI_TUTOR_ENGINE_URL="http://oj-tutor:8080"), \
+                patch("ai_tutor.services.engine.requests.post", side_effect=requests.ReadTimeout), \
+                patch("ai_tutor.services.engine.audit_log") as audit:
+            self.assertIsNone(generate({"fixture": True}))
+        self.assertTrue(cache.get("tutor:engine-open"))
+        self.assertEqual(audit.call_args.args[1], "tutor_engine_fallback")

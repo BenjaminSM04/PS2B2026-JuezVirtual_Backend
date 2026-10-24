@@ -12,13 +12,18 @@ def generate(context):
     if not getattr(settings, "AI_TUTOR_MODEL_ENABLED", False) or cache.get("tutor:engine-open"):
         return None
     try:
-        deadline = time.monotonic() + min(5, settings.AI_TUTOR_ENGINE_TIMEOUT)
+        deadline = time.monotonic() + min(30, settings.AI_TUTOR_ENGINE_TIMEOUT)
         body = json.dumps(context).encode()
         if len(body) > 64000:
             return None
+        # El motor responde solo al terminar de generar: el read timeout es el
+        # presupuesto restante, no una espera corta por byte.
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise ValueError("deadline")
         response = requests.post(settings.AI_TUTOR_ENGINE_URL + "/v1/feedback", data=body,
                                  headers={"Content-Type": "application/json"},
-                                 timeout=(1, 0.5), stream=True)
+                                 timeout=(1, remaining), stream=True)
         with response:
             response.raise_for_status()
             raw = b""
