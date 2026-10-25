@@ -67,7 +67,9 @@ def feedback(user, session_id, request_id, action, level=None, concept=""):
         raise APIError("El concepto no pertenece a esta configuración.", err="tutor-concept-invalid")
     context = build_context(session, submission, action, selected_level, concept)
     context_hash = hashlib.sha256(json.dumps(context, sort_keys=True, ensure_ascii=True).encode()).hexdigest()
-    generated = generate(context)
+    # La explicación de un concepto pertenece a la versión docente, incluso si
+    # el generador está disponible. No sustituirla por contenido ajeno a esa versión.
+    generated = generate(context) if action != "concept" else None
     source = "model" if generated else "deterministic"
     diag = diagnostic(submission) if submission else {"category": "concept", "uncertainty": "Explicación configurada por el docente."}
     if not generated:

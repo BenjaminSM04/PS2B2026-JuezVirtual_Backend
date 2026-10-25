@@ -20,6 +20,10 @@ su requisito de revisión. El motor acepta un manifiesto técnico solo al activa
 `TUTOR_TECHNICAL_DEMO=1` junto a `OJ_VERIFICATION_ONLY=1`; las salidas se identifican
 como demostración, y la configuración normal lo rechaza.
 
+La explicación de un concepto se obtiene siempre de la versión docente fijada,
+incluso con el generador activo. No se sustituye por inferencia. Las pistas y
+explicaciones de intentos pueden usar el modelo y mantienen su fuente/incertidumbre.
+
 Se ajustó realmente Qwen2.5-Coder-1.5B-Instruct con QLoRA NF4, LoRA r=8/alpha=16,
 fp16, tres épocas y semilla 2026. El entrenamiento tardó 500,49 s en RTX 2060 SUPER;
 pérdida train 0,15985 y validación 0,01500. Estas pérdidas miden ajuste a objetivos
