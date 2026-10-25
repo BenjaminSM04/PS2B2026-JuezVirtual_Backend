@@ -5,7 +5,7 @@ from utils.health import healthz, version
 
 urlpatterns = [
     path("healthz", healthz, name="readiness"),
-    path("api/version", version, name="runtime_version"),
+    url(r"^api/version/?$", version, name="runtime_version"),
     path("api/healthz", healthz),
     path("api/mascot", MascotAPI.as_view()),
     path("api/practice/overview", OverviewAPI.as_view()),

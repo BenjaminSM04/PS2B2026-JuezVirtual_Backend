@@ -12,7 +12,7 @@ configuración salvo el token del juez, que procede de `JUDGE_SERVER_TOKEN`.
 
 ## Comprobaciones del 25/10/2026
 
-- 330 pruebas aprobadas; flake8, comprobación de Django y ausencia de cambios de
+- 331 pruebas aprobadas; flake8, comprobación de Django y ausencia de cambios de
   modelos sin migración aprobados. Cobertura total medida: 79 %.
 - Restauración local real de PostgreSQL 10 a 17: 20 tablas, 1.312 filas idénticas
   antes de aplicar migraciones.
@@ -37,3 +37,6 @@ privacidad frente a estudiantes, Resend sin enviar correo y resultados WA/AC.
 Resend necesita un remitente de un dominio verificado y una API key privada en
 la administración. El dominio web `lj.isilp.com` no acredita por sí solo el dominio
 remitente. La prueba real de correo sigue pendiente de configuración del operador.
+
+La ruta privada de versión acepta `/api/version` y `/api/version/`, con
+regresión para conservar la compatibilidad del healthcheck y la CI.
