@@ -164,14 +164,30 @@ class GuardTests(ProblemCreateTestBase):
                 validate_output({"content": content, "uncertainty": "", "model_version": "ensayo"})
         validate_output({"content": "Revisa cómo cambia el acumulador en cada iteración.", "uncertainty": "No conozco la causa exacta.", "model_version": "ensayo"})
 
-    def test_engine_total_budget_rejects_dripping_response(self):
+    def test_engine_forwards_a_bounded_budget_and_guards_output(self):
         from ai_tutor.services.engine import generate
-        from unittest.mock import MagicMock
+        for configured, expected in ((7, 7), (10, 10), (99, 30)):
+            cache.clear()
+            with self.subTest(configured=configured), \
+                    self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=configured, AI_TUTOR_ENGINE_URL="http://oj-tutor:8080"), \
+                    patch("ai_tutor.services.engine.post_json", return_value={"content": "Revisa el acumulador.", "uncertainty": "", "model_version": "fixture"}) as post:
+                self.assertEqual(generate({"fixture": True})["content"], "Revisa el acumulador.")
+                self.assertEqual(post.call_args.kwargs["timeout"], expected)
+                self.assertIsNone(cache.get("tutor:engine-open"))
+
+    def test_engine_rejects_oversized_context_without_network_call(self):
+        from ai_tutor.services.engine import generate
         cache.clear()
-        response = MagicMock()
-        response.iter_content.return_value = [b'{', b'"content": "Revisa el acumulador.", "uncertainty":"", "model_version":"fixture"}']
-        clock = iter([0, 0.5, 4])
-        with self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=2, AI_TUTOR_ENGINE_URL="http://oj-tutor:8080"), \
-                patch("ai_tutor.services.engine.requests.post", return_value=response), \
-                patch("ai_tutor.services.engine.time", MagicMock(monotonic=lambda: next(clock, 4))):
+        with self.settings(AI_TUTOR_MODEL_ENABLED=True), patch("ai_tutor.services.engine.post_json") as post:
+            self.assertIsNone(generate({"code": "x" * 64001}))
+        post.assert_not_called()
+
+    def test_engine_read_timeout_falls_back_and_opens_circuit(self):
+        from ai_tutor.services.engine import generate
+        cache.clear()
+        with self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=10, AI_TUTOR_ENGINE_URL="http://oj-tutor:8080"), \
+                patch("ai_tutor.services.engine.post_json", side_effect=TimeoutError), \
+                patch("ai_tutor.services.engine.audit_log") as audit:
             self.assertIsNone(generate({"fixture": True}))
+        self.assertTrue(cache.get("tutor:engine-open"))
+        self.assertEqual(audit.call_args.args[1], "tutor_engine_fallback")

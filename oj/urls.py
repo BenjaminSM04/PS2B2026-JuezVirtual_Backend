@@ -1,8 +1,11 @@
 from django.urls import include, re_path as url
 from django.urls import path
 from practice.views import MascotAPI, OverviewAPI
+from utils.health import healthz
 
 urlpatterns = [
+    path("healthz", healthz),
+    path("api/healthz", healthz),
     path("api/mascot", MascotAPI.as_view()),
     path("api/practice/overview", OverviewAPI.as_view()),
     url(r"^api/", include("ai_tutor.urls")),

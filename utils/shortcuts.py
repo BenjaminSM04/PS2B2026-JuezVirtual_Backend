@@ -6,6 +6,7 @@ import random
 from base64 import b64encode
 from io import BytesIO
 
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.crypto import get_random_string
 from envelopes import Envelope
 
@@ -97,6 +98,71 @@ def send_email(smtp_config, from_name, to_email, to_name, subject, content):
 
 def get_env(name, default=""):
     return os.environ.get(name, default)
+
+
+_ENV_VERDADERO = {"1", "true", "yes", "on", "si", "sí"}
+_ENV_FALSO = {"0", "false", "no", "off", ""}
+
+
+def get_env_bool(name, default=False):
+    """Lee un booleano de configuración del entorno; falla cerrado si es ambiguo.
+
+    Acepta 1/true/yes/on/si/sí y 0/false/no/off/vacío, sin distinguir
+    mayúsculas. Un valor desconocido (p. ej. "tru") lanza ImproperlyConfigured
+    en lugar de degradar en silencio una opción de seguridad. Ausente -> default.
+    """
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    value = raw.strip().lower()
+    if value in _ENV_VERDADERO:
+        return True
+    if value in _ENV_FALSO:
+        return False
+    raise ImproperlyConfigured(
+        f"Valor no válido para {name}: {raw!r}. Use 1/true/yes/on/si o 0/false/no/off.")
+
+
+def get_env_number(name, default, minimum, maximum):
+    """Lee un número finito de configuración del entorno dentro de [minimum, maximum].
+
+    Un valor no numérico, no finito o fuera de rango (incluido vacío) lanza
+    ImproperlyConfigured en lugar de degradar en silencio. Ausente -> default.
+    """
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    try:
+        value = float(raw)
+    except ValueError:
+        value = None
+    if value is None or not minimum <= value <= maximum:  # NaN también falla
+        raise ImproperlyConfigured(
+            f"Valor no válido para {name}: {raw!r}. Use un número entre {minimum} y {maximum}.")
+    return value
+
+
+def _split_env_list(raw):
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+def env_list(primary, alias, default=""):
+    """Lista separada por comas desde `primary`, o `alias`, o `default`.
+
+    Una variable vacía cuenta como no definida (compose pasa así las opcionales).
+    Si ambas tienen listas distintas se lanza ImproperlyConfigured: no se elige
+    una en silencio.
+    """
+    raw_primary = os.environ.get(primary, "").strip() or None
+    raw_alias = os.environ.get(alias, "").strip() or None
+    if raw_primary is None and raw_alias is None:
+        return _split_env_list(default)
+    if raw_primary is None:
+        return _split_env_list(raw_alias)
+    if raw_alias is not None and _split_env_list(raw_alias) != _split_env_list(raw_primary):
+        raise ImproperlyConfigured(
+            f"{primary} y {alias} están definidas con valores distintos; defina solo una o use el mismo valor.")
+    return _split_env_list(raw_primary)
 
 
 def DRAMATIQ_WORKER_ARGS(time_limit=3600_000, max_retries=0, max_age=7200_000):

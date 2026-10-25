@@ -5,7 +5,18 @@ El despliegue se mantiene en el repositorio `OnlineJudge_Deploy`. Su guía
 recuperación. Estas instrucciones no autorizan operar el servidor real.
 
 Variables: `AI_TUTOR_MODEL_ENABLED=0` por defecto; URL interna
-`AI_TUTOR_ENGINE_URL=http://oj-tutor:8080`, timeout máximo de cinco segundos.
+`AI_TUTOR_ENGINE_URL=http://oj-tutor:8080`.
+
+Plazos (segundos): `MODEL_TIMEOUT_S` (servicio `oj-tutor`, defecto 8, rango 1-30)
+es el presupuesto total del motor frente a llama.cpp, que no emite cabeceras hasta
+terminar de generar; `AI_TUTOR_ENGINE_TIMEOUT` (backend, defecto 10, rango 1-30)
+es el presupuesto total del backend frente al motor y **debe ser mayor** que
+`MODEL_TIMEOUT_S`, o el backend corta antes de que el motor responda y cae al
+respaldo. Un valor fuera de rango o no numérico impide arrancar el backend
+(`ImproperlyConfigured`) y deja el motor sin readiness. Una petición del tutor
+ocupa un worker del backend hasta ese tiempo; por eso el tope es 30 s y existen
+cuotas por usuario y solo 2 ranuras en el motor. Medir el p95 del modelo
+(RTX 2060: p50 0,6 s, p95 2,5 s; en CPU es mayor) antes de subir los valores.
 Con `compose.tutor.yml` y perfil `tutor`, motor y llama comparten una red privada
 sin puertos publicados. El backend es el único puente. El motor usa usuario sin
 privilegios, raíz de solo lectura, límites CPU/memoria/PID y volúmenes de modelos
