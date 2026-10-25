@@ -1,6 +1,7 @@
 import os
 import re
 import smtplib
+import ssl
 import datetime
 import random
 from base64 import b64encode
@@ -8,7 +9,8 @@ from io import BytesIO
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.crypto import get_random_string
-from envelopes import Envelope
+from email.message import EmailMessage
+from email.utils import formataddr
 
 
 def rand_str(length=32, type="lower_hex"):
@@ -75,16 +77,28 @@ def send_email(smtp_config, from_name, to_email, to_name, subject, content):
     if missing:
         raise ValueError(f"SMTP config is incomplete; missing keys: {', '.join(missing)}")
 
-    envelope = Envelope(from_addr=(smtp_config["email"], from_name),
-                        to_addr=(to_email, to_name),
-                        subject=subject,
-                        html_body=content)
+    if smtp_config.get("ssl") and smtp_config["tls"]:
+        raise ValueError("Seleccione SSL o STARTTLS, no ambos.")
+    message = EmailMessage()
+    message["From"] = formataddr((from_name, smtp_config["email"]))
+    message["To"] = formataddr((to_name, to_email))
+    message["Subject"] = subject
+    message.set_content("Abra este mensaje en un cliente compatible con HTML.")
+    message.add_alternative(content, subtype="html")
+    context = ssl.create_default_context()
+    connection = smtplib.SMTP_SSL if smtp_config.get("ssl") else smtplib.SMTP
+    options = {"timeout": 15}
+    if smtp_config.get("ssl"):
+        options["context"] = context
     try:
-        return envelope.send(smtp_config["server"],
-                             login=smtp_config["email"],
-                             password=smtp_config["password"],
-                             port=smtp_config["port"],
-                             tls=smtp_config["tls"])
+        with connection(smtp_config["server"], smtp_config["port"], **options) as client:
+            if smtp_config["tls"]:
+                client.starttls(context=context)
+            client.login(smtp_config.get("username") or smtp_config["email"], smtp_config["password"])
+            refused = client.send_message(message)
+            if refused:
+                raise RuntimeError("El servidor SMTP rechazó el destinatario.")
+            return refused
     except smtplib.SMTPResponseException as e:
         # qq mail can return gbk-encoded error bodies
         try:
