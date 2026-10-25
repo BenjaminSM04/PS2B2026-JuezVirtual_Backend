@@ -24,7 +24,8 @@ coverage.xml
 .travis.yml
 README*
 *.md
-scripts
+scripts/*
+!scripts/export_technical_model.py
 data/**
 !data/public/
 !data/public/avatar/

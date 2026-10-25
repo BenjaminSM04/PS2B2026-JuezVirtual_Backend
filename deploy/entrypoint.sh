@@ -10,6 +10,7 @@ case "${1:-serve}" in
         ;;
     migrate)
         python manage.py migrate --no-input
+        python manage.py reconcile_mascot
         exec python manage.py configure_runtime
         ;;
     *)

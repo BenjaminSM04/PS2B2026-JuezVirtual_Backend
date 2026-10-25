@@ -1,0 +1,1267 @@
+{
+  "scope": "technical-demo",
+  "image": "registry.cn-hongkong.aliyuncs.com/oj-image/judge:1.6.1@sha256:2dd902870f5e6f69866aa339a6a98b6da9eb1693e2e9936dce23d73203151501",
+  "human_approvals": 0,
+  "observations": [
+    {
+      "example_id": "defensa-suma-C-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 366,
+      "source_sha256": "61dcb9b2598db2b2e81b729471b7608705c48e3ffbff68100856f3d4e3c1da5b"
+    },
+    {
+      "example_id": "defensa-suma-C-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 257,
+      "source_sha256": "a667ca3dd3a9ec1c6f251c54156cf19c1fde25662c1c437a8160fafcf8f84924"
+    },
+    {
+      "example_id": "defensa-suma-C-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 248,
+      "source_sha256": "625fdba4802674a20759cdbfaa484dcc953f353b9028748106c567275b4f7101"
+    },
+    {
+      "example_id": "defensa-suma-C-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 272,
+      "source_sha256": "b1e0cc4b31dd8f00b1e77243836a1a9f5fd84446dd40f8888ddd86546eeaa350"
+    },
+    {
+      "example_id": "defensa-suma-C-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1248,
+      "source_sha256": "94a6db059107b358f6d51abff805457449efcdbd6269fa880f2250b5a9b03ad6"
+    },
+    {
+      "example_id": "defensa-suma-Cpp-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 783,
+      "source_sha256": "27079f6e4a9513500e2d19c00cd49c95dfd81755193c1237e128a62aaf0d4949"
+    },
+    {
+      "example_id": "defensa-suma-Cpp-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 566,
+      "source_sha256": "d8fbf1efa1a5c45fec0ee9c3f5d2c78b254ed417c5bde7b82e3b6279a67315e2"
+    },
+    {
+      "example_id": "defensa-suma-Cpp-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 630,
+      "source_sha256": "2fcb4f3ceff2a41206503ded9ab49abb120b1e25608b328ea2aab3f0e1c23937"
+    },
+    {
+      "example_id": "defensa-suma-Cpp-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 648,
+      "source_sha256": "09cc1dcc44492c9f30f2a7a68961419eb505b6498ba56fef8006c1e465e318ed"
+    },
+    {
+      "example_id": "defensa-suma-Cpp-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 2071,
+      "source_sha256": "2854d482ebedb9de18699eea21d831425b3d8ec2e7b4e6a0f4443e6cca8833da"
+    },
+    {
+      "example_id": "defensa-suma-Java-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 1312,
+      "source_sha256": "d447ad5bbabea023e9a0ed104b690d2d2e9a263f7864293e7c32979c1983a077"
+    },
+    {
+      "example_id": "defensa-suma-Java-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 626,
+      "source_sha256": "07c50c0e86594a8454fec108c7c4218d0f064274447b7fb3c7e5ced8bc558b7d"
+    },
+    {
+      "example_id": "defensa-suma-Java-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 1579,
+      "source_sha256": "e0cb5888633d74719bbef20454d4ae6e67c85512ab7a027599f939b47d39cd16"
+    },
+    {
+      "example_id": "defensa-suma-Java-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 1544,
+      "source_sha256": "90871210f408dac4c536f62538c4873a7acb3b7bec442fd7eb12803e6f34a33f"
+    },
+    {
+      "example_id": "defensa-suma-Java-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 2018,
+      "source_sha256": "82a47ee8ddd38d5d82f67288dee769636efeb44b553087b7e0d5810ef315acce"
+    },
+    {
+      "example_id": "defensa-suma-Python3-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 257,
+      "source_sha256": "17b2f5a8f962a3cce5da9f6e66a26bbdb8e3c9e17698733a8fbdc5427c6e3f8d"
+    },
+    {
+      "example_id": "defensa-suma-Python3-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 206,
+      "source_sha256": "d0288ede8dd5006f43a371f8e0dc79b924d814a33609e4b0eef4091418585fc4"
+    },
+    {
+      "example_id": "defensa-suma-Python3-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 487,
+      "source_sha256": "9b5198f974490f9f38a0605cf40dcf53adbc8a976de7aa9338aaa081bcf06bba"
+    },
+    {
+      "example_id": "defensa-suma-Python3-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 234,
+      "source_sha256": "4d056be92e66548ee7c8a7370866b5e57f4395154d598f44bca421ca8e6acff1"
+    },
+    {
+      "example_id": "defensa-suma-Python3-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1210,
+      "source_sha256": "440fa3b5fa01ce96449108a0f086ac6358e2b9a1a5f3a8ede50a3dbf16eecfd4"
+    },
+    {
+      "example_id": "defensa-suma-Golang-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 8697,
+      "source_sha256": "38d4e98333aba305fed187a821c9f43f3b3b8c41ba5d28ea2601757ff2b524b9"
+    },
+    {
+      "example_id": "defensa-suma-Golang-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 8079,
+      "source_sha256": "9e747c449c658452a7102807f3b946cbf43284a53b130b1bc191e318ef94e615"
+    },
+    {
+      "example_id": "defensa-suma-Golang-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 399,
+      "source_sha256": "7a6d74b05d026465961cd7bdc9e7f0912e82c1b80798031e56311e8b9ebd0b73"
+    },
+    {
+      "example_id": "defensa-suma-Golang-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 399,
+      "source_sha256": "86893ad79c1ff9804e351ef314a28f07c61cc9db0a062959a02a9769fb29fc1a"
+    },
+    {
+      "example_id": "defensa-suma-Golang-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1396,
+      "source_sha256": "46b65b00a6dd9a1e2119e55f7b6b3d6966380f9796fc0da161e51afaa4f46f6b"
+    },
+    {
+      "example_id": "defensa-suma-JavaScript-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 312,
+      "source_sha256": "c702e721f09c6755ae1829f4d0d606f451418b8069b73a568729ec78b049a3a4"
+    },
+    {
+      "example_id": "defensa-suma-JavaScript-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 181,
+      "source_sha256": "4f3cf736ea2f4a23c229ad3b3906cee2c5e3206935d5ceb9c2607eec4b06f666"
+    },
+    {
+      "example_id": "defensa-suma-JavaScript-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 246,
+      "source_sha256": "1e11eb879d56baa374411a7e4a3618234f64132b0e81bfd7b0d7ac6ee53049b9"
+    },
+    {
+      "example_id": "defensa-suma-JavaScript-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 251,
+      "source_sha256": "1329b38e20381af80190449d535d27195239cb5cdf2f856927ea3fef601a7781"
+    },
+    {
+      "example_id": "defensa-suma-JavaScript-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1229,
+      "source_sha256": "4a33edf10b8dfefbdf89754d5ef9ae6e6b7fa35a53fdbbf6c24defdbfa987482"
+    },
+    {
+      "example_id": "defensa-producto-C-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 248,
+      "source_sha256": "6c03f75ac95f9d09813cdaec376c1ebe6c9afbb913cd90fcf2d0b7cad06af6d3"
+    },
+    {
+      "example_id": "defensa-producto-C-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 167,
+      "source_sha256": "2b4f590fbb4c5206a22b4b32190f4b22b9672d68baf1150768ae3ed87e794adc"
+    },
+    {
+      "example_id": "defensa-producto-C-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 244,
+      "source_sha256": "87b5261c371a3f3fefa26b3f4ffd1164bff644b26dc2bca4d303982e99c18d22"
+    },
+    {
+      "example_id": "defensa-producto-C-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 237,
+      "source_sha256": "b20c3ffbd7f28616d7b7006c533cefc4fabdae774414ec2994b6c7e7279b4639"
+    },
+    {
+      "example_id": "defensa-producto-C-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1333,
+      "source_sha256": "4658b939319e3c8935bd3b5bdeb0fb93996f14d8f0b58605bc87753969f52a13"
+    },
+    {
+      "example_id": "defensa-producto-Cpp-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 670,
+      "source_sha256": "00b264af5aac36521fa36fd7da9167c6485754a8c691fa44715fe760f690f807"
+    },
+    {
+      "example_id": "defensa-producto-Cpp-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 497,
+      "source_sha256": "e71c391e509f7f961f07bccbf7997f6ffdc5023cdc5b837586c82bb2a0016b29"
+    },
+    {
+      "example_id": "defensa-producto-Cpp-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 626,
+      "source_sha256": "b83d4d056b915fd87b593610ecbcb90f145ec990c9ad301cfcd0be1aa88b9c14"
+    },
+    {
+      "example_id": "defensa-producto-Cpp-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 641,
+      "source_sha256": "948bd342c964a1e370d7e551c3e3d2183bcd141dc290057b1e5b1952ff63d81c"
+    },
+    {
+      "example_id": "defensa-producto-Cpp-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 2098,
+      "source_sha256": "4833079144d43765618e5beec5bd6b669cecbfc38ff26208477cadb1d22f932b"
+    },
+    {
+      "example_id": "defensa-producto-Java-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 1133,
+      "source_sha256": "62798c8fc5e6d132416879d1e0f9bf047de7797e5641b31e58f107bf3a877836"
+    },
+    {
+      "example_id": "defensa-producto-Java-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 672,
+      "source_sha256": "844b98de8b7a877c0a4e7de6e4894b560508aa83bbed0b297bb87d82bf8ed5a7"
+    },
+    {
+      "example_id": "defensa-producto-Java-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 1382,
+      "source_sha256": "8885f5e6f30cce33f242251c79bb8af8313f1e385781bf301a911385b9841c44"
+    },
+    {
+      "example_id": "defensa-producto-Java-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 1573,
+      "source_sha256": "746570979a17189bafa0f6d880ebea360e3131f84cc22f979756dfaa806f37e4"
+    },
+    {
+      "example_id": "defensa-producto-Java-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 2134,
+      "source_sha256": "7ad3dd852f6d1398370f533a841eb49f234616548d9cfacb211df607feb49aef"
+    },
+    {
+      "example_id": "defensa-producto-Python3-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 257,
+      "source_sha256": "d4b61037f6beac7f9c9ea7c3e513c2c00dc437a71d8eaa97236a206d651e4a1b"
+    },
+    {
+      "example_id": "defensa-producto-Python3-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 352,
+      "source_sha256": "c17506200b40e4cbda223845ba195961f9447d3bf7b140acd03eca22726ad99a"
+    },
+    {
+      "example_id": "defensa-producto-Python3-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 297,
+      "source_sha256": "3b0b72184cb06f19fff9125d576c7bf2a29d90c8787e44b84c88de7bf1db509a"
+    },
+    {
+      "example_id": "defensa-producto-Python3-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 219,
+      "source_sha256": "acf1e849fe0137c860674c190ba88fd8aa9c5d3f4c4e395eb0454cd5b1d21514"
+    },
+    {
+      "example_id": "defensa-producto-Python3-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1224,
+      "source_sha256": "4a029594d953113e3ec547359973d61b5d3cfc54492098bba9bf41ba5a268585"
+    },
+    {
+      "example_id": "defensa-producto-Golang-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 376,
+      "source_sha256": "4165f78154faca5e5195751f2540f19cb4d2f0d7284268ea097d27b48e794ae1"
+    },
+    {
+      "example_id": "defensa-producto-Golang-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 240,
+      "source_sha256": "9bfdf01f71d5cc8832b6cb6ce44a97b2c6a3b61ef583d16eb82177ad3bf613ed"
+    },
+    {
+      "example_id": "defensa-producto-Golang-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 413,
+      "source_sha256": "010eadfb422c79b5fc95e1bb80751083c76eb5f849ea8fbd57db78a9eceefe0c"
+    },
+    {
+      "example_id": "defensa-producto-Golang-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 410,
+      "source_sha256": "4741336062f97f39f46f44d78fc559ff33ebe1d4fe244aaac9c7b08b4a184cc4"
+    },
+    {
+      "example_id": "defensa-producto-Golang-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1480,
+      "source_sha256": "c115c364f73712086c38f0a2ca1672cfef00b3bb512c022ac280f91c72d1d76b"
+    },
+    {
+      "example_id": "defensa-producto-JavaScript-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 244,
+      "source_sha256": "f5a9d2f43d7ffbe659166755fc620568bfe3a1f1fa703e4a813d7aa5f13232ef"
+    },
+    {
+      "example_id": "defensa-producto-JavaScript-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 220,
+      "source_sha256": "0d9aa15f474d3aeb718a5d7de668fe4f71e0add901cc5013879a3e8bd44a2ad1"
+    },
+    {
+      "example_id": "defensa-producto-JavaScript-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 263,
+      "source_sha256": "cfa921c76484031ad42cf469fb4e4ec4f469e2b69a73ba9ba3be92d71fb672dd"
+    },
+    {
+      "example_id": "defensa-producto-JavaScript-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 252,
+      "source_sha256": "401ad7548c50580f5da4bb0410d89505189e14123aaa611003ec5d198530887c"
+    },
+    {
+      "example_id": "defensa-producto-JavaScript-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1292,
+      "source_sha256": "4dc80fca1003416b00b4fd9613860408c39d6803cd0e1ca5cc7130a69cc6d61a"
+    },
+    {
+      "example_id": "defensa-diferencia-C-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 256,
+      "source_sha256": "dbbf0ead4703e4e103f499ca19711d6da570f2102fffc64a38f1f0e1971c718b"
+    },
+    {
+      "example_id": "defensa-diferencia-C-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 174,
+      "source_sha256": "24fba3f53390aca4b1d816abedde94afdcf0c19ad1cadea6b6ee19222e1c9497"
+    },
+    {
+      "example_id": "defensa-diferencia-C-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 241,
+      "source_sha256": "89333f8402ea2ed6651ddab47965dc48aaf28a43669daa386baa0922e4415822"
+    },
+    {
+      "example_id": "defensa-diferencia-C-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 295,
+      "source_sha256": "11b27e30fd679af7c97a87e81f37fd55a9b2baa1c082cf6eb8de29a221125a9b"
+    },
+    {
+      "example_id": "defensa-diferencia-C-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1294,
+      "source_sha256": "39e4ab155ddff7d3373f7fc58bf03b61b6f96614d7e708d9783f6e2be9919487"
+    },
+    {
+      "example_id": "defensa-diferencia-Cpp-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 611,
+      "source_sha256": "b7ed74ef1316157af4215428b08b3f086809e4cad34c10ca2d40ec61b410ccd9"
+    },
+    {
+      "example_id": "defensa-diferencia-Cpp-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 480,
+      "source_sha256": "fcb86def7e1c64765e5d6fc0ef369d7ebc8df1fef7711fe797ccdf166ec14368"
+    },
+    {
+      "example_id": "defensa-diferencia-Cpp-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 623,
+      "source_sha256": "6a1adc8eb10b0f7ec74bca923014d7dc1674fe9210f8f42a548eb38c9a2a351a"
+    },
+    {
+      "example_id": "defensa-diferencia-Cpp-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 648,
+      "source_sha256": "2c78aff6ca5b559a9e74828b8b37245d7898a04b8e060fa503c08b5b3adb7e4f"
+    },
+    {
+      "example_id": "defensa-diferencia-Cpp-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 2096,
+      "source_sha256": "9d689cab52bee939da6515c6cbfc596c038a4a5aa544eb1527eae07fd2645e94"
+    },
+    {
+      "example_id": "defensa-diferencia-Java-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 1151,
+      "source_sha256": "2cb16b05fdf0910657999037e7763abda674e449dc4852e4ab44502f5f683de3"
+    },
+    {
+      "example_id": "defensa-diferencia-Java-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 610,
+      "source_sha256": "244c344eb96e1f111eb417f1c32cc737872adcce0fb08b2c3d41a5b46dd0a162"
+    },
+    {
+      "example_id": "defensa-diferencia-Java-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 1270,
+      "source_sha256": "f092ecdf4145122e8eafabd915aeb793c4059a18d818a1c7367cfeeda2cc6f45"
+    },
+    {
+      "example_id": "defensa-diferencia-Java-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 1500,
+      "source_sha256": "ab3b414fd60142514b40f16108a3d8acb24904f34c0ff01c48930a6e58c21e01"
+    },
+    {
+      "example_id": "defensa-diferencia-Java-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 2248,
+      "source_sha256": "0bbeea3dc7989b96c284ac310857d975e4c7c3bf539352197bc6ab1a966766d0"
+    },
+    {
+      "example_id": "defensa-diferencia-Python3-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 291,
+      "source_sha256": "8592962af7e814dad6bbd56b3ada9cc759868677bb096cc6ad794e8f69723208"
+    },
+    {
+      "example_id": "defensa-diferencia-Python3-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 400,
+      "source_sha256": "cf475ff9a7abdc4b915b8f87c0aca78139b368e393236c5d278e006af162e1ed"
+    },
+    {
+      "example_id": "defensa-diferencia-Python3-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 251,
+      "source_sha256": "f1782403faecc4dc99e52de6c03e8c78723d48e5399a364e6cf88b7e975678b6"
+    },
+    {
+      "example_id": "defensa-diferencia-Python3-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 224,
+      "source_sha256": "ac26ba918ccf032c5cf23ca99d5610f7a2ac953e34076fb2536367daab03016e"
+    },
+    {
+      "example_id": "defensa-diferencia-Python3-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1229,
+      "source_sha256": "5c7513ad5e6b1c5eea7e462ee544dc5eec3a494188efc660512da019a36c454a"
+    },
+    {
+      "example_id": "defensa-diferencia-Golang-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 371,
+      "source_sha256": "5c7e49196dc11e570ae2a6b68e0eb6c5b2a1b4ff580dc635c719600f303576e5"
+    },
+    {
+      "example_id": "defensa-diferencia-Golang-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 223,
+      "source_sha256": "e6c7d2ddafa2352ddf4a1b2d54e6e06c34d101c393de56c1878238d90f3aaedb"
+    },
+    {
+      "example_id": "defensa-diferencia-Golang-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 411,
+      "source_sha256": "e2093951ae8d9b10c0ab19abe4d0f84dc5537d5b922e8f2270717c09a07e34c9"
+    },
+    {
+      "example_id": "defensa-diferencia-Golang-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 390,
+      "source_sha256": "9e6e936a49c37ac84932ac7da46ca9be7898796c09fce046f98600584eee6d75"
+    },
+    {
+      "example_id": "defensa-diferencia-Golang-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1429,
+      "source_sha256": "5df504cc5306fc9f67caeda0b74052514a01f50854223ae588d3007292d7e78d"
+    },
+    {
+      "example_id": "defensa-diferencia-JavaScript-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 252,
+      "source_sha256": "df88083b0a03c604bb9c54ba47f63e62838de4bcfe4d8a2cbaa4a4cebb8c3ff6"
+    },
+    {
+      "example_id": "defensa-diferencia-JavaScript-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 183,
+      "source_sha256": "ccb7d83ee74db068d0faa4f58476c1c5e623bba35b6a827703a5c75d400afde5"
+    },
+    {
+      "example_id": "defensa-diferencia-JavaScript-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 265,
+      "source_sha256": "e8cfc4a0484bc15fe2d54f7ce4f96deb334031c73eab232f9bcaf1ff3bf83005"
+    },
+    {
+      "example_id": "defensa-diferencia-JavaScript-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 238,
+      "source_sha256": "a69e760189b80f87334267c5f5abea825c08e8fc74173f3c466258174872cb4f"
+    },
+    {
+      "example_id": "defensa-diferencia-JavaScript-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1226,
+      "source_sha256": "1de49bace4904f9c3f7166bb94384770df73c3346c485dec7380321bd9ee96c1"
+    },
+    {
+      "example_id": "defensa-mayor-C-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 243,
+      "source_sha256": "0a8cfedd50eb041eb10876c4512313012793c8fda09461a2ffcdefa05fa1f994"
+    },
+    {
+      "example_id": "defensa-mayor-C-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 170,
+      "source_sha256": "863d6877d73b3dedcfb7c15436a88728067f13c60b841329d3e153483d3e072b"
+    },
+    {
+      "example_id": "defensa-mayor-C-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 226,
+      "source_sha256": "c623204674d15663a32de20af9dc01af5282da4e6879e733758177fea6eb08a5"
+    },
+    {
+      "example_id": "defensa-mayor-C-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 260,
+      "source_sha256": "d12e0282476d00a1f826dbca3f780d5f9831c3725ba805508d5965503a02dcce"
+    },
+    {
+      "example_id": "defensa-mayor-C-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1307,
+      "source_sha256": "de2616f3d2dcb2a65e9d935faf81c6bf002e416e0263e33def00af810feabf98"
+    },
+    {
+      "example_id": "defensa-mayor-Cpp-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 634,
+      "source_sha256": "e4c1ede8d02fbb86b40ee0d3794390e5057a3117f473bd98d0a1d3998fecf5ac"
+    },
+    {
+      "example_id": "defensa-mayor-Cpp-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 490,
+      "source_sha256": "2d0612fb367bfc3201b636752957acf50a4f45d95a863153d7edc1329abc400f"
+    },
+    {
+      "example_id": "defensa-mayor-Cpp-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 613,
+      "source_sha256": "0bbdb2029c4e144521e7b81076a8366b57470c87e513e8effb5d086dc7daeb37"
+    },
+    {
+      "example_id": "defensa-mayor-Cpp-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 633,
+      "source_sha256": "7bed9326f6d2dc6b3375dd4b4086021290f87f37905736c00f9f122aeda36a63"
+    },
+    {
+      "example_id": "defensa-mayor-Cpp-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 2108,
+      "source_sha256": "f904238b773a4a88c91d4b921c41c541e3217b904b6f3fe825811ca86445d138"
+    },
+    {
+      "example_id": "defensa-mayor-Java-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 1157,
+      "source_sha256": "eb1bc58bb69780ff2b2d4578deacb548722e2c10d43ee3e22e54ea2e1d237459"
+    },
+    {
+      "example_id": "defensa-mayor-Java-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 637,
+      "source_sha256": "e10eefea3476f0c6d1c52c20440550305a110edc57c679f99749ba8161c8ba2b"
+    },
+    {
+      "example_id": "defensa-mayor-Java-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 1214,
+      "source_sha256": "a794ae7f869982e84431a08fa2b5f9f50558a7bdf617ce6f987857591bb17417"
+    },
+    {
+      "example_id": "defensa-mayor-Java-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 1555,
+      "source_sha256": "69d3566cc398b465f5273ff00c99995efa9c01092869e9a4b1d09ef781ac3c65"
+    },
+    {
+      "example_id": "defensa-mayor-Java-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 2337,
+      "source_sha256": "63b09811a88088859fc1b126dcec1b7fdaa5c075aa03cd1e9e24a76013bd1efb"
+    },
+    {
+      "example_id": "defensa-mayor-Python3-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 315,
+      "source_sha256": "c64ed4880cce3e5c678a3fec99b518a67810e44c0168ab9e27e49fd9142df8ea"
+    },
+    {
+      "example_id": "defensa-mayor-Python3-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 308,
+      "source_sha256": "ff3e7c690bea2b2f4b539fdc33368a7df73226615fe324acf2ef4b072ba5586f"
+    },
+    {
+      "example_id": "defensa-mayor-Python3-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 273,
+      "source_sha256": "cb31b7b581301b26ef11fcedbe3f6e2925ceb26bce2a26ec8ee8cb400574a1f2"
+    },
+    {
+      "example_id": "defensa-mayor-Python3-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 219,
+      "source_sha256": "ba554b6088c9f5f3aaaeca173d4e308790e8377278faf3ab3e54e24997dc4a4a"
+    },
+    {
+      "example_id": "defensa-mayor-Python3-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1227,
+      "source_sha256": "f8857ef67a05dc9d020c8fa0017db941c36b0a434130e9b9854d7b17da603876"
+    },
+    {
+      "example_id": "defensa-mayor-Golang-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 376,
+      "source_sha256": "22a6cd9e729e13464aa4c6ddbc9eb74ba2fcd61e2ffbab4adfbef93b73856a82"
+    },
+    {
+      "example_id": "defensa-mayor-Golang-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 224,
+      "source_sha256": "28149f66be52f7ce3e7d83e91a9f0c0862bbcdd8f52633eeed457290674746e2"
+    },
+    {
+      "example_id": "defensa-mayor-Golang-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 410,
+      "source_sha256": "561c19a8d056552148c3b642b4ba2f455156a8a88b93b3fdb92d700f860595f1"
+    },
+    {
+      "example_id": "defensa-mayor-Golang-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 390,
+      "source_sha256": "6e2016510330f9b6c9e57b28cf924c2a2f843524207cf45a320c050ff534c9cf"
+    },
+    {
+      "example_id": "defensa-mayor-Golang-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1424,
+      "source_sha256": "4401833fcf25278f7ce429920f8c9b279565189ff8caee54b9196b9cc201481b"
+    },
+    {
+      "example_id": "defensa-mayor-JavaScript-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 253,
+      "source_sha256": "aeb11d09af128b5b2da8498322ed096ae3f3913e05772f1600d9238ac046fe0c"
+    },
+    {
+      "example_id": "defensa-mayor-JavaScript-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 196,
+      "source_sha256": "a48824e9b6588c4f06a736bb1c542b72869c939aedac0af8e6e3f1e4ec7cc9c0"
+    },
+    {
+      "example_id": "defensa-mayor-JavaScript-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 240,
+      "source_sha256": "db819b4280bdb1be1adeba55ab30e2a9693a23cf51457e2f3cfec3ee12d36e23"
+    },
+    {
+      "example_id": "defensa-mayor-JavaScript-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 259,
+      "source_sha256": "48da0e11906b72d8f599cebe9c36ecbb7a6deba908aba5108369da5165fa8918"
+    },
+    {
+      "example_id": "defensa-mayor-JavaScript-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1224,
+      "source_sha256": "784a490159178bdb6e2de4968004433b0591b066420594f4d4983a8da7329f1b"
+    },
+    {
+      "example_id": "defensa-menor-C-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 235,
+      "source_sha256": "1a0983b1b4d70cf79ef17a1194999f501c9d9c4aa10988b3d63aeb4b5e28220b"
+    },
+    {
+      "example_id": "defensa-menor-C-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 165,
+      "source_sha256": "bb99cbb40b0983823f44aba5bf73cfb1abebd63c4357a5a9b73804eae24ef9c3"
+    },
+    {
+      "example_id": "defensa-menor-C-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 240,
+      "source_sha256": "87b3854baab489cc53aee5d1880b1b62eacd51c74ffa64bc33a753d6d3847af3"
+    },
+    {
+      "example_id": "defensa-menor-C-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 256,
+      "source_sha256": "e245996beb60db72e337bde4cd8aca04a0a031e94ee7be7acdad8bb641ac8c2a"
+    },
+    {
+      "example_id": "defensa-menor-C-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1353,
+      "source_sha256": "5ba99b94225ad2db651e737265419a8c3fba6fa003828065132efc97da18e5d7"
+    },
+    {
+      "example_id": "defensa-menor-Cpp-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 695,
+      "source_sha256": "76a118dad509f6d9db528abf13f91c9cdf9715d8a888e6a814a0d5dc046683c8"
+    },
+    {
+      "example_id": "defensa-menor-Cpp-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 613,
+      "source_sha256": "2941be1d1437da9193c18df93c872f5cd6d9eec9ad20436df50992a0c5ea2027"
+    },
+    {
+      "example_id": "defensa-menor-Cpp-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 626,
+      "source_sha256": "976fc3fb2005614ac9573b4bcef416a5c3b4744c9af21387f22dc49173f3109d"
+    },
+    {
+      "example_id": "defensa-menor-Cpp-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 646,
+      "source_sha256": "9082d37f08c66100a8ffb9dfebd5e476139566cba8be039c06e1cddd93e8815d"
+    },
+    {
+      "example_id": "defensa-menor-Cpp-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 2119,
+      "source_sha256": "d1535fd0eb26cb930090327e92e90532d5fc6f4fd6ee9010e41b5fccdfec46e8"
+    },
+    {
+      "example_id": "defensa-menor-Java-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 1132,
+      "source_sha256": "a32ed694a9c79125ecfa49cf38b1caddac08030003b3694ee3deee8dcb1b26ca"
+    },
+    {
+      "example_id": "defensa-menor-Java-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 663,
+      "source_sha256": "c883ad5a51aa7ba02b8d2f040d9105ac8dd7ef956e03b44d4b1a65f39e6b3bb0"
+    },
+    {
+      "example_id": "defensa-menor-Java-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 1501,
+      "source_sha256": "e794fdbb7661b5c8351e4df6773d0253ad17ebe24659779ed3aa1ebea931f615"
+    },
+    {
+      "example_id": "defensa-menor-Java-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 1713,
+      "source_sha256": "ea5fa5163167a0e6fffe5cca0010bf6130ff3c6c2904f2c00e85c371a0516a90"
+    },
+    {
+      "example_id": "defensa-menor-Java-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 2201,
+      "source_sha256": "97abdf724fe3fba13da2bb8ff9c6baba06eaa8f0eacc7daddacf379509f31075"
+    },
+    {
+      "example_id": "defensa-menor-Python3-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 283,
+      "source_sha256": "173c183517ad3e70d46444080b158b30fdf8ccc513af8d86a1878eda444cb174"
+    },
+    {
+      "example_id": "defensa-menor-Python3-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 393,
+      "source_sha256": "8f0dfe6efe4d4eef930781d894b694788cf2be908880a324e8483f13f87c5c1f"
+    },
+    {
+      "example_id": "defensa-menor-Python3-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 254,
+      "source_sha256": "280d9dc3f74baf4a18a409948c4d3fb8371088112c15b243a3ca05e5c2d4d9ef"
+    },
+    {
+      "example_id": "defensa-menor-Python3-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 237,
+      "source_sha256": "4d9b5e8fcb6437eb1fedfcb5ca2f40a03b7297991437f5b82811ba66f0ea0e5c"
+    },
+    {
+      "example_id": "defensa-menor-Python3-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1257,
+      "source_sha256": "8f3cb165d805ece236927ef1de3e265285595d20bd39c2c527d20b95c925b098"
+    },
+    {
+      "example_id": "defensa-menor-Golang-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 388,
+      "source_sha256": "bfff05d79e774f1d1572c48410919a0598412ce0340feb416071468c454accfa"
+    },
+    {
+      "example_id": "defensa-menor-Golang-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 237,
+      "source_sha256": "91f28f7771bf81ee4e3ec1b6688d286ce32643c3d5f15aa137ec51e9838a7b08"
+    },
+    {
+      "example_id": "defensa-menor-Golang-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 432,
+      "source_sha256": "bef7db5caab5ace17204c48dcfb9acfbaf5bebaae19b88bb4976fd632e0baaf8"
+    },
+    {
+      "example_id": "defensa-menor-Golang-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 443,
+      "source_sha256": "6671c8c66501a88a885c5bbb68b48c6bc4b49195dee1d89b960f373c0ed75c0a"
+    },
+    {
+      "example_id": "defensa-menor-Golang-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1405,
+      "source_sha256": "6411a56f66d4cd8286dcfa86dd62c7e28dcc3595eaa8309d10f1cff6ff4c54bb"
+    },
+    {
+      "example_id": "defensa-menor-JavaScript-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 243,
+      "source_sha256": "dee3267528b40ed744e66d5acb752405e048371c5a98e6df40b4c61b5f6228bf"
+    },
+    {
+      "example_id": "defensa-menor-JavaScript-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 194,
+      "source_sha256": "29205827680cbdc0401c59a3c728a87d52d8d48e00ecd206f78402a28dbf2e64"
+    },
+    {
+      "example_id": "defensa-menor-JavaScript-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 257,
+      "source_sha256": "3c19ad469344c6c71b6ea9b3a803b3b00f51e2331f8d86e5659b9ab527b4d947"
+    },
+    {
+      "example_id": "defensa-menor-JavaScript-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 235,
+      "source_sha256": "3b6ca7d863c7dc24fea6ff390a18cf450f7c0882496344e1d8254110237295a2"
+    },
+    {
+      "example_id": "defensa-menor-JavaScript-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1282,
+      "source_sha256": "52fa975a3c98649fc5a312c9132f6f71b11494c8aa5935a85fbc5793fae15c15"
+    },
+    {
+      "example_id": "defensa-cuadrados-C-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 234,
+      "source_sha256": "96cd12136e585097abf5b68d53ea8cee7c312c0dd823532bd900409e26ce185c"
+    },
+    {
+      "example_id": "defensa-cuadrados-C-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 164,
+      "source_sha256": "bdf16b485668fd3fb4ac89344f8412df1c180eb75e4d2e6cb8692d57f255ac1d"
+    },
+    {
+      "example_id": "defensa-cuadrados-C-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 232,
+      "source_sha256": "1a057c8b7d472a354e6302e7b12e925e0cc0fb50c82f96cf8942c77fc15d3aee"
+    },
+    {
+      "example_id": "defensa-cuadrados-C-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 302,
+      "source_sha256": "d8c41f3a224b339a679ed2f7bedef1fd6c6c72a3b2e150e031b176af33d6a282"
+    },
+    {
+      "example_id": "defensa-cuadrados-C-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1261,
+      "source_sha256": "376f3edcd3ba01cd5b3f2da5989a0b03a534843bf369738e9f84d1e5d439a6bd"
+    },
+    {
+      "example_id": "defensa-cuadrados-Cpp-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 626,
+      "source_sha256": "dda415e24b1bf5fc358a7ec61e3d202d8dd293283836740289d689d205c51e5e"
+    },
+    {
+      "example_id": "defensa-cuadrados-Cpp-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 504,
+      "source_sha256": "4aa1ea825f885669c159ffdb5542d7434c6aa927fee7b8a99b8a1d78ec5a837b"
+    },
+    {
+      "example_id": "defensa-cuadrados-Cpp-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 681,
+      "source_sha256": "44d546b2a5005cfd4ba114768b5fa414dbdf208a324cbb7b32b7374ac1ff4e85"
+    },
+    {
+      "example_id": "defensa-cuadrados-Cpp-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 692,
+      "source_sha256": "2aef4a507c8471d23aa8bb39ed537287efd6fef5247cc066e8f373e53cec50b1"
+    },
+    {
+      "example_id": "defensa-cuadrados-Cpp-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 2174,
+      "source_sha256": "a81d9547c0445d8e25918dcafd2cc4808a61b4dcea72b77668dc3634058380fb"
+    },
+    {
+      "example_id": "defensa-cuadrados-Java-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 1170,
+      "source_sha256": "cc99d7d5c8ff22a78bafb474fc6c38369bf35c41498cf85fb2def56cb3d1dc2d"
+    },
+    {
+      "example_id": "defensa-cuadrados-Java-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 663,
+      "source_sha256": "ee109556f6fcdbbe71f46486dc2c4d81bbfeeba9a2af9e7540e6a7d64416cc0f"
+    },
+    {
+      "example_id": "defensa-cuadrados-Java-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 1301,
+      "source_sha256": "061f59fdcf878dbe777b9389e6f970dc2b3083252d5877984669325678d7479b"
+    },
+    {
+      "example_id": "defensa-cuadrados-Java-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 1546,
+      "source_sha256": "fa0996e674b084a15068892193ee3586c59a977ed8ff26fb87ae2b44552c07ab"
+    },
+    {
+      "example_id": "defensa-cuadrados-Java-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 2299,
+      "source_sha256": "855d1aca4060f41eb78a746cf861d6d7cfedad28837b78670314c12a6e85b11e"
+    },
+    {
+      "example_id": "defensa-cuadrados-Python3-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 268,
+      "source_sha256": "7c9862aa26639d9c95cce963b62cdc5bf7722f5ea25686b11312ae8537a09fed"
+    },
+    {
+      "example_id": "defensa-cuadrados-Python3-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 322,
+      "source_sha256": "180cc9b6c80c7f5c5ade07f26b58b3913463400239c4ea0626a7fec7fff53d09"
+    },
+    {
+      "example_id": "defensa-cuadrados-Python3-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 270,
+      "source_sha256": "1f1d1c82f3d0b47b7e9f5dbd46c67975a7f67939bbf9fd68674dad74fc595ea2"
+    },
+    {
+      "example_id": "defensa-cuadrados-Python3-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 229,
+      "source_sha256": "f268eb2c91cff6de3d5438f8bceb87f9c1e407b5cd8ecad2002f8a044d7f6daf"
+    },
+    {
+      "example_id": "defensa-cuadrados-Python3-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1266,
+      "source_sha256": "2a0b7af0f9d2446453d99da83b0e164bc4110677e193155e226af6267c341317"
+    },
+    {
+      "example_id": "defensa-cuadrados-Golang-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 370,
+      "source_sha256": "37c25aa7852a65c6a9ecf8846983b128055868f4bfc844d75f0f698a53bd2549"
+    },
+    {
+      "example_id": "defensa-cuadrados-Golang-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 235,
+      "source_sha256": "c8ee506db696f74dbd8c1a1760ddac685a4c467cdc046c21e2b685827a6b2c2c"
+    },
+    {
+      "example_id": "defensa-cuadrados-Golang-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 426,
+      "source_sha256": "b26a1d376e8cbe982813a3dc33480a8b50d477d96856bec350f51af5083f299d"
+    },
+    {
+      "example_id": "defensa-cuadrados-Golang-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 407,
+      "source_sha256": "91e66e34cf1ab2e097e1484dde34773a6e4e70a0f296866d7d0cd13166cb7d6d"
+    },
+    {
+      "example_id": "defensa-cuadrados-Golang-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1432,
+      "source_sha256": "1a7c6cd3a9024ccb84163e3af554457046a462a3ad024b87ecb1f979e276de35"
+    },
+    {
+      "example_id": "defensa-cuadrados-JavaScript-control",
+      "mutation": "control",
+      "verdict": 0,
+      "elapsed_ms": 247,
+      "source_sha256": "9cbca84d3277dd25ba776f79fe797c3869d7dffbe115ff125f22316211f8f6a1"
+    },
+    {
+      "example_id": "defensa-cuadrados-JavaScript-syntax",
+      "mutation": "syntax",
+      "verdict": -2,
+      "elapsed_ms": 193,
+      "source_sha256": "31042afba2f0e991b0b85c1a14a4a9ec0b14d9145b70eecdd10ce3891740b6bc"
+    },
+    {
+      "example_id": "defensa-cuadrados-JavaScript-logic",
+      "mutation": "logic",
+      "verdict": -1,
+      "elapsed_ms": 240,
+      "source_sha256": "fbbfcecbe0eab781821e0f65adca1ac804e093e74279be21481ac062ac5792f0"
+    },
+    {
+      "example_id": "defensa-cuadrados-JavaScript-runtime",
+      "mutation": "runtime",
+      "verdict": 4,
+      "elapsed_ms": 234,
+      "source_sha256": "5f3a8d76abd20c8cc680eee7b38f72948419ca8c7cf9e0faf719da0631223a16"
+    },
+    {
+      "example_id": "defensa-cuadrados-JavaScript-loop",
+      "mutation": "loop",
+      "verdict": 1,
+      "elapsed_ms": 1216,
+      "source_sha256": "c16a5e62154e74558b6cfca66f5b3a2e6767f6a19954ce37d98fdaf54f8b9779"
+    }
+  ]
+}

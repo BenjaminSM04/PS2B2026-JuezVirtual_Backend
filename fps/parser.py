@@ -6,6 +6,7 @@ import string
 import hashlib
 import json
 import os
+import zipfile
 # defusedxml bloquea XXE y bombas de entidades en XML subido por usuarios
 import defusedxml.ElementTree as ET
 
@@ -13,7 +14,18 @@ import defusedxml.ElementTree as ET
 class FPSParser(object):
     def __init__(self, fps_path=None, string_data=None):
         if fps_path:
-            self._etree = ET.parse(fps_path).getroot()
+            if zipfile.is_zipfile(fps_path):
+                from utils.archive import validate_archive
+                with zipfile.ZipFile(fps_path) as archive:
+                    validate_archive(archive)
+                    names = [name for name in archive.namelist() if name.lower().endswith(".xml")]
+                    if len(names) != 1 or archive.getinfo(names[0]).file_size > 16 * 1024 * 1024:
+                        raise ValueError("El FPS comprimido requiere un único XML de hasta 16 MiB.")
+                    self._etree = ET.fromstring(archive.read(names[0]))
+            else:
+                if os.path.getsize(fps_path) > 16 * 1024 * 1024:
+                    raise ValueError("El FPS supera 16 MiB.")
+                self._etree = ET.parse(fps_path).getroot()
         elif string_data:
             # fromstring ya devuelve el elemento raiz (no tiene getroot)
             self._etree = ET.fromstring(string_data)
@@ -53,18 +65,20 @@ class FPSParser(object):
                 unit = item.attrib.get("unit", "s")
                 if unit not in ["s", "ms"]:
                     raise ValueError("Invalid time limit unit")
-                problem["time_limit"]["unit"] = item.attrib.get("unit", "s")
+                problem["time_limit"]["unit"] = "ms"
                 value = int(item.text)
-                if value <= 0:
+                value *= 1000 if unit == "s" else 1
+                if not 1 <= value <= 60000:
                     raise ValueError("Invalid time limit value")
                 problem["time_limit"]["value"] = value
             elif tag == "memory_limit":
                 unit = item.attrib.get("unit", "MB")
                 if unit not in ["MB", "KB", "mb", "kb"]:
                     raise ValueError("Invalid memory limit unit")
-                problem["memory_limit"]["unit"] = unit.upper()
+                problem["memory_limit"]["unit"] = "MB"
                 value = int(item.text)
-                if value <= 0:
+                value = (value + 1023) // 1024 if unit.upper() == "KB" else value
+                if not 1 <= value <= 1024:
                     raise ValueError("Invalid memory limit value")
                 problem["memory_limit"]["value"] = value
             elif tag in ["template", "append", "prepend", "solution"]:
@@ -112,8 +126,17 @@ class FPSHelper(object):
     def save_image(self, problem, base_dir, base_url):
         _problem = copy.deepcopy(problem)
         for img in _problem["images"]:
+            from io import BytesIO
+            from PIL import Image
+            if len(img["blob"]) > 5 * 1024 * 1024:
+                raise ValueError("La imagen FPS supera el tamaño permitido.")
+            with Image.open(BytesIO(img["blob"])) as image:
+                if image.format not in {"PNG", "JPEG", "GIF", "BMP"} or image.width * image.height > 16000000:
+                    raise ValueError("Imagen FPS no permitida.")
+                extension = {"PNG": ".png", "JPEG": ".jpg", "GIF": ".gif", "BMP": ".bmp"}[image.format]
+                image.verify()
             name = "".join(random.choice(string.ascii_lowercase + string.digits) for _ in range(12))
-            ext = os.path.splitext(img["src"])[1]
+            ext = extension
             file_name = name + ext
             with open(os.path.join(base_dir, file_name), "wb") as f:
                 f.write(img["blob"])
@@ -147,14 +170,14 @@ class FPSHelper(object):
                     f.write(output_content)
             if spj:
                 one_info = {
-                    "input_size": len(input_content),
+                    "input_size": len(input_content.encode("utf-8")),
                     "input_name": f"{index + 1}.in"
                 }
             else:
                 one_info = {
-                    "input_size": len(input_content),
+                    "input_size": len(input_content.encode("utf-8")),
                     "input_name": f"{index + 1}.in",
-                    "output_size": len(output_content),
+                    "output_size": len(output_content.encode("utf-8")),
                     "output_name": f"{index + 1}.out",
                     "stripped_output_md5": hashlib.md5(output_content.rstrip().encode("utf-8")).hexdigest()
                 }

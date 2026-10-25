@@ -12,7 +12,7 @@ commands = [
     [sys.executable, "-m", "flake8", "--statistics", "."],
     [sys.executable, "manage.py", "check"],
     [sys.executable, "manage.py", "makemigrations", "--check", "--dry-run"],
-    [sys.executable, "-m", "coverage", "run", "--source=.", "manage.py", "test"],
+    [sys.executable, "-m", "coverage", "run", "--source=.", "manage.py", "test", "--settings=oj.test_settings", "--noinput"],
 ]
 if args.module:
     commands[-1].append(args.module)

@@ -5,7 +5,7 @@ import shutil
 from pathlib import Path
 
 data = Path(os.environ.get("OJ_DATA_DIR", "/data"))
-for directory in ("config", "log", "test_case", "public/upload", "public/avatar", "public/website"):
+for directory in ("config", "log", "test_case", "tmp", "public/upload", "public/avatar", "public/website"):
     (data / directory).mkdir(parents=True, exist_ok=True)
 
 key = data / "config/secret.key"

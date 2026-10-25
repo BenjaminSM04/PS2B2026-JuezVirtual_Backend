@@ -1,13 +1,16 @@
 import os
 import re
 import smtplib
+import ssl
 import datetime
 import random
 from base64 import b64encode
 from io import BytesIO
 
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.crypto import get_random_string
-from envelopes import Envelope
+from email.message import EmailMessage
+from email.utils import formataddr
 
 
 def rand_str(length=32, type="lower_hex"):
@@ -74,16 +77,28 @@ def send_email(smtp_config, from_name, to_email, to_name, subject, content):
     if missing:
         raise ValueError("SMTP config is incomplete; missing keys: " + ", ".join(missing))
 
-    envelope = Envelope(from_addr=(smtp_config["email"], from_name),
-                        to_addr=(to_email, to_name),
-                        subject=subject,
-                        html_body=content)
+    if smtp_config.get("ssl") and smtp_config["tls"]:
+        raise ValueError("Seleccione SSL o STARTTLS, no ambos.")
+    message = EmailMessage()
+    message["From"] = formataddr((from_name, smtp_config["email"]))
+    message["To"] = formataddr((to_name, to_email))
+    message["Subject"] = subject
+    message.set_content("Abra este mensaje en un cliente compatible con HTML.")
+    message.add_alternative(content, subtype="html")
+    context = ssl.create_default_context()
+    connection = smtplib.SMTP_SSL if smtp_config.get("ssl") else smtplib.SMTP
+    options = {"timeout": 15}
+    if smtp_config.get("ssl"):
+        options["context"] = context
     try:
-        return envelope.send(smtp_config["server"],
-                             login=smtp_config["email"],
-                             password=smtp_config["password"],
-                             port=smtp_config["port"],
-                             tls=smtp_config["tls"])
+        with connection(smtp_config["server"], smtp_config["port"], **options) as client:
+            if smtp_config["tls"]:
+                client.starttls(context=context)
+            client.login(smtp_config.get("username") or smtp_config["email"], smtp_config["password"])
+            refused = client.send_message(message)
+            if refused:
+                raise RuntimeError("El servidor SMTP rechazó el destinatario.")
+            return refused
     except smtplib.SMTPResponseException as e:
         # qq mail can return gbk-encoded error bodies
         try:
@@ -97,6 +112,71 @@ def send_email(smtp_config, from_name, to_email, to_name, subject, content):
 
 def get_env(name, default=""):
     return os.environ.get(name, default)
+
+
+_ENV_VERDADERO = {"1", "true", "yes", "on", "si", "sí"}
+_ENV_FALSO = {"0", "false", "no", "off", ""}
+
+
+def get_env_bool(name, default=False):
+    """Lee un booleano de configuración del entorno; falla cerrado si es ambiguo.
+
+    Acepta 1/true/yes/on/si/sí y 0/false/no/off/vacío, sin distinguir
+    mayúsculas. Un valor desconocido (p. ej. "tru") lanza ImproperlyConfigured
+    en lugar de degradar en silencio una opción de seguridad. Ausente -> default.
+    """
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    value = raw.strip().lower()
+    if value in _ENV_VERDADERO:
+        return True
+    if value in _ENV_FALSO:
+        return False
+    raise ImproperlyConfigured(
+        f"Valor no válido para {name}: {raw!r}. Use 1/true/yes/on/si o 0/false/no/off.")
+
+
+def get_env_number(name, default, minimum, maximum):
+    """Lee un número finito de configuración del entorno dentro de [minimum, maximum].
+
+    Un valor no numérico, no finito o fuera de rango (incluido vacío) lanza
+    ImproperlyConfigured en lugar de degradar en silencio. Ausente -> default.
+    """
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    try:
+        value = float(raw)
+    except ValueError:
+        value = None
+    if value is None or not minimum <= value <= maximum:  # NaN también falla
+        raise ImproperlyConfigured(
+            f"Valor no válido para {name}: {raw!r}. Use un número entre {minimum} y {maximum}.")
+    return value
+
+
+def _split_env_list(raw):
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+def env_list(primary, alias, default=""):
+    """Lista separada por comas desde `primary`, o `alias`, o `default`.
+
+    Una variable vacía cuenta como no definida (compose pasa así las opcionales).
+    Si ambas tienen listas distintas se lanza ImproperlyConfigured: no se elige
+    una en silencio.
+    """
+    raw_primary = os.environ.get(primary, "").strip() or None
+    raw_alias = os.environ.get(alias, "").strip() or None
+    if raw_primary is None and raw_alias is None:
+        return _split_env_list(default)
+    if raw_primary is None:
+        return _split_env_list(raw_alias)
+    if raw_alias is not None and _split_env_list(raw_alias) != _split_env_list(raw_primary):
+        raise ImproperlyConfigured(
+            f"{primary} y {alias} están definidas con valores distintos; defina solo una o use el mismo valor.")
+    return _split_env_list(raw_primary)
 
 
 def DRAMATIQ_WORKER_ARGS(time_limit=3600_000, max_retries=0, max_age=7200_000):

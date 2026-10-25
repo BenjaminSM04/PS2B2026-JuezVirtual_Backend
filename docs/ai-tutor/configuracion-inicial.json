@@ -1,0 +1,44 @@
+{
+  "problem": "Sumar dos enteros.",
+  "source": "docs/ai-tutor/esquema-ejemplo.json y guia-etiquetado.md (PB-04)",
+  "review": {
+    "author": "Codex",
+    "authored_at": "2026-10-13T00:00:00-04:00",
+    "reviewer": null,
+    "reviewed_at": null,
+    "approved_at": null,
+    "status": "review",
+    "notes": "Propuesta basada en ejemplos sintéticos de PB-04. Pendiente de lectura humana independiente del enunciado real, progresión de pistas y ausencia de soluciones completas."
+  },
+  "versions": [
+    {
+      "schema_version": "1.0",
+      "concepts": [
+        "Sintaxis de declaración"
+      ],
+      "hint_policy": {
+        "max_help_level": 3,
+        "hints": {
+          "concept": "¿Cómo termina una declaración en C?",
+          "location": "Inspecciona la declaración de total.",
+          "strategy": "Contrasta esa línea con la gramática de declaraciones."
+        }
+      }
+    },
+    {
+      "schema_version": "1.0",
+      "concepts": [
+        "Sintaxis de declaración",
+        "Elemento neutro de la suma"
+      ],
+      "hint_policy": {
+        "max_help_level": 3,
+        "hints": {
+          "concept": "¿Qué elemento neutro tiene una suma?",
+          "location": "Revisa el valor inicial del acumulador.",
+          "strategy": "Traza un caso con entradas cero y compara el estado antes y después de cada suma."
+        }
+      }
+    }
+  ]
+}

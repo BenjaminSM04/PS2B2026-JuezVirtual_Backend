@@ -1,0 +1,2270 @@
+[
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-C-syntax",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "C",
+    "faulty_code": "#include <stdio.h>\nint main(void){int a=3,b=2;printf(\"%d\\n\",a+b);return 0;}\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:44.021267+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-C-operator",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "C",
+    "faulty_code": "#include <stdio.h>\nint main(void){int a=3,b=2;printf(\"%d\\n\",a-b);return 0;}\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:44.037320+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-C-zero",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "C",
+    "faulty_code": "#include <stdio.h>\nint main(void){int a=3,b=0;printf(\"%d\\n\",a/b);return 0;}\n",
+    "verdict": 4,
+    "category": "runtime",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:44.910386+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-Cpp-syntax",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "C++",
+    "faulty_code": "#include <iostream>\nint main(){int a=3,b=2;std::cout<<a+b<<\"\\n\";}\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:45.274362+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-Cpp-operator",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "C++",
+    "faulty_code": "#include <iostream>\nint main(){int a=3,b=2;std::cout<<a-b<<\"\\n\";}\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:46.136498+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-Cpp-zero",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "C++",
+    "faulty_code": "#include <iostream>\nint main(){int a=3,b=0;std::cout<<a/b<<\"\\n\";}\n",
+    "verdict": 4,
+    "category": "runtime",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:46.513591+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-Java-syntax",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "Java",
+    "faulty_code": "class Main {public static void main(String[] args){int a=3,b=2;System.out.println(a+b);}}\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:47.739962+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-Java-operator",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "Java",
+    "faulty_code": "class Main {public static void main(String[] args){int a=3,b=2;System.out.println(a-b);}}\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:48.543282+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-Java-zero",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "Java",
+    "faulty_code": "class Main {public static void main(String[] args){int a=3,b=0;System.out.println(a/b);}}\n",
+    "verdict": 4,
+    "category": "runtime",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:49.786372+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-Python3-syntax",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "Python3",
+    "faulty_code": "a,b=3,2\nprint(a+b)\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:49.323666+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-Python3-operator",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "Python3",
+    "faulty_code": "a,b=3,2\nprint(a-b)\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:50.190100+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-Python3-zero",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "Python3",
+    "faulty_code": "a,b=3,0\nprint(a/b)\n",
+    "verdict": 4,
+    "category": "runtime",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:50.608297+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-Golang-syntax",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "Golang",
+    "faulty_code": "package main\nimport \"fmt\"\nfunc main(){a,b:=3,2;fmt.Println(a+b)}\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:51.043694+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-Golang-operator",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "Golang",
+    "faulty_code": "package main\nimport \"fmt\"\nfunc main(){a,b:=3,2;fmt.Println(a-b)}\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:51.406714+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-Golang-zero",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "Golang",
+    "faulty_code": "package main\nimport \"fmt\"\nfunc main(){a,b:=3,0;fmt.Println(a/b)}\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:51.867410+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-JavaScript-syntax",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "JavaScript",
+    "faulty_code": "let a=3,b=2;console.log(a+b);\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:52.294977+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-JavaScript-operator",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "JavaScript",
+    "faulty_code": "let a=3,b=2;console.log(a-b);\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:52.737302+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sum-JavaScript-zero",
+    "problem": "Sumar los enteros p\u00fablicos 3 y 2.",
+    "language": "JavaScript",
+    "faulty_code": "let a=3,b=0;console.log(a/b);\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "sum#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:53.178903+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-C-syntax",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "C",
+    "faulty_code": "#include <stdio.h>\nint main(void){int a=3,b=2;printf(\"%d\\n\",a-b);return 0;}\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:53.701390+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-C-operator",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "C",
+    "faulty_code": "#include <stdio.h>\nint main(void){int a=3,b=2;printf(\"%d\\n\",a+b);return 0;}\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:54.156848+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-C-zero",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "C",
+    "faulty_code": "#include <stdio.h>\nint main(void){int a=3,b=0;printf(\"%d\\n\",a/b);return 0;}\n",
+    "verdict": 4,
+    "category": "runtime",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:54.657325+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-Cpp-syntax",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "C++",
+    "faulty_code": "#include <iostream>\nint main(){int a=3,b=2;std::cout<<a-b<<\"\\n\";}\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:55.433683+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-Cpp-operator",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "C++",
+    "faulty_code": "#include <iostream>\nint main(){int a=3,b=2;std::cout<<a+b<<\"\\n\";}\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:56.163164+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-Cpp-zero",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "C++",
+    "faulty_code": "#include <iostream>\nint main(){int a=3,b=0;std::cout<<a/b<<\"\\n\";}\n",
+    "verdict": 4,
+    "category": "runtime",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:57.213247+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-Java-syntax",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "Java",
+    "faulty_code": "class Main {public static void main(String[] args){int a=3,b=2;System.out.println(a-b);}}\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:58.320526+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-Java-operator",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "Java",
+    "faulty_code": "class Main {public static void main(String[] args){int a=3,b=2;System.out.println(a+b);}}\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:02:59.717489+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-Java-zero",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "Java",
+    "faulty_code": "class Main {public static void main(String[] args){int a=3,b=0;System.out.println(a/b);}}\n",
+    "verdict": 4,
+    "category": "runtime",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:00.917843+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-Python3-syntax",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "Python3",
+    "faulty_code": "a,b=3,2\nprint(a-b)\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:00.837636+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-Python3-operator",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "Python3",
+    "faulty_code": "a,b=3,2\nprint(a+b)\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:03.110526+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-Python3-zero",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "Python3",
+    "faulty_code": "a,b=3,0\nprint(a/b)\n",
+    "verdict": 4,
+    "category": "runtime",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:03.105846+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-Golang-syntax",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "Golang",
+    "faulty_code": "package main\nimport \"fmt\"\nfunc main(){a,b:=3,2;fmt.Println(a-b)}\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:04.067847+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-Golang-operator",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "Golang",
+    "faulty_code": "package main\nimport \"fmt\"\nfunc main(){a,b:=3,2;fmt.Println(a+b)}\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:04.105417+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-Golang-zero",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "Golang",
+    "faulty_code": "package main\nimport \"fmt\"\nfunc main(){a,b:=3,0;fmt.Println(a/b)}\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:04.818877+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-JavaScript-syntax",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "JavaScript",
+    "faulty_code": "let a=3,b=2;console.log(a-b);\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:04.937780+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-JavaScript-operator",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "JavaScript",
+    "faulty_code": "let a=3,b=2;console.log(a+b);\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:05.754164+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "difference-JavaScript-zero",
+    "problem": "Restar 2 de 3, ambos enteros p\u00fablicos.",
+    "language": "JavaScript",
+    "faulty_code": "let a=3,b=0;console.log(a/b);\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "difference#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:05.924114+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-C-syntax",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "C",
+    "faulty_code": "#include <stdio.h>\nint main(void){int a=3,b=2;printf(\"%d\\n\",a*b);return 0;}\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:06.595015+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-C-operator",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "C",
+    "faulty_code": "#include <stdio.h>\nint main(void){int a=3,b=2;printf(\"%d\\n\",a+b);return 0;}\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:06.743631+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-C-zero",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "C",
+    "faulty_code": "#include <stdio.h>\nint main(void){int a=3,b=0;printf(\"%d\\n\",a/b);return 0;}\n",
+    "verdict": 4,
+    "category": "runtime",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:07.472477+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-Cpp-syntax",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "C++",
+    "faulty_code": "#include <iostream>\nint main(){int a=3,b=2;std::cout<<a*b<<\"\\n\";}\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:07.999998+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-Cpp-operator",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "C++",
+    "faulty_code": "#include <iostream>\nint main(){int a=3,b=2;std::cout<<a+b<<\"\\n\";}\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:08.908461+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-Cpp-zero",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "C++",
+    "faulty_code": "#include <iostream>\nint main(){int a=3,b=0;std::cout<<a/b<<\"\\n\";}\n",
+    "verdict": 4,
+    "category": "runtime",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:09.420007+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-Java-syntax",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "Java",
+    "faulty_code": "class Main {public static void main(String[] args){int a=3,b=2;System.out.println(a*b);}}\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:10.696521+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-Java-operator",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "Java",
+    "faulty_code": "class Main {public static void main(String[] args){int a=3,b=2;System.out.println(a+b);}}\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:11.495164+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-Java-zero",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "Java",
+    "faulty_code": "class Main {public static void main(String[] args){int a=3,b=0;System.out.println(a/b);}}\n",
+    "verdict": 4,
+    "category": "runtime",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:12.785063+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-Python3-syntax",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "Python3",
+    "faulty_code": "a,b=3,2\nprint(a*b)\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:12.189459+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-Python3-operator",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "Python3",
+    "faulty_code": "a,b=3,2\nprint(a+b)\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:13.057842+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-Python3-zero",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "Python3",
+    "faulty_code": "a,b=3,0\nprint(a/b)\n",
+    "verdict": 4,
+    "category": "runtime",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:13.710396+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-Golang-syntax",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "Golang",
+    "faulty_code": "package main\nimport \"fmt\"\nfunc main(){a,b:=3,2;fmt.Println(a*b)}\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:13.871603+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-Golang-operator",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "Golang",
+    "faulty_code": "package main\nimport \"fmt\"\nfunc main(){a,b:=3,2;fmt.Println(a+b)}\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:14.543320+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-Golang-zero",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "Golang",
+    "faulty_code": "package main\nimport \"fmt\"\nfunc main(){a,b:=3,0;fmt.Println(a/b)}\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:14.687782+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-JavaScript-syntax",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "JavaScript",
+    "faulty_code": "let a=3,b=2;console.log(a*b);\n\n(\n",
+    "verdict": -2,
+    "category": "compilation",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#syntax",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:15.389120+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-JavaScript-operator",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "JavaScript",
+    "faulty_code": "let a=3,b=2;console.log(a+b);\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#operator",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:15.565878+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "product-JavaScript-zero",
+    "problem": "Multiplicar los enteros p\u00fablicos 3 y 2.",
+    "language": "JavaScript",
+    "faulty_code": "let a=3,b=0;console.log(a/b);\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "Ejecuci\u00f3n sint\u00e9tica local observada; verificaci\u00f3n contra el juez real pendiente."
+    ],
+    "concept": "Operaciones y sintaxis",
+    "explanation": "Revisa el diagn\u00f3stico observado y contrasta la operaci\u00f3n con el objetivo p\u00fablico.",
+    "uncertainty": {
+      "confidence": 0.4,
+      "alternatives": [
+        "Sintaxis",
+        "L\u00f3gica",
+        "Entorno"
+      ],
+      "reason": "Ejemplo sint\u00e9tico sin revisi\u00f3n humana ni validaci\u00f3n contra el juez desplegado."
+    },
+    "hints": {
+      "concept": "Identifica la operaci\u00f3n que solicita el enunciado.",
+      "location": "Inspecciona la expresi\u00f3n y las declaraciones.",
+      "strategy": "Traza los valores p\u00fablicos y contrasta el resultado con el objetivo."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "product#zero",
+      "authorization": null
+    },
+    "review": {
+      "author": "generacion-sintetica",
+      "authored_at": "2026-10-24T01:03:16.250551+00:00",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "draft",
+      "notes": "Revisi\u00f3n pedag\u00f3gica y contraste con juez pendientes."
+    }
+  }
+]

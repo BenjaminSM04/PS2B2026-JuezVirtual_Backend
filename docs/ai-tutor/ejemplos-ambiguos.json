@@ -1,0 +1,248 @@
+[
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-ambiguo-1",
+    "problem": "Calcular el resultado de una operación y respetar el formato solicitado. Solo se muestra el punto de impresión; faltan la implementación de calcular y el caso que falló.",
+    "language": "C",
+    "faulty_code": "printf(\"%d\\n\", calcular(a, b));\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
+    ],
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "El veredicto incorrecto no permite distinguir un valor mal calculado de una representación incorrecta. El fragmento por sí solo no demuestra la causa.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Qué observaciones permiten separar un error de cálculo de uno de formato?",
+      "location": "Inspecciona la implementación de calcular, no incluida, y el punto de impresión mostrado.",
+      "strategy": "Obtén un caso reproducible y compara primero el valor calculado y después su formato."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-ambiguo-2",
+    "problem": "Calcular el resultado de una operación y respetar el formato solicitado. Solo se muestra el punto de impresión; faltan la implementación de calcular y el caso que falló.",
+    "language": "C++",
+    "faulty_code": "std::cout << calcular(a, b);\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
+    ],
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "El veredicto incorrecto no permite distinguir un valor mal calculado de una representación incorrecta. El fragmento por sí solo no demuestra la causa.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Qué observaciones permiten separar un error de cálculo de uno de formato?",
+      "location": "Inspecciona la implementación de calcular, no incluida, y el punto de impresión mostrado.",
+      "strategy": "Obtén un caso reproducible y compara primero el valor calculado y después su formato."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-ambiguo-3",
+    "problem": "Calcular el resultado de una operación y respetar el formato solicitado. Solo se muestra el punto de impresión; faltan la implementación de calcular y el caso que falló.",
+    "language": "Java",
+    "faulty_code": "System.out.println(calcular(a, b));\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
+    ],
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "El veredicto incorrecto no permite distinguir un valor mal calculado de una representación incorrecta. El fragmento por sí solo no demuestra la causa.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Qué observaciones permiten separar un error de cálculo de uno de formato?",
+      "location": "Inspecciona la implementación de calcular, no incluida, y el punto de impresión mostrado.",
+      "strategy": "Obtén un caso reproducible y compara primero el valor calculado y después su formato."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-ambiguo-4",
+    "problem": "Calcular el resultado de una operación y respetar el formato solicitado. Solo se muestra el punto de impresión; faltan la implementación de calcular y el caso que falló.",
+    "language": "Python3",
+    "faulty_code": "print(calcular(a, b))\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
+    ],
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "El veredicto incorrecto no permite distinguir un valor mal calculado de una representación incorrecta. El fragmento por sí solo no demuestra la causa.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Qué observaciones permiten separar un error de cálculo de uno de formato?",
+      "location": "Inspecciona la implementación de calcular, no incluida, y el punto de impresión mostrado.",
+      "strategy": "Obtén un caso reproducible y compara primero el valor calculado y después su formato."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-ambiguo-5",
+    "problem": "Calcular el resultado de una operación y respetar el formato solicitado. Solo se muestra el punto de impresión; faltan la implementación de calcular y el caso que falló.",
+    "language": "Golang",
+    "faulty_code": "fmt.Println(calcular(a, b))\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
+    ],
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "El veredicto incorrecto no permite distinguir un valor mal calculado de una representación incorrecta. El fragmento por sí solo no demuestra la causa.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Qué observaciones permiten separar un error de cálculo de uno de formato?",
+      "location": "Inspecciona la implementación de calcular, no incluida, y el punto de impresión mostrado.",
+      "strategy": "Obtén un caso reproducible y compara primero el valor calculado y después su formato."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "example_id": "sintetico-ambiguo-6",
+    "problem": "Calcular el resultado de una operación y respetar el formato solicitado. Solo se muestra el punto de impresión; faltan la implementación de calcular y el caso que falló.",
+    "language": "JavaScript",
+    "faulty_code": "console.log(calcular(a, b));\n",
+    "verdict": -1,
+    "category": "unknown",
+    "evidence": [
+      "WA supuesto sin entrada ni salida observada; la información no demuestra una causa."
+    ],
+    "concept": "Diagnóstico con evidencia incompleta",
+    "explanation": "El veredicto incorrecto no permite distinguir un valor mal calculado de una representación incorrecta. El fragmento por sí solo no demuestra la causa.",
+    "uncertainty": {
+      "confidence": 0.3,
+      "alternatives": [
+        "Formato de salida",
+        "Error en el cálculo"
+      ],
+      "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+    },
+    "hints": {
+      "concept": "¿Qué observaciones permiten separar un error de cálculo de uno de formato?",
+      "location": "Inspecciona la implementación de calcular, no incluida, y el punto de impresión mostrado.",
+      "strategy": "Obtén un caso reproducible y compara primero el valor calculado y después su formato."
+    },
+    "provenance": {
+      "kind": "synthetic",
+      "reference": "Guía PB-04, ejemplo construido para revisión.",
+      "authorization": null
+    },
+    "review": {
+      "author": "BenjaminSM04",
+      "authored_at": "2026-09-30T10:00:00Z",
+      "reviewer": null,
+      "reviewed_at": null,
+      "approved_at": null,
+      "status": "review",
+      "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+    }
+  }
+]

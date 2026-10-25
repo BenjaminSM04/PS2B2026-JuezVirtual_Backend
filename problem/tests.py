@@ -139,9 +139,11 @@ class TestCaseUploadAPITest(APITestCase):
                     self.assertEqual(f.read(), name + "\n" + name + "\n" + "end")
 
     def test_upload_test_case_zip_with_csrf_checks_enforced(self):
+        client = self.csrf_enforcing_client()
+        client.get("/api/profile")
         with open(self.make_test_case_zip(), "rb") as f:
-            resp = self.csrf_enforcing_client().post(self.url,
-                                                     data={"spj": "false", "file": f}, format="multipart")
+            resp = client.post(self.url, data={"spj": "false", "file": f}, format="multipart",
+                               HTTP_X_CSRFTOKEN=client.cookies["csrftoken"].value)
             self.assertSuccess(resp)
 
     def test_upload_test_case_zip_rejects_cross_origin(self):
@@ -149,7 +151,12 @@ class TestCaseUploadAPITest(APITestCase):
             resp = self.csrf_enforcing_client().post(self.url,
                                                      data={"spj": "false", "file": f}, format="multipart",
                                                      HTTP_ORIGIN="http://evil.example")
-            self.assertFailed(resp, "Cross-origin request rejected")
+            self.assertEqual(resp.status_code, 403)
+
+    def test_upload_requires_csrf_even_without_origin(self):
+        with open(self.make_test_case_zip(), "rb") as file:
+            response = self.csrf_enforcing_client().post(self.url, data={"spj": "false", "file": file}, format="multipart")
+        self.assertEqual(response.status_code, 403)
 
 
 class ProblemAdminAPITest(APITestCase):

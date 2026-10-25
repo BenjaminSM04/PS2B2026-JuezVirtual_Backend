@@ -1,0 +1,3 @@
+# Instalar sobre el entorno CUDA de entrenamiento; no sustituir Torch por una build CPU.
+-r requirements-training.txt
+sentencepiece==0.2.1
