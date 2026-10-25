@@ -8,9 +8,15 @@ class EditSMTPConfigSerializer(serializers.Serializer):
     port = serializers.IntegerField(default=25, min_value=1, max_value=65535)
     email = serializers.EmailField(max_length=256)
     username = serializers.CharField(max_length=256, required=False, allow_blank=True)
+    sender_name = serializers.CharField(max_length=128, required=False, allow_blank=True)
     password = serializers.CharField(max_length=512, required=False, allow_null=True, allow_blank=True, trim_whitespace=False)
     tls = serializers.BooleanField()
     ssl = serializers.BooleanField(required=False)
+
+    def validate_sender_name(self, value):
+        if "\r" in value or "\n" in value:
+            raise serializers.ValidationError("El nombre del remitente debe ocupar una sola línea.")
+        return value
 
     def validate(self, data):
         if data.get("ssl") and data.get("tls"):

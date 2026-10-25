@@ -24,6 +24,7 @@ coverage.xml
 .travis.yml
 README*
 *.md
+!CHANGELOG.md
 scripts/*
 !scripts/export_technical_model.py
 data/**

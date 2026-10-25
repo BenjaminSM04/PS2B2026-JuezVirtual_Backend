@@ -1,4 +1,5 @@
 import hashlib
+import smtplib
 from unittest import mock
 
 from django.conf import settings
@@ -51,6 +52,27 @@ class SMTPConfigTest(APITestCase):
         resp = self.client.post(url, data={"email": "test@test.com"})
         self.assertSuccess(resp)
         mocked_send_email.assert_called_once()
+
+    @mock.patch("conf.views.send_email")
+    def test_smtp_error_does_not_expose_provider_response(self, mocked_send_email):
+        self.test_create_smtp_config()
+        mocked_send_email.side_effect = smtplib.SMTPAuthenticationError(535, b"fixture-sensitive-response")
+        response = self.client.post(self.reverse("smtp_test_api"), data={"email": "test@test.com"})
+        self.assertIsNotNone(response.data["error"])
+        self.assertNotIn("fixture-sensitive-response", str(response.data))
+
+    def test_sender_name_persists_in_admin(self):
+        self.test_create_smtp_config()
+        config = dict(SysOptions.smtp_config, sender_name="Comunidad Univalle")
+        self.assertSuccess(self.client.put(self.url, data=config))
+        self.assertEqual(self.client.get(self.url).data["data"]["sender_name"], "Comunidad Univalle")
+
+    def test_sender_name_rejects_header_line_breaks(self):
+        self.test_create_smtp_config()
+        config = dict(SysOptions.smtp_config, sender_name="Nombre\r\nOtra cabecera")
+        response = self.client.put(self.url, data=config)
+        self.assertIsNotNone(response.data["error"])
+        self.assertNotIn("sender_name", SysOptions.smtp_config)
 
 
 class WebsiteConfigAPITest(APITestCase):

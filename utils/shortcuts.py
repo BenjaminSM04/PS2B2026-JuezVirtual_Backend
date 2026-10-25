@@ -80,7 +80,7 @@ def send_email(smtp_config, from_name, to_email, to_name, subject, content):
     if smtp_config.get("ssl") and smtp_config["tls"]:
         raise ValueError("Seleccione SSL o STARTTLS, no ambos.")
     message = EmailMessage()
-    message["From"] = formataddr((from_name, smtp_config["email"]))
+    message["From"] = formataddr((smtp_config.get("sender_name") or from_name, smtp_config["email"]))
     message["To"] = formataddr((to_name, to_email))
     message["Subject"] = subject
     message.set_content("Abra este mensaje en un cliente compatible con HTML.")

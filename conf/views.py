@@ -1,5 +1,4 @@
 import hashlib
-import json
 import os
 import re
 import shutil
@@ -21,6 +20,7 @@ from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.audit import audit_log
 from utils.shortcuts import send_email, get_env, dramatiq_worker_alive
 from utils.xss_filter import XSSHtml
+from utils.releases import release_notes
 from .models import JudgeServer
 from .serializers import (CreateEditWebsiteConfigSerializer,
                           CreateSMTPConfigSerializer, EditSMTPConfigSerializer,
@@ -52,7 +52,7 @@ class SMTPAPI(APIView):
         data = request.data
         for item in ["server", "port", "email", "tls"]:
             smtp[item] = data[item]
-        for item in ["username", "ssl"]:
+        for item in ["username", "ssl", "sender_name"]:
             if item in data:
                 smtp[item] = data[item]
         if smtp.get("ssl") and smtp.get("tls"):
@@ -70,27 +70,22 @@ class SMTPTestAPI(APIView):
     @validate_serializer(TestSMTPConfigSerializer)
     def post(self, request):
         if not SysOptions.smtp_config:
-            return self.error("Please setup SMTP config at first")
+            return self.error("Primero guarda la configuración SMTP en administración.")
         try:
             send_email(smtp_config=SysOptions.smtp_config,
                        from_name=SysOptions.website_name_shortcut,
                        to_name=request.user.username,
                        to_email=request.data["email"],
-                       subject="You have successfully configured SMTP",
-                       content="You have successfully configured SMTP")
-        except smtplib.SMTPResponseException as e:
-            # guess error message encoding
-            msg = b"Failed to send email"
-            try:
-                msg = e.smtp_error
-                # qq mail
-                msg = msg.decode("gbk")
-            except Exception:
-                msg = msg.decode("utf-8", "ignore")
-            return self.error(msg)
-        except Exception as e:
-            msg = str(e)
-            return self.error(msg)
+                       subject="LizardJudge: prueba de correo",
+                       content="La configuración SMTP de LizardJudge entregó este mensaje de prueba.")
+        except smtplib.SMTPAuthenticationError:
+            return self.error("El servidor rechazó la autenticación. Revisa el usuario y la clave SMTP guardados.")
+        except smtplib.SMTPRecipientsRefused:
+            return self.error("El servidor rechazó el destinatario. Revisa la dirección y las restricciones del proveedor.")
+        except smtplib.SMTPSenderRefused:
+            return self.error("El servidor rechazó el remitente. Comprueba que su dominio esté verificado en el proveedor.")
+        except Exception:
+            return self.error("No se pudo entregar la prueba. Revisa servidor, puerto, cifrado y verificación del dominio remitente.")
         return self.success()
 
 
@@ -223,14 +218,10 @@ class TestCasePruneAPI(APIView):
 
 class ReleaseNotesAPI(APIView):
     def get(self, request):
-        # Servimos las notas locales (docs/data.json) en vez de las del upstream
-        # QingdaoU: este fork tiene su propio historial de versiones (LizardJudge).
         try:
-            with open("docs/data.json", "r", encoding="utf-8") as f:
-                releases = json.load(f)
+            releases = release_notes()
         except (OSError, ValueError):
-            return self.success()
-        releases["local_version"] = releases["update"][0]["version"]
+            return self.error("No se pudo leer el historial de la versión instalada.")
         return self.success(releases)
 
 
