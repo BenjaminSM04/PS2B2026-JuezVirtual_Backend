@@ -1,4 +1,5 @@
 from problem.models import ProblemIOMode
+from judge.language_names import LanguageName
 
 
 default_env = ["LANG=en_US.UTF-8", "LANGUAGE=en_US:en", "LC_ALL=en_US.UTF-8"]
@@ -224,12 +225,12 @@ console.log(add(1, 2))
 }
 
 languages = [
-    {"config": _c_lang_config, "name": "C", "description": "GCC 13", "content_type": "text/x-csrc",
+    {"config": _c_lang_config, "name": LanguageName.C, "description": "GCC 13", "content_type": "text/x-csrc",
       "spj": {"compile": _c_lang_spj_compile, "config": _c_lang_spj_config}},
-    {"config": _cpp_lang_config, "name": "C++", "description": "GCC 13", "content_type": "text/x-c++src", 
+    {"config": _cpp_lang_config, "name": LanguageName.CPP, "description": "GCC 13", "content_type": "text/x-c++src",
       "spj": {"compile": _cpp_lang_spj_compile, "config": _cpp_lang_spj_config}},
-    {"config": _java_lang_config, "name": "Java", "description": "Temurin 21", "content_type": "text/x-java"},
-    {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.12", "content_type": "text/x-python"},
-    {"config": _go_lang_config, "name": "Golang", "description": "Golang 1.22", "content_type": "text/x-go"},
-    {"config": _node_lang_config, "name": "JavaScript", "description": "Node.js 20", "content_type": "text/javascript"},
+    {"config": _java_lang_config, "name": LanguageName.JAVA, "description": "Temurin 21", "content_type": "text/x-java"},
+    {"config": _py3_lang_config, "name": LanguageName.PYTHON3, "description": "Python 3.12", "content_type": "text/x-python"},
+    {"config": _go_lang_config, "name": LanguageName.GO, "description": "Golang 1.22", "content_type": "text/x-go"},
+    {"config": _node_lang_config, "name": LanguageName.JAVASCRIPT, "description": "Node.js 20", "content_type": "text/javascript"},
 ]

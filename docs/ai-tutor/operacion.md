@@ -4,6 +4,14 @@ El despliegue se mantiene en el repositorio `OnlineJudge_Deploy`. Su guía
 `docs/actualizacion-django52-pg17.md` es el procedimiento de actualización y
 recuperación. Estas instrucciones no autorizan operar el servidor real.
 
+La defensa dispone de `compose.defensa.yml` y un controlador de demostración con
+datos exclusivamente ficticios, cuentas aleatorias, volúmenes propios y puerto
+loopback. El modelo QLoRA experimental se monta mediante manifiesto técnico y
+requiere dos flags del motor; la operación normal no lo acepta por defecto.
+Ese perfil usa 20 s en el motor y 25 s en el backend: en dos CPU las tres pistas
+del ensayo completo tardaron aproximadamente 10–12 s. No confundirlo con el
+presupuesto normal 8/10 s ni con las mediciones preliminares en GPU.
+
 Variables: `AI_TUTOR_MODEL_ENABLED=0` por defecto; URL interna
 `AI_TUTOR_ENGINE_URL=http://oj-tutor:8080`.
 

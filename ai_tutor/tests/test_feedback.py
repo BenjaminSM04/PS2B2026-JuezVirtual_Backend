@@ -141,6 +141,15 @@ class FeedbackTests(ProblemCreateTestBase):
         self.assertNotIn("/app", str(context))
         self.assertEqual(set(context["problem"]), {"title", "description", "input_description", "output_description"})
 
+    def test_configured_concept_stays_versioned_even_with_model_enabled(self):
+        with self.settings(AI_TUTOR_MODEL_ENABLED=True), patch("ai_tutor.services.feedback.generate", return_value={
+                "content": "Texto distinto de la explicación configurada.", "uncertainty": "", "model_version": "fixture"}) as engine:
+            response = self.ask("concept", concept=config_content()["concepts"][0])
+        self.assertSuccess(response)
+        self.assertEqual(response.data["data"]["source"], "static")
+        self.assertEqual(response.data["data"]["content"], self.version.concept_explanations[config_content()["concepts"][0]])
+        engine.assert_not_called()
+
     @patch("ai_tutor.services.feedback.generate", return_value=None)
     def test_model_unavailable_uses_static_fallback(self, generate):
         self.assertEqual(self.ask("hint", level=1).data["data"]["source"], "static")

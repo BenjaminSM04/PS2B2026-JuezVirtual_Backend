@@ -3,7 +3,7 @@ import math
 
 from rest_framework import serializers
 
-from judge.languages import languages
+from judge.language_names import LanguageName
 
 
 class StrictSerializer(serializers.Serializer):
@@ -82,7 +82,7 @@ class TutorExampleSerializer(StrictSerializer):
     schema_version = serializers.ChoiceField(choices=["1.0"])
     example_id = serializers.RegexField(r"^[a-zA-Z0-9_-]{1,100}$")
     problem = serializers.CharField(max_length=2000)
-    language = serializers.ChoiceField(choices=[item["name"] for item in languages])
+    language = serializers.ChoiceField(choices=LanguageName.choices())
     faulty_code = serializers.CharField(max_length=20000, trim_whitespace=False)
     verdict = serializers.ChoiceField(choices=[-2, -1, 1, 2, 3, 4, 5, 8])
     category = serializers.ChoiceField(choices=["compilation", "runtime", "logic", "complexity", "concept", "unknown"])
