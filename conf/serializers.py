@@ -5,14 +5,21 @@ from .models import JudgeServer
 
 class EditSMTPConfigSerializer(serializers.Serializer):
     server = serializers.CharField(max_length=128)
-    port = serializers.IntegerField(default=25)
-    email = serializers.CharField(max_length=256)
-    password = serializers.CharField(max_length=128, required=False, allow_null=True, allow_blank=True)
+    port = serializers.IntegerField(default=25, min_value=1, max_value=65535)
+    email = serializers.EmailField(max_length=256)
+    username = serializers.CharField(max_length=256, required=False, allow_blank=True)
+    password = serializers.CharField(max_length=512, required=False, allow_null=True, allow_blank=True, trim_whitespace=False)
     tls = serializers.BooleanField()
+    ssl = serializers.BooleanField(required=False)
+
+    def validate(self, data):
+        if data.get("ssl") and data.get("tls"):
+            raise serializers.ValidationError("Seleccione SSL o STARTTLS, no ambos.")
+        return data
 
 
 class CreateSMTPConfigSerializer(EditSMTPConfigSerializer):
-    password = serializers.CharField(max_length=128)
+    password = serializers.CharField(max_length=512, trim_whitespace=False)
 
 
 class TestSMTPConfigSerializer(serializers.Serializer):
