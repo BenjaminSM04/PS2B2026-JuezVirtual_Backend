@@ -13,18 +13,19 @@ class Command(BaseCommand):
         parser.add_argument("output", type=Path)
         parser.add_argument("--model", type=Path)
         parser.add_argument("--seed", type=int, default=2026)
+        parser.add_argument("--technical-demo", action="store_true", help="Solo sintéticos, sin alterar sus revisiones; requiere este modo en cada paso.")
 
     def handle(self, *args, **options):
         try:
             action = options["action"]
             if action == "build":
-                result = build_dataset(json.loads(options["source"].read_text(encoding="utf-8")), options["output"], options["seed"])
+                result = build_dataset(json.loads(options["source"].read_text(encoding="utf-8")), options["output"], options["seed"], technical_demo=options["technical_demo"])
             elif action == "train":
-                result = train(options["source"], options["output"])
+                result = train(options["source"], options["output"], technical_demo=options["technical_demo"])
             else:
                 if not options["model"]:
                     raise ValueError("Se requiere --model para evaluar.")
-                result = evaluate(options["source"], options["model"])
+                result = evaluate(options["source"], options["model"], technical_demo=options["technical_demo"])
                 with options["output"].open("x", encoding="utf-8") as stream:
                     json.dump(result, stream, indent=2, ensure_ascii=True)
             self.stdout.write("Operación completada con validación de procedencia y particiones.")

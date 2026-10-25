@@ -1,7 +1,10 @@
 # Datos, selección y ajuste reproducible
 
-Estado: pipeline implementado y probado con fixtures; **ningún dataset de producción
-aprobado, modelo seleccionado, ajuste LoRA/QLoRA ni resultado pedagógico real**.
+Estado vigente: hay dataset, clasificador y ajuste QLoRA reales en modo técnico
+sintético para defensa; ver `defensa/README.md`. No existe dataset de producción
+aprobado ni resultado pedagógico de campo. El flujo normal descrito debajo conserva
+sus puertas de revisión; `--technical-demo` es una vía explícita y separada que
+mantiene borradores, rechaza historia real y no fabrica identidades o aprobaciones.
 Las identidades ficticias que aparecen en tests solo verifican validaciones.
 
 Se ejecutaron 54 variantes sintéticas: tres problemas originales, seis lenguajes y

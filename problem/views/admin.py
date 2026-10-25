@@ -5,6 +5,7 @@ import re
 # import shutil
 import tempfile
 import zipfile
+from io import BytesIO
 from wsgiref.util import FileWrapper
 
 from django.conf import settings
@@ -32,7 +33,7 @@ from ..serializers import (CreateContestProblemSerializer, CompileSPJSerializer,
                            ProblemAdminSerializer, TestCaseUploadForm, ContestProblemMakePublicSerializer,
                            AddContestProblemSerializer, ExportProblemSerializer,
                            ExportProblemRequestSerialzier, UploadProblemForm, ImportProblemSerializer,
-                           FPSProblemSerializer)
+                           FPSProblemSerializer, TextTestCasesSerializer)
 from ..utils import TEMPLATE_BASE, build_problem_template
 
 
@@ -168,6 +169,50 @@ class TestCaseAPI(APIView, TestCaseZipProcessor):
         info, test_case_id = self.process_zip(zip_file, spj=spj)
         os.remove(zip_file)
         return self.success({"id": test_case_id, "info": info, "spj": spj})
+
+
+class TextTestCaseAPI(APIView, TestCaseZipProcessor):
+    """Crea un conjunto nuevo; no modifica los archivos de ningún problema guardado."""
+
+    @problem_permission_required
+    def get(self, request):
+        try:
+            problem = Problem.objects.get(pk=request.GET.get("problem_id"))
+        except (Problem.DoesNotExist, ValueError, TypeError):
+            return self.error("Problema no encontrado.")
+        ensure_created_by(problem.contest or problem, request.user)
+        if problem.spj:
+            return self.error("Use ZIP para casos con juez especial.")
+        if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", problem.test_case_id or ""):
+            return self.error("Identificador de casos no válido.")
+        directory = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
+        try:
+            names = self.filter_name_list(os.listdir(directory), spj=False)
+            if len(names) > 200 or sum(os.path.getsize(os.path.join(directory, name)) for name in names) > 1024 * 1024:
+                return self.error("Los casos superan el límite del editor de texto; use ZIP.")
+            cases = []
+            for index in range(0, len(names), 2):
+                case = {}
+                for key, name in zip(("input", "output"), names[index:index + 2]):
+                    with open(os.path.join(directory, name), encoding="utf-8", newline="") as stream:
+                        case[key] = stream.read()
+                cases.append(case)
+            return self.success({"cases": cases})
+        except (OSError, UnicodeError):
+            return self.error("No se pueden leer estos casos como texto UTF-8; use ZIP.")
+
+    @problem_permission_required
+    @validate_serializer(TextTestCasesSerializer)
+    def post(self, request):
+        archive = BytesIO()
+        with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_STORED) as file:
+            for index, case in enumerate(request.data["cases"], 1):
+                for key, extension in (("input", "in"), ("output", "out")):
+                    file.writestr(f"{index}.{extension}", case[key].encode("utf-8"))
+        archive.seek(0)
+        info, identifier = self.process_zip(archive, spj=False)
+        audit_log(request.user, "test_case.create_text", "TestCase", extra={"count": len(info)})
+        return self.success({"id": identifier, "info": info, "spj": False})
 
 
 class CompileSPJAPI(APIView):
