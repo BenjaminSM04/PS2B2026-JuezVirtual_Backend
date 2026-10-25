@@ -8,6 +8,7 @@ import re
 import subprocess
 
 from ai_tutor.dataset.pipeline import load_dataset, canonical, sha
+from ai_tutor.ml.prompt import training_messages
 
 
 def training_dtype(torch):
@@ -34,26 +35,52 @@ def training_source(selection, candidate):
     return source
 
 
-def train_model(dataset_directory, selection_path, output_directory, resume=False, quantized=True):
-    partitions, dataset_manifest = load_dataset(dataset_directory)
-    selection = json.loads(Path(selection_path).read_text(encoding="utf-8"))
-    required = {"model_id", "revision", "license", "decision", "reviewer", "benchmark_file", "benchmark_sha256", "rubric_version"}
-    if not required <= set(selection) or selection["decision"] != "selected" or not selection["reviewer"] or not selection["license"]:
+def validate_selection(selection, benchmark, technical_demo=False):
+    required = {"model_id", "revision", "license", "decision", "rubric_version"}
+    if not required <= set(selection) or not selection["license"]:
         raise ValueError("Falta una selección revisada con licencia y evidencia de benchmark.")
+    if technical_demo:
+        if selection["decision"] != "demonstration" or selection.get("scope") != "technical-demo":
+            raise ValueError("La selección debe declarar demostración técnica, sin aprobación humana.")
+    elif selection["decision"] != "selected" or not selection.get("reviewer") or selection.get("scope") == "technical-demo":
+        raise ValueError("Falta una selección con aprobación humana.")
     if not re.fullmatch(r"[0-9a-f]{40}", selection["revision"]):
         raise ValueError("La revisión del modelo debe ser un commit inmutable.")
-    benchmark_path = (Path(selection_path).resolve().parent / selection["benchmark_file"]).resolve()
-    if not re.fullmatch(r"[0-9a-f]{64}", selection["benchmark_sha256"]) or sha(benchmark_path) != selection["benchmark_sha256"]:
-        raise ValueError("El checksum del benchmark revisado no coincide.")
-    benchmark = json.loads(benchmark_path.read_text(encoding="utf-8"))
     reports = benchmark.get("reports", [])
     candidates = {item["candidate"]["model_id"] for item in reports}
     selected = [item for item in reports if item["candidate"]["model_id"] == selection["model_id"] and item["candidate"]["revision"] == selection["revision"]]
     if len(candidates) < 2 or len(selected) != 1 or not selected[0].get("responses"):
         raise ValueError("Se requieren al menos dos candidatos medidos y una selección coincidente.")
-    if any(response.get("human_review") != "approved" for response in selected[0]["responses"]):
+    if not technical_demo and any(response.get("human_review") != "approved" for response in selected[0]["responses"]):
         raise ValueError("La muestra del modelo elegido requiere revisión humana real.")
-    source = training_source(selection, selected[0]["candidate"])
+    return training_source(selection, selected[0]["candidate"])
+
+
+def model_location(source):
+    if not source.get("snapshot_directory"):
+        return source["model_id"]
+    root = Path(source["snapshot_directory"]).resolve()
+    files = source.get("snapshot_files")
+    if not isinstance(files, dict) or not files or not any(name.endswith(".safetensors") for name in files):
+        raise ValueError("El snapshot local requiere checksums de sus pesos safetensors.")
+    for name, digest in files.items():
+        path = (root / name).resolve()
+        if not path.is_relative_to(root) or not path.is_file() or sha(path) != digest:
+            raise ValueError("El snapshot local no corresponde a los archivos fijados.")
+    return str(root)
+
+
+def train_model(dataset_directory, selection_path, output_directory, resume=False, quantized=True, technical_demo=False):
+    partitions, dataset_manifest = load_dataset(dataset_directory, technical_demo=technical_demo)
+    selection = json.loads(Path(selection_path).read_text(encoding="utf-8"))
+    if not {"benchmark_file", "benchmark_sha256"} <= selection.keys():
+        raise ValueError("Falta evidencia de benchmark con checksum.")
+    benchmark_path = (Path(selection_path).resolve().parent / selection["benchmark_file"]).resolve()
+    if not re.fullmatch(r"[0-9a-f]{64}", selection["benchmark_sha256"]) or sha(benchmark_path) != selection["benchmark_sha256"]:
+        raise ValueError("El checksum del benchmark revisado no coincide.")
+    benchmark = json.loads(benchmark_path.read_text(encoding="utf-8"))
+    source = validate_selection(selection, benchmark, technical_demo=technical_demo)
+    location = model_location(source)
     output = Path(output_directory)
     if output.exists() and not resume:
         raise ValueError("El destino ya existe; use reanudación explícita.")
@@ -74,11 +101,11 @@ def train_model(dataset_directory, selection_path, output_directory, resume=Fals
     set_seed(2026)
     dtype = training_dtype(torch)
     config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=dtype) if quantized else None
-    tokenizer = AutoTokenizer.from_pretrained(source["model_id"], revision=source["revision"], trust_remote_code=False,
+    tokenizer = AutoTokenizer.from_pretrained(location, revision=source["revision"], trust_remote_code=False,
                                               token=os.environ.get("HF_TOKEN"))
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    model = AutoModelForCausalLM.from_pretrained(source["model_id"], revision=source["revision"], trust_remote_code=False,
+    model = AutoModelForCausalLM.from_pretrained(location, revision=source["revision"], trust_remote_code=False,
         use_safetensors=True, token=os.environ.get("HF_TOKEN"), quantization_config=config,
         device_map="auto" if torch.cuda.is_available() else None, dtype=dtype)
     if quantized:
@@ -89,9 +116,8 @@ def train_model(dataset_directory, selection_path, output_directory, resume=Fals
         rows = []
         for record in records:
             for level, key in enumerate(("concept", "location", "strategy"), start=1):
-                prompt = canonical({"problem": record["problem"], "code": record["faulty_code"], "language": record["language"], "verdict": record["verdict"], "level": level}) + "\nRespuesta:\n"
                 answer = canonical({"content": record["hints"][key], "uncertainty": record["uncertainty"]["reason"], "model_version": "adapter"}) + tokenizer.eos_token
-                source = tokenizer.encode(prompt, add_special_tokens=True)
+                source = tokenizer.apply_chat_template(training_messages(record, level), tokenize=True, add_generation_prompt=True, return_dict=False)
                 target = tokenizer.encode(answer, add_special_tokens=False)
                 if len(source) + len(target) > 2048:
                     raise ValueError("Un ejemplo supera 2048 tokens; revise el presupuesto sin truncar silenciosamente la respuesta.")
@@ -110,6 +136,7 @@ def train_model(dataset_directory, selection_path, output_directory, resume=Fals
     metrics = {"training": result.metrics, "validation": trainer.evaluate(), "hardware": {"platform": platform.platform(),
         "cuda": torch.version.cuda, "device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu",
         "dtype": str(dtype).replace("torch.", "")},
+        "scope": dataset_manifest.get("scope", "reviewed"), "human_review": "not-performed" if technical_demo else "recorded-in-selection",
         "dataset_version": dataset_manifest["version"], "selection_sha256": sha(selection_path), "training_model": source,
         "files": {str(file.relative_to(output)): sha(file) for file in (output / "adapter").rglob("*") if file.is_file()}}
     (output / "training-result.json").write_text(canonical(metrics), encoding="utf-8")

@@ -21,7 +21,7 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def validate_records(records, approved=True):
+def validate_records(records, approved=True, technical_demo=False):
     if not isinstance(records, list) or not records:
         raise ValueError("Se requiere una lista no vacía de ejemplos.")
     ids = set()
@@ -32,7 +32,9 @@ def validate_records(records, approved=True):
         if item["example_id"] in ids:
             raise ValueError("Identificador duplicado.")
         ids.add(item["example_id"])
-        if approved and item["review"]["status"] != "approved":
+        if technical_demo and (item["provenance"]["kind"] != "synthetic" or item["review"]["status"] == "rejected"):
+            raise ValueError("La demostración técnica admite solo ejemplos sintéticos no rechazados.")
+        if approved and not technical_demo and item["review"]["status"] != "approved":
             raise ValueError("No se admite entrenamiento o evaluación con ejemplos sin aprobación humana.")
 
 
@@ -41,8 +43,22 @@ def group(item):
     return hashlib.sha256(" ".join(item["problem"].casefold().split()).encode()).hexdigest()
 
 
-def build_dataset(records, output, seed=2026):
-    validate_records(records)
+def build_dataset(records, output, seed=2026, technical_demo=False):
+    validate_records(records, technical_demo=technical_demo)
+    source_sha = hashlib.sha256(canonical(records).encode()).hexdigest()
+    excluded = []
+    if technical_demo:
+        # No relajar el control de contaminación: los borradores repetidos se
+        # excluyen antes de partir y sus identificadores quedan en el manifiesto.
+        seen, unique = set(), []
+        for item in records:
+            code = hashlib.sha256(item["faulty_code"].strip().encode()).hexdigest()
+            if code in seen:
+                excluded.append(item["example_id"])
+            else:
+                seen.add(code)
+                unique.append(item)
+        records = unique
     output = Path(output)
     groups = sorted({group(item) for item in records})
     if len(groups) < 3:
@@ -54,10 +70,12 @@ def build_dataset(records, output, seed=2026):
     partitions = {key: [] for key in ("train", "validation", "test")}
     for item in records:
         partitions[assignment[group(item)]].append(item)
-    check_partitions(partitions)
+    check_partitions(partitions, technical_demo=technical_demo)
     output.mkdir(parents=True, exist_ok=False)
-    manifest = {"schema_version": "1.0", "seed": seed, "source_sha256": hashlib.sha256(canonical(records).encode()).hexdigest(),
+    manifest = {"schema_version": "1.0", "scope": "technical-demo" if technical_demo else "reviewed", "seed": seed, "source_sha256": source_sha,
                 "pipeline_sha256": sha(__file__), "files": {}, "counts": {}, "groups": assignment}
+    if technical_demo:
+        manifest["excluded_duplicate_code_ids"] = excluded
     for name, items in partitions.items():
         path = output / (name + ".jsonl")
         path.write_text("".join(canonical(item) + "\n" for item in sorted(items, key=lambda item: item["example_id"])), encoding="utf-8")
@@ -68,10 +86,10 @@ def build_dataset(records, output, seed=2026):
     return manifest
 
 
-def check_partitions(partitions):
+def check_partitions(partitions, technical_demo=False):
     seen_groups, seen_code, seen_ids = {}, {}, set()
     for name, items in partitions.items():
-        validate_records(items)
+        validate_records(items, technical_demo=technical_demo)
         for item in items:
             code_hash = hashlib.sha256(item["faulty_code"].strip().encode()).hexdigest()
             if item["example_id"] in seen_ids or seen_groups.get(group(item), name) != name or seen_code.get(code_hash, name) != name:
@@ -81,25 +99,27 @@ def check_partitions(partitions):
             seen_code[code_hash] = name
 
 
-def load_dataset(directory):
+def load_dataset(directory, technical_demo=False):
     directory = Path(directory)
     manifest = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
     identity = dict(manifest)
     version = identity.pop("version")
     if hashlib.sha256(canonical(identity).encode()).hexdigest() != version:
         raise ValueError("El manifiesto fue alterado.")
+    if (manifest.get("scope") == "technical-demo") != technical_demo:
+        raise ValueError("El alcance del dataset requiere el modo técnico explícito correspondiente.")
     parts = {}
     for name in ("train", "validation", "test"):
         path = directory / (name + ".jsonl")
         if sha(path) != manifest["files"][path.name]:
             raise ValueError("Una partición no coincide con su checksum.")
         parts[name] = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
-    check_partitions(parts)
+    check_partitions(parts, technical_demo=technical_demo)
     return parts, manifest
 
 
-def fit(records):
-    validate_records(records)
+def fit(records, technical_demo=False):
+    validate_records(records, technical_demo=technical_demo)
     counts, documents, vocabulary = defaultdict(Counter), Counter(), set()
     for record in records:
         category = record["category"]
@@ -127,29 +147,29 @@ def metrics(expected, actual):
     return {"macro_f1": sum(item["f1"] for item in categories.values()) / len(CATEGORIES), "categories": categories, "confusion": matrix}
 
 
-def train(directory, output):
-    parts, manifest = load_dataset(directory)
-    model = fit(parts["train"])
+def train(directory, output, technical_demo=False):
+    parts, manifest = load_dataset(directory, technical_demo=technical_demo)
+    model = fit(parts["train"], technical_demo=technical_demo)
     best_score, threshold = -1, None
     for candidate in (0.5, 0.65, 0.8, 0.9):
         model["threshold"] = candidate
         result = metrics([item["category"] for item in parts["validation"]], [predict(model, item)[0] for item in parts["validation"]])
         if result["macro_f1"] > best_score:
             best_score, threshold = result["macro_f1"], candidate
-    model.update(threshold=threshold, dataset_version=manifest["version"], validation_macro_f1=best_score)
+    model.update(threshold=threshold, dataset_version=manifest["version"], validation_macro_f1=best_score, scope=manifest.get("scope", "reviewed"))
     with Path(output).open("x", encoding="utf-8") as stream:
         stream.write(canonical(model))
     return model
 
 
-def evaluate(directory, model_path):
-    parts, manifest = load_dataset(directory)
+def evaluate(directory, model_path, technical_demo=False):
+    parts, manifest = load_dataset(directory, technical_demo=technical_demo)
     model = json.loads(Path(model_path).read_text(encoding="utf-8"))
     if model["dataset_version"] != manifest["version"]:
         raise ValueError("El modelo y el dataset no corresponden a la misma versión.")
     test = parts["test"]
     majority = max(model["classes"], key=model["classes"].get)
-    return {"dataset_version": manifest["version"], "model_sha256": sha(model_path),
+    return {"scope": manifest.get("scope", "reviewed"), "dataset_version": manifest["version"], "model_sha256": sha(model_path),
             "overall": metrics([item["category"] for item in test], [predict(model, item)[0] for item in test]),
             "baseline": metrics([item["category"] for item in test], [majority] * len(test)),
             "languages": {language: metrics([item["category"] for item in test if item["language"] == language],
