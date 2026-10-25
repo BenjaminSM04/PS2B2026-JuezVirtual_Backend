@@ -34,7 +34,7 @@ class SMTPAPI(APIView):
         smtp = SysOptions.smtp_config
         if not smtp:
             return self.success(None)
-        smtp.pop("password")
+        smtp.pop("password", None)
         return self.success(smtp)
 
     @super_admin_required
@@ -48,11 +48,16 @@ class SMTPAPI(APIView):
     @super_admin_required
     @validate_serializer(EditSMTPConfigSerializer)
     def put(self, request):
-        smtp = SysOptions.smtp_config
+        smtp = SysOptions.smtp_config or {}
         data = request.data
         for item in ["server", "port", "email", "tls"]:
             smtp[item] = data[item]
-        if "password" in data:
+        for item in ["username", "ssl"]:
+            if item in data:
+                smtp[item] = data[item]
+        if smtp.get("ssl") and smtp.get("tls"):
+            return self.error("Seleccione SSL o STARTTLS, no ambos.")
+        if data.get("password"):
             smtp["password"] = data["password"]
         SysOptions.smtp_config = smtp
         audit_log(request.user, "smtp.update", "SMTPConfig",
