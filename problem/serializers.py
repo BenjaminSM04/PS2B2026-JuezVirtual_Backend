@@ -284,3 +284,18 @@ class FPSProblemSerializer(serializers.Serializer):
     template = serializers.ListField(child=serializers.DictField(), allow_empty=True, allow_null=True)
     append = serializers.ListField(child=serializers.DictField(), allow_empty=True, allow_null=True)
     prepend = serializers.ListField(child=serializers.DictField(), allow_empty=True, allow_null=True)
+
+
+class TextTestCaseSerializer(serializers.Serializer):
+    input = serializers.CharField(allow_blank=True, max_length=262144, trim_whitespace=False)
+    output = serializers.CharField(allow_blank=True, max_length=262144, trim_whitespace=False)
+
+
+class TextTestCasesSerializer(serializers.Serializer):
+    cases = TextTestCaseSerializer(many=True, min_length=1, max_length=100)
+
+    def validate_cases(self, cases):
+        total = sum(len(row[key].encode("utf-8")) for row in cases for key in ("input", "output"))
+        if total > 1024 * 1024:
+            raise serializers.ValidationError("Los casos en texto no pueden superar 1 MiB; use ZIP para casos mayores.")
+        return cases
