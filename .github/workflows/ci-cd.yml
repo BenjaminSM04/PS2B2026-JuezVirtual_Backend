@@ -2,7 +2,7 @@ name: Integración y entrega de backend
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, integracion/produccion-lizardjudge]
   push:
     branches: [main]
   workflow_dispatch:

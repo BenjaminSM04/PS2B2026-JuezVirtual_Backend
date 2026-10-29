@@ -42,3 +42,10 @@ class SMTPTransportTest(SimpleTestCase):
         smtp.return_value.__enter__.return_value.send_message.return_value = {"destino@example.com": (550, b"rejected")}
         with self.assertRaises(RuntimeError):
             self.deliver(self.config)
+
+    @mock.patch("utils.shortcuts.smtplib.SMTP_SSL")
+    def test_sender_name_can_be_configured_in_admin(self, smtp):
+        client = smtp.return_value.__enter__.return_value
+        client.send_message.return_value = {}
+        self.deliver(dict(self.config, sender_name="Comunidad Univalle"))
+        self.assertEqual(client.send_message.call_args.args[0]["From"], "Comunidad Univalle <avisos@example.com>")
