@@ -151,11 +151,39 @@ class TwoFactorAuthCodeSerializer(serializers.Serializer):
 
 
 class ImageUploadForm(forms.Form):
-    image = forms.FileField()
+    image = forms.ImageField()
+
+    def clean_image(self):
+        image = self.cleaned_data["image"]
+        if image.size > 5 * 1024 * 1024 or image.image.width * image.image.height > 16000000:
+            raise forms.ValidationError("La imagen supera el tamaño permitido.")
+        import os
+        formats = {"PNG": {".png"}, "JPEG": {".jpg", ".jpeg"}, "GIF": {".gif"}, "BMP": {".bmp"}}
+        if os.path.splitext(image.name)[1].lower() not in formats.get(image.image.format, set()):
+            raise forms.ValidationError("La firma de la imagen no coincide con su extensión.")
+        return image
 
 
 class FileUploadForm(forms.Form):
     file = forms.FileField()
+
+    def clean_file(self):
+        import os
+        file = self.cleaned_data["file"]
+        if file.size > 20 * 1024 * 1024:
+            raise forms.ValidationError("El archivo supera 20 MiB.")
+        signature = file.read(16)
+        file.seek(0)
+        suffix = os.path.splitext(file.name)[1].lower()
+        signatures = {".pdf": b"%PDF-", ".zip": b"PK", ".docx": b"PK", ".xlsx": b"PK", ".pptx": b"PK", ".gz": b"\x1f\x8b", ".rar": b"Rar!", ".7z": b"7z\xbc\xaf\x27\x1c"}
+        if suffix in signatures and not signature.startswith(signatures[suffix]):
+            raise forms.ValidationError("La firma del archivo no coincide con su extensión.")
+        if suffix in {".png", ".jpg", ".jpeg", ".gif", ".bmp"}:
+            image_form = ImageUploadForm(files={"image": file})
+            if not image_form.is_valid():
+                raise forms.ValidationError("La imagen no es válida.")
+            file.seek(0)
+        return file
 
 
 class RankInfoSerializer(serializers.ModelSerializer):

@@ -225,7 +225,7 @@ class UserRegisterAPITest(CaptchaTest):
         self.assertDictEqual(response.data, {"error": "error", "data": "Email already exists"})
 
     def test_register_with_weak_password(self):
-        # La política actual del backend exige longitud, una mayúscula y un dígito.
+        # La política exige longitud, mayúscula y dígito; no exige minúsculas.
         for weak in ["alllower1", "NoDigits", "Ab1"]:
             self.data["username"] = "weak_user"
             self.data["email"] = "weak@qduoj.com"

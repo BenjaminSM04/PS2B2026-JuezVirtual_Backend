@@ -1,0 +1,38 @@
+Verificación de versiones de configuración pedagógica
+Fecha local: 2026-10-13 (America/La_Paz)
+Python 3.12; Django 3.2.25; PostgreSQL 10; Redis 7.
+Imagen backend utilizada: sha256:ae7fb9970150cc5a9a676828edbb0a7e7823b514372df583434f981b595db8c1
+Código backend base: f717bb6758cf8e1021adaf091795ef0d13471115 + cambios locales de esta historia.
+
+Los siguientes son extractos de las salidas reales, no un log completo.
+Los comandos se ejecutaron con bases y archivos temporales aislados.
+
+1. powershell -NoProfile -File OnlineJudge/scripts/verify_tutor_config.ps1 -FullSuite
+Código de salida: 0
+System check identified no issues (0 silenced).
+No changes detected in app 'ai_tutor'
+----------------------------------------------------------------------
+Ran 182 tests in 26.501s
+
+OK
+
+2. Verificación final tras añadir la protección del ID inmutable de versión:
+powershell -NoProfile -File OnlineJudge/scripts/verify_tutor_config.ps1
+Código de salida: 0
+System check identified no issues (0 silenced).
+No changes detected in app 'ai_tutor'
+----------------------------------------------------------------------
+Ran 46 tests in 9.213s
+
+OK
+
+Ambas ejecuciones incluyen flake8 ai_tutor antes de los checks y las pruebas.
+La prueba de migración aplica 0003, revierte a 0002 y vuelve a aplicar 0003.
+La suite del tutor contiene 46 pruebas; 17 son nuevas de esta historia.
+
+El chequeo global de makemigrations detectó diferencias previas en campos JSON
+de account, contest, options, problem y submission. No se generaron migraciones
+ajenas a la historia. El chequeo limitado a ai_tutor pasó.
+
+No se aplicaron migraciones al backend ni a la base de datos del deploy.
+La configuración inicial sigue pendiente de revisión pedagógica humana.

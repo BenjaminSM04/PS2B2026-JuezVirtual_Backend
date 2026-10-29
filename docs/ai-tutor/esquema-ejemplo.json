@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "example_id": "sintetico-positivo-1",
+  "problem": "Sumar dos enteros.",
+  "language": "C",
+  "faulty_code": "int total = 0\n",
+  "verdict": -2,
+  "category": "compilation",
+  "evidence": [
+    "Declaración sin terminador; diagnóstico esperado, no ejecutado."
+  ],
+  "concept": "Sintaxis de declaración",
+  "explanation": "La declaración mostrada carece de terminador.",
+  "uncertainty": {
+    "confidence": 0.8,
+    "alternatives": [],
+    "reason": "Valoración editorial basada en el fragmento sintético; falta reproducción en el juez."
+  },
+  "hints": {
+    "concept": "¿Cómo termina una declaración en C?",
+    "location": "Inspecciona la declaración de total.",
+    "strategy": "Contrasta esa línea con la gramática de declaraciones."
+  },
+  "provenance": {
+    "kind": "synthetic",
+    "reference": "Guía PB-04, ejemplo construido para revisión.",
+    "authorization": null
+  },
+  "review": {
+    "author": "BenjaminSM04",
+    "authored_at": "2026-09-30T10:00:00Z",
+    "reviewer": null,
+    "reviewed_at": null,
+    "approved_at": null,
+    "status": "review",
+    "notes": "Pendiente de revisión humana independiente; no usado para entrenar."
+  }
+}

@@ -5,11 +5,13 @@ import re
 # import shutil
 import tempfile
 import zipfile
+from io import BytesIO
 from wsgiref.util import FileWrapper
 
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.deletion import ProtectedError
 from django.http import StreamingHttpResponse, FileResponse
 
 from account.decorators import problem_permission_required, ensure_created_by
@@ -19,8 +21,9 @@ from fps.parser import FPSHelper, FPSParser
 from judge.dispatcher import SPJCompiler
 from options.options import SysOptions
 from submission.models import Submission, JudgeStatus
-from utils.api import APIView, SameOriginCSRFExemptAPIView, validate_serializer, APIError
+from utils.api import APIView, validate_serializer, APIError
 from utils.audit import audit_log
+from utils.archive import validate_archive
 from utils.constants import Difficulty
 from utils.shortcuts import rand_str, natural_sort_key
 from utils.tasks import delete_files
@@ -30,7 +33,7 @@ from ..serializers import (CreateContestProblemSerializer, CompileSPJSerializer,
                            ProblemAdminSerializer, TestCaseUploadForm, ContestProblemMakePublicSerializer,
                            AddContestProblemSerializer, ExportProblemSerializer,
                            ExportProblemRequestSerialzier, UploadProblemForm, ImportProblemSerializer,
-                           FPSProblemSerializer)
+                           FPSProblemSerializer, TextTestCasesSerializer)
 from ..utils import TEMPLATE_BASE, build_problem_template, resolve_import_difficulty
 
 
@@ -41,6 +44,7 @@ class TestCaseZipProcessor(object):
         except zipfile.BadZipFile:
             raise APIError("Bad zip file")
         name_list = zip_file.namelist()
+        validate_archive(zip_file)
         test_case_list = self.filter_name_list(name_list, spj=spj, dir=dir)
         if not test_case_list:
             raise APIError("Empty file")
@@ -118,7 +122,7 @@ class TestCaseZipProcessor(object):
                     return sorted(ret, key=natural_sort_key)
 
 
-class TestCaseAPI(SameOriginCSRFExemptAPIView, TestCaseZipProcessor):
+class TestCaseAPI(APIView, TestCaseZipProcessor):
     request_parsers = ()
 
     def get(self, request):
@@ -165,6 +169,50 @@ class TestCaseAPI(SameOriginCSRFExemptAPIView, TestCaseZipProcessor):
         info, test_case_id = self.process_zip(zip_file, spj=spj)
         os.remove(zip_file)
         return self.success({"id": test_case_id, "info": info, "spj": spj})
+
+
+class TextTestCaseAPI(APIView, TestCaseZipProcessor):
+    """Crea un conjunto nuevo; no modifica los archivos de ningún problema guardado."""
+
+    @problem_permission_required
+    def get(self, request):
+        try:
+            problem = Problem.objects.get(pk=request.GET.get("problem_id"))
+        except (Problem.DoesNotExist, ValueError, TypeError):
+            return self.error("Problema no encontrado.")
+        ensure_created_by(problem.contest or problem, request.user)
+        if problem.spj:
+            return self.error("Use ZIP para casos con juez especial.")
+        if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", problem.test_case_id or ""):
+            return self.error("Identificador de casos no válido.")
+        directory = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
+        try:
+            names = self.filter_name_list(os.listdir(directory), spj=False)
+            if len(names) > 200 or sum(os.path.getsize(os.path.join(directory, name)) for name in names) > 1024 * 1024:
+                return self.error("Los casos superan el límite del editor de texto; use ZIP.")
+            cases = []
+            for index in range(0, len(names), 2):
+                case = {}
+                for key, name in zip(("input", "output"), names[index:index + 2]):
+                    with open(os.path.join(directory, name), encoding="utf-8", newline="") as stream:
+                        case[key] = stream.read()
+                cases.append(case)
+            return self.success({"cases": cases})
+        except (OSError, UnicodeError):
+            return self.error("No se pueden leer estos casos como texto UTF-8; use ZIP.")
+
+    @problem_permission_required
+    @validate_serializer(TextTestCasesSerializer)
+    def post(self, request):
+        archive = BytesIO()
+        with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_STORED) as file:
+            for index, case in enumerate(request.data["cases"], 1):
+                for key, extension in (("input", "in"), ("output", "out")):
+                    file.writestr(f"{index}.{extension}", case[key].encode("utf-8"))
+        archive.seek(0)
+        info, identifier = self.process_zip(archive, spj=False)
+        audit_log(request.user, "test_case.create_text", "TestCase", extra={"count": len(info)})
+        return self.success({"id": identifier, "info": info, "spj": False})
 
 
 class CompileSPJAPI(APIView):
@@ -322,7 +370,11 @@ class ProblemAPI(ProblemBase):
         #     shutil.rmtree(d, ignore_errors=True)
         problem_id = problem.id
         problem_display_id = problem._id
-        problem.delete()
+        try:
+            problem.delete()
+        except ProtectedError:
+            return self.error("El problema contiene historial de entrenamiento protegido. Puedes ocultarlo en lugar de eliminarlo.",
+                              err="protected-tutor-history")
         audit_log(request.user, "problem.delete", "Problem", problem_id, {"_id": problem_display_id})
         return self.success()
 
@@ -585,7 +637,7 @@ def resolve_import_creator(created_by_username, importer):
     return importer
 
 
-class ImportProblemAPI(SameOriginCSRFExemptAPIView, TestCaseZipProcessor):
+class ImportProblemAPI(APIView, TestCaseZipProcessor):
     request_parsers = ()
 
     def post(self, request):
@@ -601,6 +653,7 @@ class ImportProblemAPI(SameOriginCSRFExemptAPIView, TestCaseZipProcessor):
 
         count = 0
         with zipfile.ZipFile(tmp_file, "r") as zip_file:
+            validate_archive(zip_file)
             name_list = zip_file.namelist()
             for item in name_list:
                 if "/problem.json" in item:
@@ -672,7 +725,7 @@ class ImportProblemAPI(SameOriginCSRFExemptAPIView, TestCaseZipProcessor):
         return self.success({"import_count": count})
 
 
-class FPSProblemImport(SameOriginCSRFExemptAPIView):
+class FPSProblemImport(APIView):
     request_parsers = ()
 
     def _create_problem(self, problem_data, creator):

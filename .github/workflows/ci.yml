@@ -1,0 +1,59 @@
+name: Verifica backend
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: onlinejudge
+          POSTGRES_USER: onlinejudge
+          POSTGRES_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U onlinejudge -d onlinejudge"
+          --health-interval 5s --health-retries 15
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+    env:
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: '5432'
+      POSTGRES_DB: onlinejudge
+      POSTGRES_USER: onlinejudge
+      POSTGRES_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: '6379'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: deploy/requirements.txt
+      - name: Instala dependencias y auditor
+        run: pip install -r deploy/requirements.txt pip-audit
+      - name: Prepara únicamente datos sintéticos del runner
+        run: |
+          mkdir -p data/config data/log data/public/upload data/test_case data/tmp
+          python -c 'import secrets; from pathlib import Path; Path("data/config/secret.key").write_text(secrets.token_urlsafe(50))'
+      - name: Verifica esquema y suite sobre PostgreSQL 17
+        run: |
+          python manage.py check
+          python manage.py makemigrations --check --dry-run
+          python manage.py test --settings=oj.test_settings --noinput --verbosity 1
+      - name: Audita dependencias y sus transitivas
+        run: pip-audit --strict -r deploy/requirements.txt --format json --output audit-backend.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: auditoria-backend
+          path: audit-backend.json

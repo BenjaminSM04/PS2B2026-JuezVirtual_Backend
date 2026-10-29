@@ -1,9 +1,15 @@
-from django.conf.urls import include, url
-from utils.health import readiness, version
+from django.urls import include, re_path as url
+from django.urls import path
+from practice.views import MascotAPI, OverviewAPI
+from utils.health import healthz, version
 
 urlpatterns = [
-    url(r"^healthz$", readiness, name="readiness"),
+    path("healthz", healthz, name="readiness"),
     url(r"^api/version/?$", version, name="runtime_version"),
+    path("api/healthz", healthz),
+    path("api/mascot", MascotAPI.as_view()),
+    path("api/practice/overview", OverviewAPI.as_view()),
+    url(r"^api/", include("ai_tutor.urls")),
     url(r"^api/", include("account.urls.oj")),
     url(r"^api/admin/", include("account.urls.admin")),
     url(r"^api/", include("announcement.urls.oj")),
