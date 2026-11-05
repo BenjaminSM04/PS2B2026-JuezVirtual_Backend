@@ -1,0 +1,108 @@
+name: Motor y modelo del tutor
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - tutor_engine/**
+      - ai_tutor/ml/**
+      - ai_tutor/services/output_guard.py
+      - utils/bounded_http.py
+      - .github/workflows/tutor.yml
+  push:
+    branches: [main]
+    paths:
+      - tutor_engine/**
+      - ai_tutor/ml/**
+      - ai_tutor/services/output_guard.py
+      - utils/bounded_http.py
+      - .github/workflows/tutor.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  ENGINE_IMAGE: ghcr.io/incubadoradesarrollo-source/b-lizard-judge-tutor
+  MODEL_IMAGE: ghcr.io/incubadoradesarrollo-source/b-lizard-judge-modelo
+
+jobs:
+  tutor:
+    name: Probar, construir y publicar
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Pruebas del motor
+        run: python3 tutor_engine/test_server.py
+      - name: Descargar el modelo de la release indicada en el manifiesto
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          release=$(python3 -c "import json; print(json.load(open('tutor_engine/modelo/manifest.json'))['release'])")
+          gh release download "$release" -R "$GITHUB_REPOSITORY" -p model.gguf -D tutor_engine/modelo
+      - name: Verificar artefactos contra el manifiesto aprobado
+        run: |
+          python3 - <<'EOF'
+          import hashlib, json, pathlib
+          root = pathlib.Path("tutor_engine/modelo")
+          manifest = json.loads((root / "manifest.json").read_text())
+          assert manifest["decision"] == "integrate" and manifest["reviewer"] and manifest["reviewer"] != manifest["trained_by"]
+          for key in ("generator", "classifier"):
+              entry = manifest[key]
+              digest = hashlib.sha256((root / entry["file"]).read_bytes()).hexdigest()
+              assert digest == entry["sha256"], key
+          print("Artefactos verificados:", manifest["model_revision"])
+          EOF
+      - name: Configurar Buildx
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
+      - name: Construir motor
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        with:
+          context: .
+          file: tutor_engine/Dockerfile
+          load: true
+          tags: lizard-tutor:local
+          platforms: linux/amd64
+          build-args: APP_REVISION=${{ github.sha }}
+      - name: Construir modelo
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        with:
+          context: .
+          file: tutor_engine/Dockerfile.modelo
+          load: true
+          tags: lizard-modelo:local
+          platforms: linux/amd64
+          build-args: APP_REVISION=${{ github.sha }}
+      - name: Probar el conjunto en una red aislada
+        run: bash tutor_engine/smoke.sh lizard-tutor:local lizard-modelo:local
+      - name: Autenticar GHCR con GITHUB_TOKEN
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publicar etiquetas de commit sin sobrescribir
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          set -euo pipefail
+          for pair in "lizard-tutor:local $ENGINE_IMAGE" "lizard-modelo:local $MODEL_IMAGE"; do
+            set -- $pair
+            if ! docker manifest inspect "$2:$GITHUB_SHA" > /dev/null 2>&1; then
+              docker tag "$1" "$2:$GITHUB_SHA"
+              docker push "$2:$GITHUB_SHA"
+            fi
+            echo "Imagen publicada: $2:$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          done

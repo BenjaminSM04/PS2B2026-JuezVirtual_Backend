@@ -85,3 +85,6 @@ venv/
 docker-compose.yml
 .ipynb_checkpoints/
 artifacts/
+
+# Pesos del modelo: se descargan de la release verificada, nunca se versionan.
+*.gguf

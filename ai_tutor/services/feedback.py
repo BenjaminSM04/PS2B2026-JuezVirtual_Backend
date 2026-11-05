@@ -16,6 +16,9 @@ from submission.models import Submission
 from utils.api import APIError
 from utils.audit import audit_log
 
+# Veredictos en los que el programa llegó a ejecutarse y una observación puede aportar.
+MODEL_VERDICTS = (-1, 1, 2, 3, 4, 8)
+
 
 def throttle(user_id, session_id):
     for key, limit in (("user:" + str(user_id), 12), ("session:" + str(session_id), 6)):
@@ -67,11 +70,22 @@ def feedback(user, session_id, request_id, action, level=None, concept=""):
         raise APIError("El concepto no pertenece a esta configuración.", err="tutor-concept-invalid")
     context = build_context(session, submission, action, selected_level, concept)
     context_hash = hashlib.sha256(json.dumps(context, sort_keys=True, ensure_ascii=True).encode()).hexdigest()
-    # La explicación de un concepto pertenece a la versión docente, incluso si
-    # el generador está disponible. No sustituirla por contenido ajeno a esa versión.
-    generated = generate(context) if action != "concept" else None
+    history = list(session.attempts.order_by("-created_at").values("result")[:3])
+    diag = (diagnostic(submission, session.problem, history) if submission
+            else {"category": "concept", "uncertainty": "Explicación configurada por el docente."})
+    # Conceptos y pistas pertenecen a la versión docente (progresiva y revisada);
+    # el modelo solo complementa la explicación de veredictos que ejecutaron el programa.
+    generated = None
+    if action == "explain" and submission.result in MODEL_VERDICTS:
+        observation = generate(context)
+        if observation:
+            content = diag["content"] + " Observación del tutor: " + observation["content"].strip()
+            generated = {"content": content[:2000], "uncertainty": observation["uncertainty"], "model_version": observation["model_version"]}
+            try:
+                validate_output(generated)
+            except ValueError:
+                generated = None
     source = "model" if generated else "deterministic"
-    diag = diagnostic(submission) if submission else {"category": "concept", "uncertainty": "Explicación configurada por el docente."}
     if not generated:
         content = diag.get("content", "")
         if action == "hint":
