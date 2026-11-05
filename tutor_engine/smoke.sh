@@ -48,3 +48,21 @@ print("estado", status, "latencia_s", round(time.monotonic() - started, 1), json
 # 503 es válido: el filtro de calidad descarta y el backend usa el diagnóstico determinista.
 assert status in (200, 503), status
 EOF
+
+# La ruta de sugerencias para docentes comparte modelo y plazo; 503 es válido si el borrador no cumple el contrato.
+docker exec -i "$id-motor" python - <<'EOF2'
+import json, time, urllib.error, urllib.request
+problem = {"title": "Suma", "description": "Lee A y B (hasta 10^18) y muestra su suma.", "input_description": "A y B.",
+           "output_description": "La suma.", "samples": [{"input": "1 2", "output": "3"}]}
+request = urllib.request.Request("http://127.0.0.1:8080/suggest", json.dumps({"problem": problem}).encode(), {"Content-Type": "application/json"})
+started = time.monotonic()
+try:
+    with urllib.request.urlopen(request, timeout=40) as response:
+        status, body = response.status, json.loads(response.read())
+except urllib.error.HTTPError as error:
+    status, body = error.code, json.loads(error.read())
+print("sugerencia estado", status, "latencia_s", round(time.monotonic() - started, 1), json.dumps(body, ensure_ascii=False))
+assert status in (200, 503), status
+if status == 200:
+    assert body["concepts"] and set(body["hints"]) == {"concept", "location", "strategy"}, body
+EOF2
