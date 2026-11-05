@@ -25,6 +25,22 @@ respaldo. Un valor fuera de rango o no numérico impide arrancar el backend
 ocupa un worker del backend hasta ese tiempo; por eso el tope es 30 s y existen
 cuotas por usuario y solo 2 ranuras en el motor. Medir el p95 del modelo
 (RTX 2060: p50 0,6 s, p95 2,5 s; en CPU es mayor) antes de subir los valores.
+
+Velocidad en CPU: el tiempo lo dominan el prefill y los tokens generados. El backend
+recorta el enunciado, la entrada y la salida a 1200 caracteres cada uno y el código a
+4000 (si es más largo conserva inicio y final), después de redactar datos privados; el
+motor pide como máximo 120 tokens a llama.cpp y activa `cache_prompt`. Si la
+generación se corta pero la cadena `content` ya se cerró, se aprovecha ese texto.
+
+Sugerencias para el docente: `POST /suggest` del motor (red interna) genera un borrador
+de conceptos y pistas a partir del enunciado. El backend lo expone en
+`POST /api/admin/ai_tutor/config/suggest`, lo valida con el esquema de versiones y lo
+devuelve sin guardar; el docente lo revisa y lo guarda como borrador con el flujo
+habitual, por lo que nunca llega al estudiante sin revisión. Usa `MODEL_TIMEOUT_S` como
+plazo total de hasta dos intentos y `AI_TUTOR_ENGINE_TIMEOUT` en el backend (tope 30 s).
+Genera hasta 350 tokens: medir la latencia en CPU antes de ofrecerlo (el smoke del motor
+la registra). Cuota de 6 sugerencias por usuario y minuto; sin `AI_TUTOR_MODEL_ENABLED`
+responde `tutor-suggest-unavailable`.
 Con `compose.tutor.yml` y perfil `tutor`, motor y llama comparten una red privada
 sin puertos publicados. El backend es el único puente. El motor usa usuario sin
 privilegios, raíz de solo lectura, límites CPU/memoria/PID y volúmenes de modelos
