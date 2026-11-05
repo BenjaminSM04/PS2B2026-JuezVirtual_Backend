@@ -257,3 +257,7 @@ AI_TUTOR_ENGINE_URL = get_env("AI_TUTOR_ENGINE_URL", "http://oj-tutor:8080")
 # Presupuesto total (s) de una petición al motor; debe ser mayor que MODEL_TIMEOUT_S
 # del motor. Ocupa un worker del backend hasta ese tiempo, de ahí el tope de 30.
 AI_TUTOR_ENGINE_TIMEOUT = get_env_number("AI_TUTOR_ENGINE_TIMEOUT", 10, 1, 30)
+# Presupuesto total (s) de «Proponer con IA» (solo docentes, con cuota por usuario); debe ser
+# mayor que SUGGEST_TIMEOUT_S del motor (máximo 100). El tope de 105 deja margen bajo el
+# proxy_read_timeout de nginx (110 s en deploy/nginx/nginx.conf para esa ruta).
+AI_TUTOR_SUGGEST_TIMEOUT = get_env_number("AI_TUTOR_SUGGEST_TIMEOUT", 100, 31, 105)

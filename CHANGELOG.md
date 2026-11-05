@@ -3,6 +3,13 @@
 Las notas de administración se leen de este archivo del repositorio instalado.
 Una entrada no confirma que la versión haya sido desplegada.
 
+## [2.2.1] - 2026-11-05
+
+### Tutor
+- «Proponer con IA» tiene su propio límite de tiempo (90 s en el motor, 100 s en el backend) en lugar del de las observaciones: en el servidor sin GPU el borrador tardaba más que ese límite y nunca llegaba al docente.
+- Los borradores piden salidas más cortas (2 o 3 conceptos, explicaciones y pistas de una frase) y el motor atiende una sola sugerencia a la vez para no dejar sin ranura las observaciones a estudiantes.
+- La ruta de la sugerencia espera hasta 110 s en el proxy del backend; el resto de la API mantiene 60 s.
+
 ## [2.2.0] - 2026-11-05
 
 ### Tutor
