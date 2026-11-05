@@ -40,11 +40,31 @@ habitual, por lo que nunca llega al estudiante sin revisión. Tiene plazos propi
 de los de las observaciones: `SUGGEST_TIMEOUT_S` (servicio `oj-tutor`, defecto 90, rango
 30-100) es el plazo total de hasta dos intentos del motor y `AI_TUTOR_SUGGEST_TIMEOUT`
 (backend, defecto 100, rango 31-105) el del backend frente al motor; este **debe ser mayor**
-que el del motor. Pide 260 tokens (200 en el reintento, que además solo se hace si quedan al
-menos 20 s) para 2-3 conceptos y tres pistas breves: a 5-8 tokens/s en CPU son 45-70 s. Un
+que el del motor. Pide 260 tokens (como máximo 200 en el reintento, que solo se hace si quedan
+al menos 20 s y si, a la velocidad medida en el primer intento, caben 80 tokens o más) para 2-3
+conceptos y tres pistas breves: a 5-8 tokens/s en CPU son 30-55 s. Un
 valor fuera de rango impide el arranque del backend o deja el motor sin readiness, igual que
 `MODEL_TIMEOUT_S`. Cuota de 6 sugerencias por usuario y minuto; sin `AI_TUTOR_MODEL_ENABLED`
 responde `tutor-suggest-unavailable`.
+
+Forma y saneado de la propuesta: el motor envía a llama.cpp un esquema JSON (se convierte en
+gramática), de modo que la salida siempre trae `concepts` como objetos `{name, explanation}` y
+las tres pistas; el modelo de 1.5B, sin esa restricción, devolvía `concepts` como lista de
+cadenas, una clave `concept` en singular, listas vacías o JSON cortado, y el motor respondía
+503. Aun así la propuesta se sanea antes de rechazarla: se repara el JSON cortado
+descartando el último elemento incompleto, se descarta solo el concepto o la pista inválidos,
+los textos largos se recortan en límite de frase (300 caracteres) y, si falta o se repite una
+sola pista, se pone un texto genérico en español que el docente revisa (si faltan dos, o si no
+queda ningún concepto válido, se reintenta). Un bloque de código, más de tres líneas de
+programa o dos textos que rechaza el filtro del estudiante descartan la propuesta entera. Cada
+petición usa una semilla nueva, de modo que repetir la sugerencia no repite el fallo.
+
+Registro: el motor escribe en `docker logs` (nivel `WARNING`; `TUTOR_LOG_LEVEL=INFO` añade las
+propuestas saneadas) una línea por propuesta rechazada con el intento, el motivo
+(`json`, `no-concepts`, `hints`, `code`, `guard`), `fin` (`length` si el modelo se quedó sin
+tokens), los tokens generados y los primeros 200 caracteres de la salida, nunca el enunciado
+completo. También registra el tipo de error cuando el modelo no responde a tiempo y una línea
+final cuando la petición queda sin propuesta válida.
 
 Cadena de plazos de una sugerencia (cada capa debe esperar más que la siguiente): llama.cpp
 y motor 90 s, backend frente al motor 100 s, nginx del backend 110 s (ruta propia
