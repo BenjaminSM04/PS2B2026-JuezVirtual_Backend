@@ -154,6 +154,29 @@ class FeedbackTests(ProblemCreateTestBase):
         self.assertNotIn("/app", str(context))
         self.assertEqual(set(context["problem"]), {"title", "description", "input_description", "output_description"})
 
+    def test_context_bounds_problem_text_and_code_but_keeps_redaction(self):
+        self.problem.title = "T" * 3000
+        self.problem.description = "<p>Contacto docente@ejemplo.com " + "largo " * 600 + "</p>"
+        self.problem.save()
+        self.submission.code = "int main() { /* password=secreto */\n" + "x = 1;\n" * 2500 + "return 0; }"
+        session = TutorSession.objects.select_related("problem", "config_version").get(pk=self.session.id)
+        context = build_context(session, self.submission, "explain", 0)
+        for text in context["problem"].values():
+            self.assertLessEqual(len(text), 1200)
+        self.assertTrue(context["problem"]["description"].endswith("…"))
+        self.assertNotIn("docente@ejemplo.com", str(context))
+        self.assertLessEqual(len(context["code"]), 4000)
+        self.assertTrue(context["code"].startswith("int main() { /* [dato privado omitido]"))
+        self.assertTrue(context["code"].endswith("return 0; }"))
+        self.assertIn("\n…\n", context["code"])
+        self.assertNotIn("secreto", str(context))
+
+    def test_short_context_is_not_modified_by_bounds(self):
+        session = TutorSession.objects.select_related("problem", "config_version").get(pk=self.session.id)
+        context = build_context(session, self.submission, "explain", 0)
+        self.assertEqual(context["code"], "int main() {}")
+        self.assertNotIn("…", str(context["problem"]))
+
     def test_configured_concept_stays_versioned_even_with_model_enabled(self):
         with self.settings(AI_TUTOR_MODEL_ENABLED=True), patch(
             "ai_tutor.services.feedback.generate",
