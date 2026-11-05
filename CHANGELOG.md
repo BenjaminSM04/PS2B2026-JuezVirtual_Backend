@@ -3,6 +3,12 @@
 Las notas de administración se leen de este archivo del repositorio instalado.
 Una entrada no confirma que la versión haya sido desplegada.
 
+## [2.2.3] - 2026-11-05
+
+### Tutor
+- «Proponer con IA» vuelve a caber en el plazo en el servidor sin GPU: el esquema JSON estricto de 2.2.2 bajaba la generación a menos de 2 tokens/s. Ahora solo se exige un objeto JSON, como en las observaciones.
+- Un concepto que el modelo escribe como texto suelto se conserva con una explicación genérica que el docente revisa.
+
 ## [2.2.2] - 2026-11-05
 
 ### Tutor

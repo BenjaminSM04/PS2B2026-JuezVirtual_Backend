@@ -400,8 +400,13 @@ class SanitizeTests(unittest.TestCase):
         self.assertEqual(result["hints"]["strategy"], server.GENERIC_HINTS["strategy"])
         self.assertEqual(notes, ["pista strategy: missing"])
 
-    def test_concepts_that_are_not_objects_are_rejected_with_their_reason(self):
-        for name in ("RELOJES_CONCEPTOS_COMO_CADENAS", "CENSO_CLAVE_EN_SINGULAR", "PARCELAS_SIN_CONCEPTOS"):
+    def test_concepts_written_as_plain_text_keep_their_name_with_a_generic_explanation(self):
+        result, _ = self.accepted("RELOJES_CONCEPTOS_COMO_CADENAS")
+        self.assertTrue(result["concepts"])
+        self.assertTrue(all(item["explanation"] == server.GENERIC_EXPLANATION for item in result["concepts"]))
+
+    def test_proposals_without_a_concept_list_are_rejected_with_their_reason(self):
+        for name in ("CENSO_CLAVE_EN_SINGULAR", "PARCELAS_SIN_CONCEPTOS"):
             with self.subTest(name):
                 self.assertEqual(self.reason(name), "no-concepts")
 
@@ -508,9 +513,8 @@ class SuggestTests(EngineTestCase):
         self.assertEqual((status, data), (200, SUGGESTION))
         sent = FakeModel.requests[-1]
         self.assertEqual((sent["max_tokens"], sent["cache_prompt"]), (260, True))
-        # La gramática fija la forma de la salida: sin ella, el modelo devolvía claves ajenas, listas vacías o cadenas en vez de objetos.
-        self.assertEqual(sent["response_format"], server.SUGGEST_FORMAT)
-        self.assertEqual(sent["response_format"]["json_schema"]["schema"]["required"], ["concepts", "hints"])
+        # Solo se exige un objeto JSON: el esquema estricto era demasiado lento en CPU; el saneado corrige la forma.
+        self.assertEqual(sent["response_format"], {"type": "json_object"})
         self.assertEqual([item["role"] for item in sent["messages"]], ["system", "user"])
         prompt = json.loads(sent["messages"][1]["content"])["problem"]
         self.assertEqual(prompt["title"], "Suma grande")
@@ -564,7 +568,7 @@ class SuggestTests(EngineTestCase):
             "cuatro líneas de código": {"hints": {**hints, "strategy": code_hint}},
             "dos textos que la guardia rechaza": {"hints": {**hints, "location": "x = input()", "strategy": "total = 0"}},
             "conceptos en inglés": {"concepts": [{**good, "explanation": "Check the loop because your counter is wrong."}]},
-            "tipo incorrecto": {"concepts": ["Acumulador"]},
+            "tipo incorrecto": {"concepts": [7]},
             "conceptos no es una lista": {"concepts": "Acumulador"},
             "sin pistas": {"hints": []},
         }
@@ -626,15 +630,15 @@ class SuggestTests(EngineTestCase):
                 self.assertEqual(status, 200)
                 self.assertTrue(data["concepts"])
                 self.assertEqual(len(FakeModel.requests), 1)
-        # Lo que no se puede aprovechar (concepts como lista de cadenas) se reintenta y el segundo intento sí sirve.
+        # Lo que no se puede aprovechar (una clave ajena en vez de concepts) se reintenta y el segundo intento sí sirve.
         FakeModel.requests = []
-        FakeModel.queue = [model_reply(REAL_OUTPUTS["RELOJES_CONCEPTOS_COMO_CADENAS"]), model_reply(REAL_OUTPUTS["CENSO_CORTADO"])]
+        FakeModel.queue = [model_reply(REAL_OUTPUTS["CENSO_CLAVE_EN_SINGULAR"]), model_reply(REAL_OUTPUTS["CENSO_CORTADO"])]
         self.assertEqual(self.suggest()[0], 200)
         self.assertEqual(len(FakeModel.requests), 2)
 
     def test_every_rejected_proposal_is_logged_with_its_reason_and_a_short_excerpt(self):
         junk = "x" * 1000
-        FakeModel.queue = [model_reply(junk, tokens=260, finish="length"), model_reply(REAL_OUTPUTS["RELOJES_CONCEPTOS_COMO_CADENAS"], tokens=115)]
+        FakeModel.queue = [model_reply(junk, tokens=260, finish="length"), model_reply(REAL_OUTPUTS["CENSO_CLAVE_EN_SINGULAR"], tokens=115)]
         with self.assertLogs("tutor_engine", "WARNING") as logs:
             self.assertEqual(self.suggest()[:2], (503, {"error": "unavailable"}))
         first, second, summary = (record.getMessage() for record in logs.records)

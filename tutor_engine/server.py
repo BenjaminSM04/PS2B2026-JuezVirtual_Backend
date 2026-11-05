@@ -71,6 +71,7 @@ GENERIC_HINTS = {"concept": "Identifica qué conceptos del enunciado necesitas p
                  "location": "Localiza en el enunciado los datos de entrada y lo que debe producir la salida.",
                  "strategy": "Prueba tus ideas con los ejemplos del enunciado antes de programarlas."}
 MAX_GENERIC_HINTS = 1
+GENERIC_EXPLANATION = "Repasa este concepto y relaciónalo con el enunciado antes de programar."
 # Cotas que recibe el modelo (algo mayores que lo pedido en el prompt): un texto que mide justo eso lo cortó la gramática.
 MODEL_NAME_MAX = 50
 MODEL_TEXT_MAX = 130
@@ -93,7 +94,9 @@ SUGGEST_SCHEMA = {
             "required": ["name", "explanation"]}},
         "hints": {"type": "object", "properties": {key: text_schema(12, MODEL_TEXT_MAX) for key in HINT_KEYS}, "required": list(HINT_KEYS)}},
     "required": ["concepts", "hints"]}
-SUGGEST_FORMAT = {"type": "json_schema", "json_schema": {"name": "suggestion", "strict": True, "schema": SUGGEST_SCHEMA}}
+# En CPU, el esquema estricto (longitudes acotadas por texto) bajaba la generación de 5-9 a menos de 2 tokens/s y la
+# propuesta no cabía en el plazo. Basta con exigir un objeto JSON: el saneado corrige la forma (conceptos como texto).
+SUGGEST_FORMAT = {"type": "json_object"}
 SENTENCE_END = re.compile(r"[.;!?](?=\s|$)")
 ENGLISH = re.compile(r"(?i)\b(the|your|should|please)\b")
 CODE_LINE = re.compile(
@@ -306,6 +309,8 @@ def parse_suggestion(content, notes=None):
     if not isinstance(items, list):
         raise Rejected("no-concepts")
     hints = hints if isinstance(hints, dict) else {}
+    # El modelo a veces escribe un concepto como texto suelto: se conserva el nombre con una explicación genérica.
+    items = [{"name": item, "explanation": GENERIC_EXPLANATION} if isinstance(item, str) else item for item in items]
     raw = [value for item in items if isinstance(item, dict) for value in (item.get("name"), item.get("explanation"))] + list(hints.values())
     if sum(1 for text in raw if isinstance(text, str) for line in text.splitlines() if CODE_LINE.search(line)) > 3:
         raise Rejected("code")
