@@ -3,6 +3,16 @@
 Las notas de administración se leen de este archivo del repositorio instalado.
 Una entrada no confirma que la versión haya sido desplegada.
 
+## [2.2.0] - 2026-11-05
+
+### Tutor
+- Sugerencias con IA para el docente: borradores de conceptos y pistas a partir del enunciado, que se revisan y guardan como borrador sin llegar al estudiante.
+- Respuestas del tutor más rápidas: enunciado y código acotados antes de consultar al motor, con menos texto generado.
+
+### Concursos
+- Un concurso sin envíos puede borrarse junto con sus problemas, anuncios y clasificaciones.
+- Si el concurso tiene envíos solo puede ocultarse, para conservar el historial.
+
 ## [2.1.0] - 2026-11-05
 
 ### Tutor

@@ -5,6 +5,10 @@ import re
 
 from ai_tutor.services.explainers import diagnostic
 
+# En CPU el tiempo del modelo lo domina el prefill: se limita lo que se envía.
+TEXT_LIMIT = 1200
+CODE_LIMIT = 4000
+
 
 def redact(text, limit=4000):
     text = str(text or "")[:limit]
@@ -18,8 +22,22 @@ def redact(text, limit=4000):
     return text
 
 
-def public_text(value):
-    return redact(html.unescape(re.sub(r"<[^>]*>", " ", value or "")))
+def clip(text, limit=TEXT_LIMIT):
+    return text if len(text) <= limit else text[:limit - 1].rstrip() + "…"
+
+
+def clip_code(code, limit=CODE_LIMIT):
+    """Si excede el límite conserva inicio y final, donde suelen estar las declaraciones y el desenlace."""
+    if len(code) <= limit:
+        return code
+    mark = "\n…\n"
+    head = (limit - len(mark)) // 2
+    return code[:head] + mark + code[-(limit - len(mark) - head):]
+
+
+def public_text(value, limit=TEXT_LIMIT):
+    text = redact(html.unescape(re.sub(r"<[^>]*>", " ", value or "")))
+    return clip(re.sub(r"\s+", " ", text).strip(), limit)
 
 
 def build_context(session, submission, action, level, concept=""):
@@ -30,7 +48,7 @@ def build_context(session, submission, action, level, concept=""):
         "level": level,
         "concept": concept,
         "problem": {key: public_text(getattr(problem, key)) for key in ("title", "description", "input_description", "output_description")},
-        "code": redact(submission.code, 20000) if submission and action != "concept" else "",
+        "code": clip_code(redact(submission.code, 20000)) if submission and action != "concept" else "",
         "language": submission.language if submission else "",
         "diagnostic": diagnostic(submission) if submission else {"category": "concept", "evidence": ""},
         "concepts": list(session.config_version.concepts),

@@ -6,6 +6,7 @@ from ai_tutor.serializers import (
 )
 from ai_tutor.services.access import config_data, get_problem, set_config
 from ai_tutor.services.problem_config import activate_version, create_draft, get_version
+from ai_tutor.services.suggestions import suggest_content
 from utils.api import APIView, validate_serializer
 
 
@@ -57,3 +58,11 @@ class TutorConfigVersionActivateAPI(APIView):
     def post(self, request):
         version = activate_version(request.user, **request.serializer.validated_data)
         return self.success(ConfigVersionSerializer(version).data)
+
+
+class TutorConfigSuggestAPI(APIView):
+    @problem_permission_required
+    @validate_serializer(ProblemIdSerializer)
+    def post(self, request):
+        """Devuelve un borrador de conceptos y pistas sin guardarlo; el docente lo revisa y crea la versión."""
+        return self.success(suggest_content(request.user, **request.serializer.validated_data))
