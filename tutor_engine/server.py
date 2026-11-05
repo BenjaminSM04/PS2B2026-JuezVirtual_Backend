@@ -2,8 +2,10 @@
 import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import logging
 import math
 import os
+import random
 import re
 from pathlib import Path
 import threading
@@ -15,6 +17,7 @@ from classifier_runtime import predict
 from bounded_http import post_json
 from tutor_prompt import build_messages
 
+LOG = logging.getLogger("tutor_engine")
 ROOT = Path("/models").resolve()
 UNCERTAINTY = "Observación generada automáticamente; puede no identificar la causa exacta."
 # Respuestas que no deben llegar a un estudiante aunque superen el guard sintáctico.
@@ -35,6 +38,10 @@ MODEL_TIMEOUT_S = 8.0
 SUGGEST_TIMEOUT_S = 90.0
 # El segundo intento (más breve) solo se pide si queda tiempo para generarlo.
 SUGGEST_RETRY_MIN_S = 20.0
+# Margen que se reserva al calcular cuántos tokens caben en el tiempo restante.
+SUGGEST_MARGIN_S = 3.0
+# Con menos tokens que estos el segundo intento no daría ni un concepto y tres pistas.
+SUGGEST_RETRY_MIN_TOKENS = 80
 # En CPU el costo crece con los tokens generados: las observaciones son breves.
 FEEDBACK_MAX_TOKENS = 120
 SUGGEST_MAX_TOKENS = 260
@@ -50,9 +57,44 @@ SUGGEST_PROMPT = (
     "progresivas, cada una de una frase de menos de 100 caracteres, que orienten sin dar la solución. "
     "Escribe en español, sin código, sin bloques de código y sin la solución del problema."
 )
-SUGGEST_BREVITY = " Sé aún más breve: 2 conceptos y frases de menos de 70 caracteres."
+# El segundo intento añade esta indicación como último mensaje: el prompt anterior sigue en la caché de llama.cpp.
+SUGGEST_BREVITY = "Sé aún más breve: 2 conceptos y frases de menos de 70 caracteres."
 SUGGEST_FIELDS = ("title", "description", "input_description", "output_description")
 SUGGEST_LIMIT = 1200
+# Lo que se acepta: lo largo se recorta en límite de frase en vez de rechazar la propuesta.
+NAME_LIMIT = 80
+TEXT_LIMIT = 300
+MAX_CONCEPTS = 4
+HINT_KEYS = ("concept", "location", "strategy")
+# Pista neutra para sustituir una que falte o no sea válida (como máximo una por propuesta); el docente revisa el borrador.
+GENERIC_HINTS = {"concept": "Identifica qué conceptos del enunciado necesitas para resolver el problema.",
+                 "location": "Localiza en el enunciado los datos de entrada y lo que debe producir la salida.",
+                 "strategy": "Prueba tus ideas con los ejemplos del enunciado antes de programarlas."}
+MAX_GENERIC_HINTS = 1
+# Cotas que recibe el modelo (algo mayores que lo pedido en el prompt): un texto que mide justo eso lo cortó la gramática.
+MODEL_NAME_MAX = 50
+MODEL_TEXT_MAX = 130
+# Recorte de la salida del modelo que se escribe en el registro al rechazar una propuesta.
+LOG_EXCERPT = 200
+
+
+def text_schema(minimum, maximum):
+    return {"type": "string", "minLength": minimum, "maxLength": maximum}
+
+
+# llama.cpp lo convierte en gramática: la salida siempre tiene esta forma y no se desborda. Sin ella, el modelo de 1.5B
+# devolvía claves ajenas ("concept" en lugar de "concepts"), listas vacías o JSON cortado en la mayoría de las peticiones.
+SUGGEST_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "concepts": {"type": "array", "minItems": 1, "maxItems": 3, "items": {
+            "type": "object",
+            "properties": {"name": text_schema(3, MODEL_NAME_MAX), "explanation": text_schema(12, MODEL_TEXT_MAX)},
+            "required": ["name", "explanation"]}},
+        "hints": {"type": "object", "properties": {key: text_schema(12, MODEL_TEXT_MAX) for key in HINT_KEYS}, "required": list(HINT_KEYS)}},
+    "required": ["concepts", "hints"]}
+SUGGEST_FORMAT = {"type": "json_schema", "json_schema": {"name": "suggestion", "strict": True, "schema": SUGGEST_SCHEMA}}
+SENTENCE_END = re.compile(r"[.;!?](?=\s|$)")
 ENGLISH = re.compile(r"(?i)\b(the|your|should|please)\b")
 CODE_LINE = re.compile(
     r"^\s*(?:#include\b|import\s+\w|from\s+\w+\s+import\b|def\s+\w+\s*\(|class\s+\w+|(?:for|while|if)\s*\(|"
@@ -149,62 +191,217 @@ def clean_problem(data):
     return clean
 
 
+class Rejected(ValueError):
+    """La propuesta no se puede aprovechar; el mensaje es el motivo que queda en el registro."""
+
+
 def suggest_messages(problem, concise):
-    return [{"role": "system", "content": SUGGEST_PROMPT + (SUGGEST_BREVITY if concise else "")},
-            {"role": "user", "content": json.dumps({"problem": problem}, ensure_ascii=False)}]
+    messages = [{"role": "system", "content": SUGGEST_PROMPT},
+                {"role": "user", "content": json.dumps({"problem": problem}, ensure_ascii=False)}]
+    if concise:
+        messages.append({"role": "user", "content": SUGGEST_BREVITY})
+    return messages
 
 
-def suggestion_text(value, limit):
+def close_truncated(fragment):
+    """Cierra un JSON cortado por max_tokens: descarta el último elemento incompleto y añade los cierres que faltan."""
+    pending, cuts, in_string, escaped = [], [], False, False
+    for index, char in enumerate(fragment):
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            continue
+        if char == '"':
+            in_string = True
+        elif char in "{[":
+            pending.append("}" if char == "{" else "]")
+        elif char in "}]":
+            if not pending:
+                break
+            pending.pop()
+            cuts.append((index + 1, "".join(reversed(pending))))
+        elif char == ",":
+            cuts.append((index, "".join(reversed(pending))))
+    for end, closers in reversed(cuts):
+        try:
+            return json.loads(fragment[:end] + closers)
+        except ValueError:
+            continue
+    raise Rejected("json")
+
+
+def read_json_object(content):
+    """Primer objeto JSON del texto, aunque lo rodeen vallas de código o texto, o se haya cortado al final."""
+    start = content.find("{")
+    if start < 0:
+        raise Rejected("json")
+    try:
+        data = json.JSONDecoder().raw_decode(content, start)[0]
+    except ValueError:
+        data = close_truncated(content[start:])
+    if not isinstance(data, dict):
+        raise Rejected("json")
+    return data
+
+
+def shorten(text, limit):
+    """Recorta en el último final de frase que cabe; si no hay ninguno que conserve lo esencial, en la última palabra."""
+    if len(text) <= limit:
+        return text
+    ends = [found.end() for found in SENTENCE_END.finditer(text[:limit + 1]) if found.end() <= limit]
+    if ends and ends[-1] >= limit // 3:
+        return text[:ends[-1]]
+    cut = text[:limit - 1]
+    if not text[limit - 1].isspace():
+        # La última palabra de la ventana quedó a medias: se descarta entera.
+        cut = cut.rsplit(" ", 1)[0]
+    cut = cut.rstrip(" ,;:")
+    return cut if cut.endswith((".", "!", "?")) else cut + "…"
+
+
+def spell_comparisons(text):
+    """Escribe las comparaciones ("x < a o x > b") para que la regla de etiquetas HTML de la guardia no las confunda con una
+    etiqueta. Las etiquetas reales (<b>, <script>) no llevan espacio tras el signo y se siguen rechazando."""
+    text = text.replace("<=", "≤").replace(">=", "≥")
+    return re.sub(r"(?<=\s)<(?=\s)", "menor que", re.sub(r"(?<=\s)>(?=\s)", "mayor que", text))
+
+
+def suggestion_text(value, limit, cap, cut=True):
+    """Texto en una línea dentro del límite. ValueError si no sirve; Rejected si trae un bloque de código.
+    cap es la cota que recibió el modelo: un texto que mide justo eso sin cerrar la frase lo cortó la gramática a medias."""
+    if value is None:
+        raise ValueError("missing")
     if not isinstance(value, str):
         raise ValueError("type")
     if "```" in value:
-        raise ValueError("code")
-    text = " ".join(value.split())
-    if not 1 <= len(text) <= limit or ENGLISH.search(text):
+        raise Rejected("code")
+    text = spell_comparisons(" ".join(value.split()))
+    if not text or ENGLISH.search(text):
         raise ValueError("text")
+    if len(value) == cap and value.rstrip()[-1:] not in (".", ";", "!", "?"):
+        text = shorten(text, len(text) - 1)
+    if len(text) > limit:
+        if not cut:
+            raise ValueError("long")
+        text = shorten(text, limit)
     # Mismo filtro que recibe el estudiante: un borrador que no lo supere no serviría después.
-    validate_output({"content": text, "uncertainty": "", "model_version": "suggest"})
+    try:
+        validate_output({"content": text, "uncertainty": "", "model_version": "suggest"})
+    except ValueError as error:
+        raise ValueError("guard-" + str(error)) from None
     return text
 
 
-def parse_suggestion(content):
-    """Extrae y valida {concepts, hints}; tolera vallas de código y texto alrededor del JSON. ValueError si no es válido."""
-    start, end = content.find("{"), content.rfind("}")
-    if start < 0 or end < start:
-        raise ValueError("json")
-    data = json.loads(content[start:end + 1])
-    if not isinstance(data, dict) or not isinstance(data.get("concepts"), list) or not isinstance(data.get("hints"), dict):
-        raise ValueError("schema")
-    items, hints = data["concepts"], data["hints"]
-    if not 1 <= len(items) <= 4 or set(hints) != {"concept", "location", "strategy"}:
-        raise ValueError("schema")
-    if any(not isinstance(item, dict) or not {"name", "explanation"} <= set(item) for item in items):
-        raise ValueError("schema")
-    raw = [str(item[key]) for item in items for key in ("name", "explanation")] + [str(hints[key]) for key in hints if isinstance(hints[key], str)]
-    if sum(1 for text in raw for line in text.splitlines() if CODE_LINE.search(line)) > 3:
-        raise ValueError("code")
-    concepts = [{"name": suggestion_text(item["name"], 80), "explanation": suggestion_text(item["explanation"], 300)} for item in items]
-    result = {"concepts": concepts, "hints": {key: suggestion_text(hints[key], 300) for key in ("concept", "location", "strategy")}}
-    if len({item["name"].casefold() for item in concepts}) != len(concepts) or len(set(result["hints"].values())) != 3:
-        raise ValueError("duplicates")
-    return result
+def parse_suggestion(content, notes=None):
+    """Extrae {concepts, hints} saneando antes que rechazar: descarta solo el concepto o la pista inválidos, recorta lo largo
+    y sustituye como máximo una pista por texto genérico. Rejected si queda sin conceptos válidos, sin pistas suficientes
+    o si el modelo escribe código (bloques, líneas de programa o dos textos que el filtro del estudiante rechaza)."""
+    notes = [] if notes is None else notes
+    data = read_json_object(content)
+    items, hints = data.get("concepts"), data.get("hints")
+    if not isinstance(items, list):
+        raise Rejected("no-concepts")
+    hints = hints if isinstance(hints, dict) else {}
+    raw = [value for item in items if isinstance(item, dict) for value in (item.get("name"), item.get("explanation"))] + list(hints.values())
+    if sum(1 for text in raw if isinstance(text, str) for line in text.splitlines() if CODE_LINE.search(line)) > 3:
+        raise Rejected("code")
+    concepts, names, dropped = [], set(), []
+    for position, item in enumerate(items):
+        try:
+            if not isinstance(item, dict):
+                raise ValueError("type")
+            name = suggestion_text(item.get("name"), NAME_LIMIT, MODEL_NAME_MAX, cut=False)
+            explanation = suggestion_text(item.get("explanation"), TEXT_LIMIT, MODEL_TEXT_MAX)
+            if name.casefold() in names or len(concepts) == MAX_CONCEPTS:
+                raise ValueError("duplicate" if name.casefold() in names else "extra")
+        except Rejected:
+            raise
+        except ValueError as error:
+            dropped.append("concepto %d: %s" % (position + 1, error))
+            continue
+        names.add(name.casefold())
+        concepts.append({"name": name, "explanation": explanation})
+    result, missing, seen = {}, [], set()
+    for key in HINT_KEYS:
+        try:
+            text = suggestion_text(hints.get(key), TEXT_LIMIT, MODEL_TEXT_MAX)
+            if text.casefold() in seen:
+                raise ValueError("duplicate")
+        except Rejected:
+            raise
+        except ValueError as error:
+            dropped.append("pista %s: %s" % (key, error))
+            missing.append(key)
+            continue
+        seen.add(text.casefold())
+        result[key] = text
+    if sum(1 for entry in dropped if ": guard-" in entry) > 1:
+        raise Rejected("guard")
+    if not concepts:
+        raise Rejected("no-concepts")
+    if len(missing) > MAX_GENERIC_HINTS:
+        raise Rejected("hints")
+    for key in missing:
+        result[key] = GENERIC_HINTS[key]
+    notes.extend(dropped)
+    return {"concepts": concepts, "hints": {key: result[key] for key in HINT_KEYS}}
+
+
+def retry_tokens(left, tokens, seconds):
+    """Tokens que caben en el tiempo restante según la velocidad medida en el primer intento (prefill incluido)."""
+    if not isinstance(tokens, int) or tokens <= 0 or seconds <= 0:
+        return SUGGEST_RETRY_MAX_TOKENS
+    return min(SUGGEST_RETRY_MAX_TOKENS, int((left - SUGGEST_MARGIN_S) * tokens / seconds))
+
+
+def log_rejection(attempt, reason, content, finish, tokens):
+    # Solo el motivo y un recorte de la salida: nunca el enunciado completo.
+    LOG.warning("propuesta rechazada: intento=%d motivo=%s fin=%s tokens=%s salida=%r", attempt + 1, reason, finish, tokens,
+                " ".join(content.split())[:LOG_EXCERPT])
 
 
 def draft_suggestion(problem):
     """Pide el borrador al modelo; None si ningún intento dentro del plazo cumple el contrato."""
-    # Un solo plazo (SUGGEST_TIMEOUT_S) para ambos intentos; el segundo pide una respuesta más breve y corta.
+    # Un solo plazo (SUGGEST_TIMEOUT_S) para ambos intentos. El segundo es más breve, usa otra semilla y pide solo los
+    # tokens que caben en el tiempo que queda según la velocidad del primero (en CPU son 5-9 tokens/s).
     deadline = time.monotonic() + SUGGEST_TIMEOUT_S
+    # Semilla nueva en cada petición: con una fija, un enunciado cuyo borrador fallaba volvía a fallar igual al repetirlo.
+    seed = random.SystemRandom().randrange(1, 2 ** 31 - 1)
+    speed, attempts = (None, 0), 0
     for attempt in range(2):
         left = deadline - time.monotonic()
         if left <= 0.5 or (attempt and left < SUGGEST_RETRY_MIN_S):
             break
-        payload = {"messages": suggest_messages(problem, attempt == 1), "max_tokens": SUGGEST_RETRY_MAX_TOKENS if attempt else SUGGEST_MAX_TOKENS,
-                   "temperature": 0.2 + 0.3 * attempt, "seed": 2026 + attempt, "cache_prompt": True, "response_format": {"type": "json_object"}}
-        result = post_json(MODEL_URL + "/v1/chat/completions", json.dumps(payload).encode(), left)
+        max_tokens = retry_tokens(left, *speed) if attempt else SUGGEST_MAX_TOKENS
+        if attempt and max_tokens < SUGGEST_RETRY_MIN_TOKENS:
+            break
+        payload = {"messages": suggest_messages(problem, attempt == 1), "max_tokens": max_tokens, "temperature": 0.2 + 0.3 * attempt,
+                   "seed": seed + attempt, "cache_prompt": True, "response_format": SUGGEST_FORMAT}
+        attempts += 1
+        began = time.monotonic()
         try:
-            return parse_suggestion(str(result["choices"][0]["message"]["content"]))
-        except ValueError:
+            result = post_json(MODEL_URL + "/v1/chat/completions", json.dumps(payload).encode(), left)
+            choice = result["choices"][0]
+            content = str(choice["message"]["content"])
+        except Exception as error:
+            LOG.warning("sugerencia sin respuesta del modelo: intento=%d error=%s", attempt + 1, type(error).__name__)
+            return None
+        finish, tokens = choice.get("finish_reason"), (result.get("usage") or {}).get("completion_tokens")
+        speed = (tokens, time.monotonic() - began)
+        notes = []
+        try:
+            suggestion = parse_suggestion(content, notes)
+        except ValueError as error:
+            log_rejection(attempt, error, content, finish, tokens)
             continue
+        if notes:
+            LOG.info("propuesta saneada: intento=%d %s", attempt + 1, "; ".join(notes))
+        return suggestion
+    LOG.warning("sugerencia sin propuesta válida: intentos=%d plazo_restante=%.0fs", attempts, max(0.0, deadline - time.monotonic()))
     return None
 
 
@@ -297,13 +494,22 @@ class Handler(BaseHTTPRequestHandler):
             if not useful(str(generated.get("content", ""))):
                 return self.reply(503, {"error": "unavailable"})
             self.reply(200, validate_output(generated))
-        except Exception:
+        except Exception as error:
+            # Solo la ruta y el tipo de error: ni el cuerpo de la petición ni el texto del modelo.
+            LOG.warning("petición %s no atendida: %s", self.path, type(error).__name__)
             self.reply(503, {"error": "unavailable"})
         finally:
             SLOTS.release()
 
 
+def log_level():
+    """Nivel del registro (TUTOR_LOG_LEVEL). Por defecto WARNING: incluye cada propuesta rechazada; INFO añade las saneadas."""
+    level = os.environ.get("TUTOR_LOG_LEVEL", "WARNING").upper()
+    return level if level in ("DEBUG", "INFO", "WARNING", "ERROR") else "WARNING"
+
+
 if __name__ == "__main__":
+    logging.basicConfig(level=log_level(), format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     try:
         MODEL_TIMEOUT_S = model_timeout()
         SUGGEST_TIMEOUT_S = suggest_timeout()

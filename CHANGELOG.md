@@ -3,6 +3,14 @@
 Las notas de administración se leen de este archivo del repositorio instalado.
 Una entrada no confirma que la versión haya sido desplegada.
 
+## [2.2.2] - 2026-11-05
+
+### Tutor
+- «Proponer con IA» deja de responder `tutor-suggest-unavailable` con enunciados como «Censo entre cuatro bordes»: el modelo devolvía los conceptos como lista de cadenas, con claves distintas o con el JSON cortado, y el motor lo descartaba sin dejar rastro.
+- El motor pide la propuesta con un esquema JSON, así que siempre llega con conceptos (nombre y explicación) y las tres pistas, y la saneada en lugar de rechazarla: descarta solo el concepto o la pista inválidos, recorta los textos largos en límite de frase y sustituye una pista que falte por un texto genérico que el docente revisa. Los bloques de código y las soluciones siguen rechazándose.
+- El reintento pide solo los tokens que caben en el tiempo restante, reutiliza el prompt en la caché del modelo y cada petición usa una semilla nueva.
+- Cada propuesta rechazada queda en `docker logs` del motor con el motivo y un recorte de la salida (`TUTOR_LOG_LEVEL=INFO` añade las saneadas).
+
 ## [2.2.1] - 2026-11-05
 
 ### Tutor
