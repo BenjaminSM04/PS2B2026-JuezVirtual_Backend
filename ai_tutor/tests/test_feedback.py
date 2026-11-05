@@ -169,6 +169,31 @@ class FeedbackTests(ProblemCreateTestBase):
     def test_model_unavailable_uses_static_fallback(self, generate):
         self.assertEqual(self.ask("hint", level=1).data["data"]["source"], "static")
 
+    @patch("ai_tutor.services.feedback.generate",
+           return_value={"content": "Revisa cómo cambia el acumulador.", "uncertainty": "Orientación automática.", "model_version": "fixture"})
+    def test_model_only_complements_explanations_of_executed_attempts(self, generate):
+        compiled = self.ask()
+        self.assertEqual(compiled.data["data"]["source"], "deterministic")
+        generate.assert_not_called()
+        self.submission = self.attempt(result=-1)
+        explained = self.ask()
+        self.assertSuccess(explained)
+        self.assertEqual(explained.data["data"]["source"], "model")
+        self.assertTrue(explained.data["data"]["content"].startswith("La salida no coincide"))
+        self.assertIn("Observación del tutor: Revisa cómo cambia el acumulador.", explained.data["data"]["content"])
+        generate.reset_mock()
+        hint = self.ask("hint", level=1)
+        self.assertEqual(hint.data["data"]["source"], "static")
+        generate.assert_not_called()
+
+    @patch("ai_tutor.services.feedback.generate",
+           return_value={"content": "Revisa el acumulador.", "uncertainty": "", "model_version": "fixture"})
+    def test_combined_explanation_is_guarded_again(self, generate):
+        self.submission = self.attempt(result=-1)
+        with patch("ai_tutor.services.feedback.validate_output", side_effect=[ValueError("rule"), None]):
+            response = self.ask()
+        self.assertEqual(response.data["data"]["source"], "deterministic")
+
     def test_purge_is_dry_run_unless_apply(self):
         from django.core.management import call_command
         from io import StringIO

@@ -1,0 +1,28 @@
+{
+  "approval_notes": "Aprobado para producción por el responsable del proyecto. Uso limitado a observaciones complementarias de la explicación; pistas y conceptos siguen siendo los configurados por el docente.",
+  "base_model_id": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "base_model_revision": "2e1fd397ee46e1388853d2af2c993145b0f1098a",
+  "classifier": {
+    "file": "classifier.json",
+    "sha256": "2e19357060e132a1388bfcce25399b5f477c6ae6aa26b1f6863a6c3d9b443495"
+  },
+  "conversion_revision": "c7fc5094179bf8a9c73c18593db714f8da41a402",
+  "created_at": "2026-10-25T02:03:23.097260+00:00",
+  "dataset_version": "2712f56b211773060a75e3063c41adaa602df2f92d7b7b8684727e232235a798",
+  "decision": "integrate",
+  "generator": {
+    "file": "model.gguf",
+    "sha256": "e94eb2812b3afb6fa9a25d84fe8f6a6813895f71c3998c6e8374a242079cd051"
+  },
+  "human_review": "approved",
+  "license": "apache-2.0",
+  "model_revision": "sha256:e94eb2812b3afb6fa9a25d84fe8f6a6813895f71c3998c6e8374a242079cd051",
+  "quantization": "Q4_K_M",
+  "release": "modelo-tutor-20261104",
+  "reviewed_at": "2026-11-04",
+  "reviewer": "Benjamin Saenz",
+  "scope": "production",
+  "source_manifest_sha256": "96a2d8c6c3fc06dae80fc22a50c56d08c30ae60b24cfcb27f32a26643b9f677d",
+  "trained_by": "entrenamiento automatizado asistido (Claude Code)",
+  "training_result_sha256": "9fe67129f1963033a7238ab68a6af264c7481bfe42ebcf8d0cdc88eec648e001"
+}
