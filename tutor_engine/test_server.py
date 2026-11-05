@@ -305,7 +305,7 @@ REAL_OUTPUTS = {
         'resultados."}],"hints":{"concept":"Traza dos líneas y determina cuántos puntos hay '
         'dentro.","location":"Deducí dos líneas que puedan contener al menos un punto y '
         'calcúlalos.","strategy":"Traza una primera línea y cuenta los puntos que estén por encima. Traza otra línea '
-        'y vuelve a contar los puntos que estén por debajo. La intersección de las dos líneas dará el número exacto '
+        "y vuelve a contar los puntos que estén por debajo. La intersección de las dos líneas dará el número exacto "
         'de puntos que hay dentro."},"location":"Inspecciona la última coordenada del primer rectángulo y la primera '
         'coordenada del segundo recuadro.","'),
 
@@ -318,7 +318,7 @@ REAL_OUTPUTS = {
         'resultado da.","location":"Dentro del recorrido.","strategy":"Cuenta cuántos objetos has traído hasta ahora '
         'y el valor que consigue traer. Traza dos opciones:"},"hints":{"concept":"Traza dos opciones y elige la que '
         'mejor resultado da.","location":"El primer recorrido incluye el primer objeto.","strategy":"Deducí cuál '
-        'sería el valor que consigue traer sin incluir el primer objeto y contra ese valor sumale el peso del primer '
+        "sería el valor que consigue traer sin incluir el primer objeto y contra ese valor sumale el peso del primer "
         'objeto."},"hints":{"concept":"Traza dos opciones y elige la que mejor resultado da.","location":"El segundo '
         'recorrido no incluye el primer objeto.","strategy":"Deducí cuál sería el valor máximo que consigue traer sin'),
 
@@ -362,8 +362,8 @@ REAL_OUTPUTS = {
         'números."}],"hints":{"concept":"Traza las rectas y localiza los puntos de '
         'intersección.","location":"Comienza trazando la primera recta y recórrela hasta encontrar un punto que pueda'
         ' intersecar con la segunda recta.","strategy":"Traza la primera recta y localiza el primer punto que puede '
-        'intersecar con la segunda recta. Traza la segunda recta y localiza el primer punto que puede intersecar con '
-        'la primera recta. Ahora tienes dos puntos de intersección. Compara las coordenadas de estos puntos y '
+        "intersecar con la segunda recta. Traza la segunda recta y localiza el primer punto que puede intersecar con "
+        "la primera recta. Ahora tienes dos puntos de intersección. Compara las coordenadas de estos puntos y "
         'determina cuál es el área que pertenece a ambos."}}'),
 
     # MED-MOCHILA-028, intento 2: location y strategy son idénticas
