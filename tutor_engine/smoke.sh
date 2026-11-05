@@ -14,7 +14,7 @@ docker network create --internal "$id" > /dev/null
 docker run -d --name "$id-modelo" --network "$id" --network-alias oj-model "$model_image" \
   -m /models/model.gguf --host 0.0.0.0 --port 8080 -c 4096 -np 1 --threads 2 > /dev/null
 docker run -d --name "$id-motor" --network "$id" --read-only --cap-drop ALL \
-  -e MODEL_URL=http://oj-model:8080 -e MODEL_TIMEOUT_S=30 "$engine_image" > /dev/null
+  -e MODEL_URL=http://oj-model:8080 -e MODEL_TIMEOUT_S=30 -e SUGGEST_TIMEOUT_S=60 "$engine_image" > /dev/null
 
 for _ in $(seq 1 90); do
   if docker exec "$id-motor" python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)" 2> /dev/null; then
@@ -49,7 +49,7 @@ print("estado", status, "latencia_s", round(time.monotonic() - started, 1), json
 assert status in (200, 503), status
 EOF
 
-# La ruta de sugerencias para docentes comparte modelo y plazo; 503 es válido si el borrador no cumple el contrato.
+# La ruta de sugerencias para docentes comparte modelo pero tiene su propio plazo (60 s aquí); 503 es válido si el borrador no cumple el contrato.
 docker exec -i "$id-motor" python - <<'EOF2'
 import json, time, urllib.error, urllib.request
 problem = {"title": "Suma", "description": "Lee A y B (hasta 10^18) y muestra su suma.", "input_description": "A y B.",
@@ -57,7 +57,7 @@ problem = {"title": "Suma", "description": "Lee A y B (hasta 10^18) y muestra su
 request = urllib.request.Request("http://127.0.0.1:8080/suggest", json.dumps({"problem": problem}).encode(), {"Content-Type": "application/json"})
 started = time.monotonic()
 try:
-    with urllib.request.urlopen(request, timeout=40) as response:
+    with urllib.request.urlopen(request, timeout=75) as response:
         status, body = response.status, json.loads(response.read())
 except urllib.error.HTTPError as error:
     status, body = error.code, json.loads(error.read())

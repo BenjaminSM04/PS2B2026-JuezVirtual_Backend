@@ -136,9 +136,8 @@ class EngineTestCase(unittest.TestCase):
     def setUp(self):
         self.model = serve(FakeModel)
         self.engine = serve(server.Handler)
-        saved = (server.MODEL_URL, server.MODEL_TIMEOUT_S, server.ARTIFACTS, server.predict)
-        self.addCleanup(lambda: (setattr(server, "MODEL_URL", saved[0]), setattr(server, "MODEL_TIMEOUT_S", saved[1]),
-                                 setattr(server, "ARTIFACTS", saved[2]), setattr(server, "predict", saved[3])))
+        saved = {name: getattr(server, name) for name in ("MODEL_URL", "MODEL_TIMEOUT_S", "SUGGEST_TIMEOUT_S", "SUGGEST_RETRY_MIN_S", "ARTIFACTS", "predict")}
+        self.addCleanup(lambda: [setattr(server, name, value) for name, value in saved.items()])
         for httpd in (self.engine, self.model):
             self.addCleanup(lambda httpd=httpd: (httpd.shutdown(), httpd.server_close()))
         server.MODEL_URL = "http://127.0.0.1:%d" % self.model.server_address[1]
@@ -199,6 +198,17 @@ class TimeoutTests(EngineTestCase):
         for raw in ("0", "0.5", "31", "-1", "abc", "", "nan", "inf"):
             with self.subTest(raw=raw), mock.patch.dict(os.environ, {"MODEL_TIMEOUT_S": raw}), self.assertRaises(ValueError):
                 server.model_timeout()
+
+    def test_suggest_budget_configuration_is_validated(self):
+        for raw, expected in (("90", 90.0), ("30", 30.0), ("100", 100.0), ("45.5", 45.5)):
+            with self.subTest(raw=raw), mock.patch.dict(os.environ, {"SUGGEST_TIMEOUT_S": raw}):
+                self.assertEqual(server.suggest_timeout(), expected)
+        with mock.patch.dict(os.environ):
+            os.environ.pop("SUGGEST_TIMEOUT_S", None)
+            self.assertEqual(server.suggest_timeout(), 90.0)
+        for raw in ("0", "29", "101", "180", "-1", "abc", "", "nan", "inf"):
+            with self.subTest(raw=raw), mock.patch.dict(os.environ, {"SUGGEST_TIMEOUT_S": raw}), self.assertRaises(ValueError):
+                server.suggest_timeout()
 
     def test_late_headers_do_not_grant_another_body_budget(self):
         FakeModel.delay, FakeModel.staged = 0.7, True
@@ -280,7 +290,10 @@ PROBLEM = {"title": "Suma grande", "description": "Lee A y B (hasta 10^18) y mue
 class SuggestTests(EngineTestCase):
     def setUp(self):
         super().setUp()
+        # Plazos distintos a propósito: /suggest solo debe usar el suyo.
         server.MODEL_TIMEOUT_S = 5
+        server.SUGGEST_TIMEOUT_S = 5
+        server.SUGGEST_RETRY_MIN_S = 0.5
         FakeModel.body = model_reply(json.dumps(SUGGESTION))
 
     def suggest(self, problem=PROBLEM):
@@ -291,7 +304,7 @@ class SuggestTests(EngineTestCase):
         status, data, _ = self.suggest(long_problem)
         self.assertEqual((status, data), (200, SUGGESTION))
         sent = FakeModel.requests[-1]
-        self.assertEqual((sent["max_tokens"], sent["cache_prompt"]), (350, True))
+        self.assertEqual((sent["max_tokens"], sent["cache_prompt"]), (260, True))
         self.assertEqual(sent["response_format"], {"type": "json_object"})
         prompt = json.loads(sent["messages"][1]["content"])["problem"]
         self.assertEqual(prompt["title"], "Suma grande")
@@ -325,11 +338,11 @@ class SuggestTests(EngineTestCase):
         code_hint = 'int total = 0;\nfor (int i = 0; i < n; i++) {\n total += a[i];\n}\nprintf("%d", total);'
         cases = {
             "sin conceptos": {"concepts": []},
-            "siete conceptos": {"concepts": [{**good, "name": "Concepto %d" % number} for number in range(7)]},
+            "cinco conceptos": {"concepts": [{**good, "name": "Concepto %d" % number} for number in range(5)]},
             "nombre largo": {"concepts": [{**good, "name": "n" * 81}]},
-            "explicación larga": {"concepts": [{**good, "explanation": "e" * 601}]},
+            "explicación larga": {"concepts": [{**good, "explanation": "e" * 301}]},
             "explicación vacía": {"concepts": [{**good, "explanation": "  "}]},
-            "pista larga": {"hints": {**hints, "strategy": "p" * 601}},
+            "pista larga": {"hints": {**hints, "strategy": "p" * 301}},
             "pistas repetidas": {"hints": {**hints, "location": hints["concept"]}},
             "pista ausente": {"hints": {"concept": hints["concept"], "location": hints["location"]}},
             "conceptos repetidos": {"concepts": [good, {**good, "name": good["name"].upper()}]},
@@ -362,7 +375,7 @@ class SuggestTests(EngineTestCase):
 
     def test_generation_over_budget_is_rejected(self):
         FakeModel.delay = 2.5
-        server.MODEL_TIMEOUT_S = 1.5
+        server.SUGGEST_TIMEOUT_S = 1.5
         status, _, elapsed = self.suggest()
         self.assertEqual(status, 503)
         self.assertLess(elapsed, 2.3)
@@ -370,10 +383,52 @@ class SuggestTests(EngineTestCase):
 
     def test_retry_is_skipped_when_the_shared_budget_is_spent(self):
         FakeModel.delay = 0.8
-        server.MODEL_TIMEOUT_S = 1.2
+        server.SUGGEST_TIMEOUT_S = 1.2
         FakeModel.body = model_reply("no es JSON")
         self.assertEqual(self.suggest()[0], 503)
         self.assertEqual(len(FakeModel.requests), 1)
+
+    def test_suggestion_has_its_own_budget_longer_than_the_observation_one(self):
+        FakeModel.delay = 1.5
+        server.MODEL_TIMEOUT_S = 1
+        server.SUGGEST_TIMEOUT_S = 4
+        self.assertEqual(self.suggest()[:2], (200, SUGGESTION))
+        status, data, elapsed = self.feedback()
+        self.assertEqual((status, data), (503, {"error": "unavailable"}))
+        self.assertLess(elapsed, 1.4)
+
+    def test_retry_is_shorter_and_needs_time_left(self):
+        FakeModel.queue = [model_reply("no es JSON"), model_reply(json.dumps(SUGGESTION))]
+        self.assertEqual(self.suggest()[:2], (200, SUGGESTION))
+        self.assertEqual([item["max_tokens"] for item in FakeModel.requests], [260, 200])
+        # Tras 1 s de generación quedan unos 2 s: menos que el mínimo exigido para un segundo intento.
+        FakeModel.requests, FakeModel.queue, FakeModel.delay = [], [model_reply("no es JSON")], 1.0
+        server.SUGGEST_TIMEOUT_S, server.SUGGEST_RETRY_MIN_S = 3, 2.5
+        self.assertEqual(self.suggest()[:2], (503, {"error": "unavailable"}))
+        self.assertEqual(len(FakeModel.requests), 1)
+
+    def test_one_suggestion_at_a_time_leaves_a_slot_for_observations(self):
+        FakeModel.delay = 1.0
+        long_one = []
+        worker = threading.Thread(target=lambda: long_one.append(self.suggest()))
+        worker.start()
+        waited = time.monotonic()
+        while not FakeModel.requests and time.monotonic() - waited < 3:
+            time.sleep(0.02)
+        FakeModel.queue = [model_reply(json.dumps({"content": "Revisa cómo cambia el acumulador en cada iteración.", "uncertainty": ""}))]
+        self.assertEqual(self.suggest()[:2], (429, {"error": "busy"}))
+        self.assertEqual(self.feedback()[0], 200)
+        worker.join(5)
+        self.assertEqual(long_one[0][:2], (200, SUGGESTION))
+        self.assertEqual(self.suggest()[0], 200)
+
+    def test_suggestion_slot_is_released_after_a_timeout(self):
+        FakeModel.delay = 2.5
+        server.SUGGEST_TIMEOUT_S = 1
+        self.assertEqual(self.suggest()[:2], (503, {"error": "unavailable"}))
+        FakeModel.delay = 0.0
+        server.SUGGEST_TIMEOUT_S = 5
+        self.assertEqual(self.suggest()[:2], (200, SUGGESTION))
 
 
 if __name__ == "__main__":

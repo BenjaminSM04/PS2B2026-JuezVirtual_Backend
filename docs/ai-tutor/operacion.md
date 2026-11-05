@@ -36,11 +36,31 @@ Sugerencias para el docente: `POST /suggest` del motor (red interna) genera un b
 de conceptos y pistas a partir del enunciado. El backend lo expone en
 `POST /api/admin/ai_tutor/config/suggest`, lo valida con el esquema de versiones y lo
 devuelve sin guardar; el docente lo revisa y lo guarda como borrador con el flujo
-habitual, por lo que nunca llega al estudiante sin revisión. Usa `MODEL_TIMEOUT_S` como
-plazo total de hasta dos intentos y `AI_TUTOR_ENGINE_TIMEOUT` en el backend (tope 30 s).
-Genera hasta 350 tokens: medir la latencia en CPU antes de ofrecerlo (el smoke del motor
-la registra). Cuota de 6 sugerencias por usuario y minuto; sin `AI_TUTOR_MODEL_ENABLED`
+habitual, por lo que nunca llega al estudiante sin revisión. Tiene plazos propios, distintos
+de los de las observaciones: `SUGGEST_TIMEOUT_S` (servicio `oj-tutor`, defecto 90, rango
+30-100) es el plazo total de hasta dos intentos del motor y `AI_TUTOR_SUGGEST_TIMEOUT`
+(backend, defecto 100, rango 31-105) el del backend frente al motor; este **debe ser mayor**
+que el del motor. Pide 260 tokens (200 en el reintento, que además solo se hace si quedan al
+menos 20 s) para 2-3 conceptos y tres pistas breves: a 5-8 tokens/s en CPU son 45-70 s. Un
+valor fuera de rango impide el arranque del backend o deja el motor sin readiness, igual que
+`MODEL_TIMEOUT_S`. Cuota de 6 sugerencias por usuario y minuto; sin `AI_TUTOR_MODEL_ENABLED`
 responde `tutor-suggest-unavailable`.
+
+Cadena de plazos de una sugerencia (cada capa debe esperar más que la siguiente): llama.cpp
+y motor 90 s, backend frente al motor 100 s, nginx del backend 110 s (ruta propia
+`/api/admin/ai_tutor/config/suggest` en `deploy/nginx/nginx.conf`; el resto de `/api` sigue en
+60 s), nginx del frontend 115 s y el navegador 120 s. Gunicorn (`--threads 4`, worker gthread)
+no la corta: su `--timeout` solo vigila el bucle principal del worker, no cada petición. Si
+se suben los plazos, subir también esos proxies; los rangos de arriba existen para que el
+valor configurado nunca supere lo que los proxies toleran.
+
+Concurrencia: el modelo es uno (`-np 1`) y atiende una petición a la vez. El motor admite una
+sola sugerencia simultánea (otra recibe 429 `busy`) para que siga habiendo una ranura libre
+para las observaciones. Mientras una sugerencia genera (hasta 90 s), la observación de un
+estudiante espera en la cola de llama.cpp y puede agotar su plazo de 25-30 s: en ese caso el
+backend usa el diagnóstico determinista (y abre el circuito 30 s). Es el comportamiento
+aceptado; no se interrumpe la sugerencia en curso.
+
 Con `compose.tutor.yml` y perfil `tutor`, motor y llama comparten una red privada
 sin puertos publicados. El backend es el único puente. El motor usa usuario sin
 privilegios, raíz de solo lectura, límites CPU/memoria/PID y volúmenes de modelos

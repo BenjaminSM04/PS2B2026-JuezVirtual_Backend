@@ -40,7 +40,8 @@ class SuggestionAPITests(ProblemCreateTestBase):
         self.owner = self.create_admin()
         self.problem = self.add_problem(DEFAULT_PROBLEM_DATA, self.owner)
         self.url = "/api/admin/ai_tutor/config/suggest"
-        self.enabled = self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=7, AI_TUTOR_ENGINE_URL="http://oj-tutor:8080")
+        self.enabled = self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=7, AI_TUTOR_SUGGEST_TIMEOUT=77,
+                                     AI_TUTOR_ENGINE_URL="http://oj-tutor:8080")
         self.enabled.enable()
         self.addCleanup(self.enabled.disable)
 
@@ -62,7 +63,8 @@ class SuggestionAPITests(ProblemCreateTestBase):
         self.assertTrue(ConfigContentSerializer(data=data).is_valid())
         self.assertFalse(TutorProblemConfigVersion.objects.exists())
         self.assertEqual(post.call_args.args[0], "http://oj-tutor:8080/suggest")
-        self.assertEqual(post.call_args.kwargs["timeout"], 7)
+        # Plazo propio de la sugerencia, no el de las observaciones.
+        self.assertEqual(post.call_args.kwargs["timeout"], 77)
         # El borrador se guarda con el flujo existente de versiones.
         saved = self.client.post("/api/admin/ai_tutor/config/versions", {"problem_id": self.problem.id, **data})
         self.assertSuccess(saved)
@@ -209,7 +211,7 @@ class SuggestEngineHTTPTests(SimpleTestCase):
         SuggestEngine.status, SuggestEngine.delay, SuggestEngine.seen = 200, 0.0, []
 
     def call_engine(self, timeout=2):
-        with self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=timeout,
+        with self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=10, AI_TUTOR_SUGGEST_TIMEOUT=timeout,
                            AI_TUTOR_ENGINE_URL="http://127.0.0.1:%s" % self.server.server_port):
             return suggest({"title": "Suma", "samples": []})
 
@@ -229,3 +231,15 @@ class SuggestEngineHTTPTests(SimpleTestCase):
         self.assertEqual(slow.exception.err, UNAVAILABLE)
         self.assertLess(time.monotonic() - started, 1.5)
         self.assertIsNone(cache.get("tutor:engine-open"))
+
+    def test_slow_generation_beyond_the_observation_budget_is_accepted(self):
+        SuggestEngine.delay = 1.5
+        with self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=1, AI_TUTOR_SUGGEST_TIMEOUT=4,
+                           AI_TUTOR_ENGINE_URL="http://127.0.0.1:%s" % self.server.server_port):
+            self.assertEqual(suggest({"title": "Suma", "samples": []}), ENGINE_REPLY)
+
+    def test_suggest_budget_is_not_capped_like_the_observation_one(self):
+        with self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=30, AI_TUTOR_SUGGEST_TIMEOUT=100,
+                           AI_TUTOR_ENGINE_URL="http://oj-tutor:8080"), patch("ai_tutor.services.engine.post_json", return_value=ENGINE_REPLY) as post:
+            suggest({"title": "Suma", "samples": []})
+        self.assertEqual(post.call_args.kwargs["timeout"], 100)

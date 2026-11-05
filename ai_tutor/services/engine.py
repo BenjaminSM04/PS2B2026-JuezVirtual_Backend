@@ -32,7 +32,8 @@ def suggest(problem):
     try:
         body = json.dumps({"problem": problem}).encode()
         # No usa el circuito de generate: una sugerencia rechazada no debe apagar las observaciones a estudiantes.
-        return post_json(settings.AI_TUTOR_ENGINE_URL + "/suggest", body, timeout=min(30, settings.AI_TUTOR_ENGINE_TIMEOUT), max_bytes=40000)
+        # Plazo propio: el borrador tarda decenas de segundos en CPU y no comparte el tope de 30 s de las observaciones.
+        return post_json(settings.AI_TUTOR_ENGINE_URL + "/suggest", body, timeout=settings.AI_TUTOR_SUGGEST_TIMEOUT, max_bytes=40000)
     except (OSError, http.client.HTTPException, ValueError):
         raise APIError("No se pudo generar una sugerencia ahora. Inténtalo de nuevo en un momento o escribe el contenido a mano.",
                        err="tutor-suggest-unavailable") from None
