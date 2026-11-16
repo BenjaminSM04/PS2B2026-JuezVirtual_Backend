@@ -192,6 +192,7 @@ class ContestAnnouncementAPI(APIView):
 class ACMContestHelper(APIView):
     @check_contest_permission(check_type="ranks")
     def get(self, request):
+        ensure_created_by(self.contest, request.user)
         ranks = ACMContestRank.objects.filter(contest=self.contest, accepted_number__gt=0) \
             .values("id", "user__username", "user__userprofile__real_name", "submission_info")
         results = []
@@ -212,9 +213,10 @@ class ACMContestHelper(APIView):
     @check_contest_permission(check_type="ranks")
     @validate_serializer(ACMContesHelperSerializer)
     def put(self, request):
+        ensure_created_by(self.contest, request.user)
         data = request.data
         try:
-            rank = ACMContestRank.objects.get(pk=data["rank_id"])
+            rank = ACMContestRank.objects.get(pk=data["rank_id"], contest=self.contest)
         except ACMContestRank.DoesNotExist:
             return self.error("Rank id does not exist")
         problem_rank_status = rank.submission_info.get(data["problem_id"])
