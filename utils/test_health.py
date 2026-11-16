@@ -4,6 +4,15 @@ from django.test import Client, TestCase
 
 
 class HealthzTests(TestCase):
+    def test_version_conserva_ambas_rutas_privadas_sin_autenticacion(self):
+        with mock.patch.dict("os.environ", {"APP_REVISION": "revision-de-prueba"}):
+            for url in ("/api/version", "/api/version/"):
+                with self.subTest(url=url):
+                    resp = self.client.get(url)
+                    self.assertEqual(resp.status_code, 200)
+                    self.assertEqual(resp.json(), {"revision": "revision-de-prueba"})
+                    self.assertNotIn("sessionid", resp.cookies)
+
     def test_ok_sin_autenticacion(self):
         for url in ("/healthz", "/api/healthz"):
             resp = self.client.get(url)

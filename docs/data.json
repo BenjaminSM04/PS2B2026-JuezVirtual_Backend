@@ -24,6 +24,8 @@
         "Autor visible en listados, detalle de ejercicio y ranking de concursos.",
         "Reutilizar un ejercicio compartido en un concurso crea una copia (snapshot) que conserva la autoría original.",
         "<strong>Importación y exportación</strong>",
+        "Se corrigió la importación QDUOJ para respetar la dificultad de los ejercicios. Ahora se conserva el nivel al exportar e importar y se reconocen las etiquetas de dificultad de los bancos compatibles.",
+        "Los problemas importados anteriormente requieren ejecutar la reparación correspondiente o editar su dificultad; la corrección no modifica ejercicios existentes automáticamente.",
         "La exportación/importación incluye autor (created_by) y modo de compartición.",
         "Los ejercicios importados (formato QDUOJ y FPS) quedan visibles por defecto.",
         "A los ejercicios FPS sin etiquetas se les asigna automáticamente la etiqueta \"SinEtiqueta\" para evitar errores al visualizarlos.",

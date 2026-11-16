@@ -1,27 +1,23 @@
-import getopt
-import os
+"""Ejecuta las comprobaciones y propaga cualquier error al CI."""
+import argparse
+import subprocess
 import sys
 
-opts, args = getopt.getopt(sys.argv[1:], "cm:", ["coverage=", "module="])
+parser = argparse.ArgumentParser()
+parser.add_argument("-c", "--coverage", action="store_true")
+parser.add_argument("-m", "--module", default="")
+args = parser.parse_args()
 
-is_coverage = False
-test_module = ""
-setting = "oj.settings"
-
-for opt, arg in opts:
-    if opt in ["-c", "--coverage"]:
-        is_coverage = True
-    if opt in ["-m", "--module"]:
-        test_module = arg
-
-print("Coverage: {cov}".format(cov=is_coverage))
-print("Module: {mod}".format(mod=(test_module if test_module else "All")))
-
-print("running flake8...")
-if os.system("flake8 --statistics ."):
-    exit()
-
-ret = os.system('coverage run --include="$PWD/*" manage.py test {module} --settings={setting}'.format(module=test_module, setting=setting))
-
-if not ret and is_coverage:
-    os.system("coverage html && open htmlcov/index.html")
+commands = [
+    [sys.executable, "-m", "flake8", "--statistics", "."],
+    [sys.executable, "manage.py", "check"],
+    [sys.executable, "manage.py", "makemigrations", "--check", "--dry-run"],
+    [sys.executable, "-m", "coverage", "run", "--source=.", "manage.py", "test", "--settings=oj.test_settings", "--noinput"],
+]
+if args.module:
+    commands[-1].append(args.module)
+for command in commands:
+    result = subprocess.run(command, check=False)
+    if result.returncode:
+        sys.exit(result.returncode)
+sys.exit(subprocess.run([sys.executable, "-m", "coverage", "report"], check=False).returncode)

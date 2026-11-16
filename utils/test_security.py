@@ -29,7 +29,10 @@ class SecurityTests(SimpleTestCase):
         self.assertNotEqual(results[1], "denegado")
 
     def test_html_keeps_format_and_formula_but_removes_active_content(self):
-        html = '<p style="color:red;text-align:center;background-image:url(javascript:bad)">$a + b$</p><table><tr><td>uno</td></tr></table><script>evil()</script><img src="javascript:evil()" onerror="evil()">'
+        html = (
+            '<p style="color:red;text-align:center;background-image:url(javascript:bad)">$a + b$</p><table><tr><td>uno</td>'
+            '</tr></table><script>evil()</script><img src="javascript:evil()" onerror="evil()">'
+               )
         safe = clean_html(html)
         self.assertIn("$a + b$", safe)
         self.assertIn("color:red", safe.replace(" ", ""))

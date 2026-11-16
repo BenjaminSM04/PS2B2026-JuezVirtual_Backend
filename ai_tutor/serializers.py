@@ -102,7 +102,7 @@ class SessionSerializer(serializers.Serializer):
             return maximum
         last = obj.feedback.filter(action="hint").order_by("-created_at").first()
         eligible = Submission.objects.filter(user_id=obj.user_id, problem_id=obj.problem_id,
-            contest__isnull=True, result__in=FINAL_RESULTS, create_time__gte=obj.created_at)
+                                             contest__isnull=True, result__in=FINAL_RESULTS, create_time__gte=obj.created_at)
         if last:
             eligible = eligible.filter(create_time__gt=last.created_at)
         return min(maximum, obj.highest_help_level + 1) if eligible.exists() else obj.highest_help_level

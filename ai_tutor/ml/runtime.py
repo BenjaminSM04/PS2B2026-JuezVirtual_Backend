@@ -25,5 +25,3 @@ def predict(model, record):
     normalizer = sum(math.exp(score - scores[best]) for score in scores.values())
     confidence = 1 / normalizer
     return (best if confidence >= model["threshold"] else "unknown"), confidence
-
-

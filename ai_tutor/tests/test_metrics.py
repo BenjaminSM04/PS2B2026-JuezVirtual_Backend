@@ -15,7 +15,7 @@ class MetricReportTests(TestCase):
             TutorMetric.objects.create(category="unknown", level=0, source="deterministic", latency_ms=latency,
                                        model_version="fallback-1", outcome="completed")
         old = TutorMetric.objects.create(category="unknown", level=0, source="unavailable", latency_ms=99,
-                                        model_version="", outcome="denied")
+                                         model_version="", outcome="denied")
         TutorMetric.objects.filter(pk=old.pk).update(created_at=timezone.now() - timedelta(days=91))
         output = StringIO()
         call_command("report_tutor_metrics", days=30, stdout=output)

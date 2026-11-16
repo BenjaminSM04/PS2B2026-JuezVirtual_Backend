@@ -70,8 +70,8 @@ class CreateOrEditProblemSerializer(serializers.Serializer):
     hint = serializers.CharField(allow_blank=True, allow_null=True)
     source = serializers.CharField(max_length=256, allow_blank=True, allow_null=True)
     share_submission = serializers.BooleanField()
-    share_mode = serializers.ChoiceField(choices=ProblemShareMode.choices(),
-                                          default=ProblemShareMode.SHARED, required=False)
+    share_mode = serializers.ChoiceField(
+        choices=ProblemShareMode.choices(), default=ProblemShareMode.SHARED, required=False)
 
 
 class CreateProblemSerializer(CreateOrEditProblemSerializer):
@@ -201,7 +201,7 @@ class ExportProblemSerializer(serializers.ModelSerializer):
                   "input_description", "output_description",
                   "test_case_score", "hint", "time_limit", "memory_limit", "samples",
                   "template", "spj", "rule_type", "source", "template",
-                  "created_by", "share_mode")
+                  "created_by", "share_mode", "difficulty")
 
 
 class AddContestProblemSerializer(serializers.Serializer):
@@ -246,6 +246,7 @@ class AnswerSerializer(serializers.Serializer):
 
 
 class ImportProblemSerializer(serializers.Serializer):
+    difficulty = serializers.ChoiceField(choices=Difficulty.choices(), required=False)
     display_id = serializers.CharField(max_length=128)
     title = serializers.CharField(max_length=128)
     description = FormatValueSerializer()

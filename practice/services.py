@@ -13,7 +13,7 @@ def record_accepted(submission):
     if submission.result != JudgeStatus.ACCEPTED or submission.contest_id is not None or submission.problem.contest_id is not None:
         return
     Achievement.objects.get_or_create(user_id=submission.user_id, original_problem_id=submission.problem_id,
-        defaults={"first_submission_id": submission.id, "earned_at": submission.create_time})
+                                      defaults={"first_submission_id": submission.id, "earned_at": submission.create_time})
 
 
 def on_submission_saved(sender, instance, **kwargs):
@@ -29,7 +29,7 @@ def on_submission_saved(sender, instance, **kwargs):
 
 def reconcile():
     accepted = Submission.objects.filter(result=JudgeStatus.ACCEPTED, contest__isnull=True,
-        problem__contest__isnull=True).select_related("problem").only(
+                                         problem__contest__isnull=True).select_related("problem").only(
         "id", "user_id", "problem_id", "contest_id", "create_time", "result", "problem__contest_id"
     ).order_by("user_id", "problem_id", "create_time", "id").distinct("user_id", "problem_id")
     for submission in accepted.iterator(chunk_size=500):
@@ -46,10 +46,10 @@ def mascot(user):
             accessories.append(accessory)
     stage, next_at = ("egg", 1) if count == 0 else (("baby", 10) if count < 10 else (("juvenile", 30) if count < 30 else ("adult", None)))
     return {"solved_count": count, "stage": stage, "next_stage_at": next_at,
-        "unlocked_colors": colors, "unlocked_accessories": accessories,
-        "appearance": {"color": preference.color if preference else "green", "accessory": preference.accessory if preference else "none"},
-        "preferences": {"visible": preference.visible if preference else True,
-                        "animations_enabled": preference.animations_enabled if preference else True}}
+            "unlocked_colors": colors, "unlocked_accessories": accessories,
+            "appearance": {"color": preference.color if preference else "green", "accessory": preference.accessory if preference else "none"},
+            "preferences": {"visible": preference.visible if preference else True,
+                            "animations_enabled": preference.animations_enabled if preference else True}}
 
 
 @transaction.atomic

@@ -1,0 +1,21 @@
+# Dependencias de ejecucion coordinadas con Django 5.2.
+defusedxml==0.7.1
+django-cas-ng==5.1.1
+django-dramatiq==0.15.0
+django-redis==7.0.0
+Django==5.2.18
+djangorestframework==3.18.3
+dramatiq==2.2.1
+Envelopes==0.4
+gunicorn==26.2.0
+jsonfield==3.1.0
+otpauth==1.0.1
+pillow==13.0.0
+psycopg2==2.9.13
+python-dateutil==2.8.2
+qrcode==7.4.2
+XlsxWriter==3.1.9
+nh3==0.3.7
+sentry-sdk==2.73.0
+pytz==2026.5
+redis==8.1.0

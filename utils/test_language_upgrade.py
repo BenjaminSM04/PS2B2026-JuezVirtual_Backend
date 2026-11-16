@@ -9,7 +9,7 @@ class CompilerBudgetTests(SimpleTestCase):
         value = deepcopy(languages)
         go = next(item for item in value if item["name"] == "Golang")
         go["config"]["compile"].update(max_cpu_time=3000, max_real_time=5000,
-            compile_command="/usr/bin/go build -o {exe_path} {src_path}")
+                                       compile_command="/usr/bin/go build -o {exe_path} {src_path}")
         original = deepcopy(value)
         result, changed = updated_languages(value)
         self.assertEqual(changed, 1)

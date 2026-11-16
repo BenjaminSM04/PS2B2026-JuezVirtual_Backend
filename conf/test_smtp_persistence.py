@@ -16,5 +16,3 @@ class SMTPPersistenceTest(SMTPConfigTest):
         self.test_create_smtp_config()
         config = dict(SysOptions.smtp_config, ssl=True, tls=True)
         self.assertIsNotNone(self.client.post(self.url, data=config).data["error"])
-
-

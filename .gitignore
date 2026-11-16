@@ -77,7 +77,14 @@ http_locations.conf
 https_locations.conf
 
 venv/
+.venv/
+.env
+.env.*
+!.env.example
 #test docker-compose
 docker-compose.yml
 .ipynb_checkpoints/
 artifacts/
+
+# Pesos del modelo: se descargan de la release verificada, nunca se versionan.
+*.gguf

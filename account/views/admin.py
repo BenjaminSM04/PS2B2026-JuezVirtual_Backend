@@ -186,7 +186,8 @@ class GenerateUserAPI(APIView):
         user_list = []
         for number in range(data["number_from"], data["number_to"] + 1):
             raw_password = rand_str(data["password_length"])
-            user = User(username=f"{data['prefix']}{number}{data['suffix']}", password=make_password(raw_password))
+            username = "{}{}{}".format(data["prefix"], number, data["suffix"])
+            user = User(username=username, password=make_password(raw_password))
             user.raw_password = raw_password
             user_list.append(user)
 

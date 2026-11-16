@@ -1,3 +1,6 @@
+import os
+from django_redis import get_redis_connection
+from django.views.decorators.http import require_GET
 import logging
 
 from django.core.cache import cache
@@ -23,7 +26,13 @@ def healthz(request):
             cursor.execute("SELECT 1")
             cursor.fetchone()
         cache.get("healthz:ping")
+        get_redis_connection("default").ping()
     except Exception:
         logger.exception("Healthcheck fallido")
         return JsonResponse({"status": "unavailable"}, status=503)
     return JsonResponse({"status": "ok"})
+
+
+@require_GET
+def version(request):
+    return JsonResponse({"revision": os.environ.get("APP_REVISION", "desarrollo")})

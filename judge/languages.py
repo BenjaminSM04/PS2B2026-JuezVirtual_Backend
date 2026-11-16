@@ -168,13 +168,13 @@ import "fmt"
 
 //TEMPLATE BEGIN
 func add(a int, b int) int {
-	// code
+    // Código
 }
 //TEMPLATE END
 
 //APPEND BEGIN
 func main() {
-	fmt.Println(add(1, 2))
+    fmt.Println(add(1, 2))
 }
 //APPEND END""",
     "compile": {
@@ -226,9 +226,9 @@ console.log(add(1, 2))
 
 languages = [
     {"config": _c_lang_config, "name": LanguageName.C, "description": "GCC 13", "content_type": "text/x-csrc",
-      "spj": {"compile": _c_lang_spj_compile, "config": _c_lang_spj_config}},
+     "spj": {"compile": _c_lang_spj_compile, "config": _c_lang_spj_config}},
     {"config": _cpp_lang_config, "name": LanguageName.CPP, "description": "GCC 13", "content_type": "text/x-c++src",
-      "spj": {"compile": _cpp_lang_spj_compile, "config": _cpp_lang_spj_config}},
+     "spj": {"compile": _cpp_lang_spj_compile, "config": _cpp_lang_spj_config}},
     {"config": _java_lang_config, "name": LanguageName.JAVA, "description": "Temurin 21", "content_type": "text/x-java"},
     {"config": _py3_lang_config, "name": LanguageName.PYTHON3, "description": "Python 3.12", "content_type": "text/x-python"},
     {"config": _go_lang_config, "name": LanguageName.GO, "description": "Golang 1.22", "content_type": "text/x-go"},

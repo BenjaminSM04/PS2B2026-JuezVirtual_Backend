@@ -7,14 +7,15 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
-from ai_tutor.dataset.review import (CONTENT_COLUMNS, DECISIONS, SHEET_COLUMNS, is_closed, normalize_cell,
-                                     record_decision, sheet_content)
+from ai_tutor.dataset.review import CONTENT_COLUMNS, DECISIONS, SHEET_COLUMNS, is_closed, normalize_cell, record_decision, sheet_content
 from ai_tutor.dataset.schema import TutorExampleSerializer
 
 
 class Command(BaseCommand):
-    help = ("Aplica a una versión nueva del JSON las decisiones humanas de una planilla CSV; todo o nada. "
-            "Solo registra decisión y notas: no revisa ni modifica contenido pedagógico.")
+    help = (
+        "Aplica a una versión nueva del JSON las decisiones humanas de una planilla CSV; todo o nada. "
+        "Solo registra decisión y notas: no revisa ni modifica contenido pedagógico."
+    )
 
     def add_arguments(self, parser):
         parser.add_argument("source", type=Path)
@@ -56,7 +57,8 @@ class Command(BaseCommand):
                 continue
             problem = self.apply_row(records, row, identifier, decision, reviewer, now)
             if problem:
-                errors.append(f"Fila {number} ({identifier or 'sin example_id'}): {problem}")
+                label = identifier or "sin example_id"
+                errors.append(f"Fila {number} ({label}): {problem}")
             else:
                 applied[decision] += 1
         if errors:
@@ -70,8 +72,11 @@ class Command(BaseCommand):
                 stream.write(content)
         except FileExistsError:
             raise CommandError("La salida ya existe; no se sobrescribe. Elija otro nombre.")
-        self.stdout.write("Decisiones guardadas en una versión nueva; el origen se conserva. "
-                          f"approved={applied['approved']} rejected={applied['rejected']} review={applied['review']}")
+        approved, rejected, review = (applied[key] for key in ("approved", "rejected", "review"))
+        self.stdout.write(
+            "Decisiones guardadas en una versión nueva; el origen se conserva. "
+            f"approved={approved} rejected={rejected} review={review}"
+        )
 
     def apply_row(self, records, row, identifier, decision, reviewer, now):
         """Aplica una fila con decisión; devuelve el motivo del rechazo o None."""
@@ -82,7 +87,8 @@ class Command(BaseCommand):
         if is_closed(item):
             return "decisión cerrada; se conserva, cree una nueva revisión versionada."
         if decision not in DECISIONS:
-            return f"decision {decision!r} no válida (use {', '.join(DECISIONS)})."
+            allowed = ", ".join(DECISIONS)
+            return f"decision {decision!r} no válida (use {allowed})."
         row_reviewer = normalize_cell(row["reviewer"])
         if row_reviewer != reviewer:
             return f"la columna reviewer ({row_reviewer!r}) no coincide con --reviewer ({reviewer!r}); una planilla = un revisor."
@@ -92,11 +98,12 @@ class Command(BaseCommand):
         if not notes:
             return "las notas son obligatorias cuando hay decisión."
         expected = sheet_content(item)
-        changed = [column for column in CONTENT_COLUMNS
-                   if normalize_cell(row[column]) != normalize_cell(expected[column])]
+        changed = [column for column in CONTENT_COLUMNS if normalize_cell(row[column]) != normalize_cell(expected[column])]
         if changed:
-            return ("el contenido difiere del origen (" + ", ".join(changed) + "). La planilla solo aplica decisión "
-                    "y notas; las correcciones se hacen en el JSON de origen y se vuelve a exportar la planilla.")
+            return (
+                "el contenido difiere del origen (" + ", ".join(changed) + "). La planilla solo aplica decisión "
+                "y notas; las correcciones se hacen en el JSON de origen y se vuelve a exportar la planilla."
+            )
         record_decision(item, reviewer, decision, notes, now)
         serializer = TutorExampleSerializer(data=item)
         if not serializer.is_valid():

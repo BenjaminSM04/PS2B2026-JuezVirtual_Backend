@@ -1,4 +1,3 @@
-from datetime import timedelta
 from django.utils import timezone
 from django.core.management import call_command
 from practice.models import Achievement
@@ -14,7 +13,7 @@ class MascotTests(ProblemCreateTestBase):
 
     def submit(self, **extra):
         return Submission.objects.create(user_id=self.user.id, username=self.user.username, problem=self.problem,
-            language="Python3", code="print(1)", result=extra.pop("result", 0), **extra)
+                                         language="Python3", code="print(1)", result=extra.pop("result", 0), **extra)
 
     def test_history_reconciles_without_get_and_survives_rejudge_and_deletion(self):
         submission = self.submit()
@@ -54,7 +53,7 @@ class MascotTests(ProblemCreateTestBase):
         self.assertSuccess(self.client.patch("/api/mascot", {"visible": False, "animations_enabled": False}))
         for i in range(30):
             Achievement.objects.get_or_create(user=self.user, original_problem_id=1000 + i,
-                defaults={"earned_at": timezone.now(), "first_submission_id": str(i)})
+                                              defaults={"earned_at": timezone.now(), "first_submission_id": str(i)})
         self.assertEqual(mascot(self.user)["stage"], "adult")
         self.assertIsNone(mascot(self.user)["next_stage_at"])
         self.assertSuccess(self.client.patch("/api/mascot", {"color": "violet", "accessory": "backpack"}))

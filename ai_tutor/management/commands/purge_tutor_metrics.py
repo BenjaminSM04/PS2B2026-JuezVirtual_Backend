@@ -18,6 +18,7 @@ class Command(BaseCommand):
         if options["days"] < 1:
             raise CommandError("El periodo debe ser positivo.")
         old = TutorMetric.objects.filter(created_at__lt=timezone.now() - timedelta(days=options["days"]))
-        self.stdout.write(json.dumps({"expired": old.count(), "groups": list(TutorMetric.objects.values("category", "level", "source", "outcome").annotate(count=Count("pk"), latency_ms=Avg("latency_ms")))}, ensure_ascii=True))
+        self.stdout.write(json.dumps({"expired": old.count(), "groups": list(TutorMetric.objects.values("category", "level",
+                          "source", "outcome").annotate(count=Count("pk"), latency_ms=Avg("latency_ms")))}, ensure_ascii=True))
         if options["apply"]:
             old.delete()

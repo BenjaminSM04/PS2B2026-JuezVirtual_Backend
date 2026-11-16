@@ -1,11 +1,10 @@
 """Versionado, partición por problema y clasificador reproducible sin dependencias pesadas."""
+
 from collections import Counter, defaultdict
 import hashlib
 import json
-import math
 from pathlib import Path
 import random
-import re
 
 from ai_tutor.dataset.schema import TutorExampleSerializer
 from ai_tutor.ml.runtime import tokens, predict
@@ -66,14 +65,24 @@ def build_dataset(records, output, seed=2026, technical_demo=False):
     random.Random(seed).shuffle(groups)
     test_count = max(1, len(groups) // 6)
     validation_count = max(1, len(groups) // 6)
-    assignment = {key: "test" if index < test_count else ("validation" if index < test_count + validation_count else "train") for index, key in enumerate(groups)}
+    assignment = {
+        key: "test" if index < test_count else ("validation" if index < test_count + validation_count else "train") for index, key in enumerate(groups)
+    }
     partitions = {key: [] for key in ("train", "validation", "test")}
     for item in records:
         partitions[assignment[group(item)]].append(item)
     check_partitions(partitions, technical_demo=technical_demo)
     output.mkdir(parents=True, exist_ok=False)
-    manifest = {"schema_version": "1.0", "scope": "technical-demo" if technical_demo else "reviewed", "seed": seed, "source_sha256": source_sha,
-                "pipeline_sha256": sha(__file__), "files": {}, "counts": {}, "groups": assignment}
+    manifest = {
+        "schema_version": "1.0",
+        "scope": "technical-demo" if technical_demo else "reviewed",
+        "seed": seed,
+        "source_sha256": source_sha,
+        "pipeline_sha256": sha(__file__),
+        "files": {},
+        "counts": {},
+        "groups": assignment,
+    }
     if technical_demo:
         manifest["excluded_duplicate_code_ids"] = excluded
     for name, items in partitions.items():
@@ -127,8 +136,13 @@ def fit(records, technical_demo=False):
         features = tokens(record)
         counts[category].update(features)
         vocabulary.update(features)
-    return {"algorithm": "multinomial-nb-1", "classes": dict(documents), "counts": {key: dict(value) for key, value in counts.items()},
-            "vocabulary": sorted(vocabulary), "threshold": 0.65}
+    return {
+        "algorithm": "multinomial-nb-1",
+        "classes": dict(documents),
+        "counts": {key: dict(value) for key, value in counts.items()},
+        "vocabulary": sorted(vocabulary),
+        "threshold": 0.65,
+    }
 
 
 def metrics(expected, actual):
@@ -142,8 +156,12 @@ def metrics(expected, actual):
         positives = sum(row[key] for row in matrix.values())
         precision = true / positives if positives else 0
         recall = true / support if support else 0
-        categories[key] = {"precision": precision, "recall": recall, "support": support,
-                           "f1": 2 * precision * recall / (precision + recall) if precision + recall else 0}
+        categories[key] = {
+            "precision": precision,
+            "recall": recall,
+            "support": support,
+            "f1": 2 * precision * recall / (precision + recall) if precision + recall else 0,
+        }
     return {"macro_f1": sum(item["f1"] for item in categories.values()) / len(CATEGORIES), "categories": categories, "confusion": matrix}
 
 
@@ -169,8 +187,16 @@ def evaluate(directory, model_path, technical_demo=False):
         raise ValueError("El modelo y el dataset no corresponden a la misma versión.")
     test = parts["test"]
     majority = max(model["classes"], key=model["classes"].get)
-    return {"scope": manifest.get("scope", "reviewed"), "dataset_version": manifest["version"], "model_sha256": sha(model_path),
-            "overall": metrics([item["category"] for item in test], [predict(model, item)[0] for item in test]),
-            "baseline": metrics([item["category"] for item in test], [majority] * len(test)),
-            "languages": {language: metrics([item["category"] for item in test if item["language"] == language],
-                [predict(model, item)[0] for item in test if item["language"] == language]) for language in sorted({item["language"] for item in test})}}
+    return {
+        "scope": manifest.get("scope", "reviewed"),
+        "dataset_version": manifest["version"],
+        "model_sha256": sha(model_path),
+        "overall": metrics([item["category"] for item in test], [predict(model, item)[0] for item in test]),
+        "baseline": metrics([item["category"] for item in test], [majority] * len(test)),
+        "languages": {
+            language: metrics(
+                [item["category"] for item in test if item["language"] == language], [predict(model, item)[0] for item in test if item["language"] == language]
+            )
+            for language in sorted({item["language"] for item in test})
+        },
+    }

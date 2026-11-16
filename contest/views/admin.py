@@ -4,6 +4,9 @@ import zipfile
 from ipaddress import ip_network
 
 import dateutil.parser
+from django.db import transaction
+from django.db.models import Q
+from django.db.models.deletion import ProtectedError
 from django.http import FileResponse
 
 from account.decorators import check_contest_permission, ensure_created_by, teacher_role_required
@@ -71,6 +74,29 @@ class ContestAPI(APIView):
         contest.save()
         audit_log(request.user, "contest.edit", "Contest", contest.id, {"title": contest.title})
         return self.success(ContestAdminSerializer(contest).data)
+
+    @teacher_role_required
+    def delete(self, request):
+        contest_id = request.GET.get("id")
+        if not contest_id or not contest_id.isdigit():
+            return self.error("Falta el identificador del concurso.")
+        try:
+            with transaction.atomic():
+                # El bloqueo impide que un envío nuevo se registre mientras se decide el borrado.
+                contest = Contest.objects.select_for_update().get(id=contest_id)
+                ensure_created_by(contest, request.user)
+                if Submission.objects.filter(Q(contest=contest) | Q(problem__contest=contest)).exists():
+                    return self.error("El concurso tiene envíos; ocúltalo en lugar de borrarlo para conservar el historial.",
+                                      err="contest-has-submissions")
+                title, problems = contest.title, contest.problem_set.count()
+                contest.delete()
+        except Contest.DoesNotExist:
+            return self.error("Contest does not exist")
+        except ProtectedError:
+            return self.error("El concurso contiene historial protegido; ocúltalo en lugar de borrarlo.", err="protected-contest-history")
+        cache.delete(f"{CacheKey.contest_rank_cache}:{contest_id}")
+        audit_log(request.user, "contest.delete", "Contest", contest_id, {"title": title, "problems": problems})
+        return self.success()
 
     def get(self, request):
         contest_id = request.GET.get("id")
@@ -166,6 +192,7 @@ class ContestAnnouncementAPI(APIView):
 class ACMContestHelper(APIView):
     @check_contest_permission(check_type="ranks")
     def get(self, request):
+        ensure_created_by(self.contest, request.user)
         ranks = ACMContestRank.objects.filter(contest=self.contest, accepted_number__gt=0) \
             .values("id", "user__username", "user__userprofile__real_name", "submission_info")
         results = []
@@ -186,9 +213,10 @@ class ACMContestHelper(APIView):
     @check_contest_permission(check_type="ranks")
     @validate_serializer(ACMContesHelperSerializer)
     def put(self, request):
+        ensure_created_by(self.contest, request.user)
         data = request.data
         try:
-            rank = ACMContestRank.objects.get(pk=data["rank_id"])
+            rank = ACMContestRank.objects.get(pk=data["rank_id"], contest=self.contest)
         except ACMContestRank.DoesNotExist:
             return self.error("Rank id does not exist")
         problem_rank_status = rank.submission_info.get(data["problem_id"])

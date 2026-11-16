@@ -16,6 +16,9 @@ from submission.models import Submission
 from utils.api import APIError
 from utils.audit import audit_log
 
+# Veredictos en los que el programa llegó a ejecutarse y una observación puede aportar.
+MODEL_VERDICTS = (-1, 1, 2, 3, 4, 8)
+
 
 def throttle(user_id, session_id):
     for key, limit in (("user:" + str(user_id), 12), ("session:" + str(session_id), 6)):
@@ -48,7 +51,7 @@ def feedback(user, session_id, request_id, action, level=None, concept=""):
         return previous
     throttle(user.id, session.id)
     submission = Submission.objects.filter(user_id=user.id, problem_id=session.problem_id, contest__isnull=True,
-                                          create_time__gte=session.created_at, result__in=FINAL_RESULTS).order_by("-create_time", "-id").first()
+                                           create_time__gte=session.created_at, result__in=FINAL_RESULTS).order_by("-create_time", "-id").first()
     if action != "concept" and not submission:
         raise APIError("Envía un intento y espera su veredicto antes de pedir ayuda.", err="tutor-attempt-required")
     selected_level = level if action == "hint" else 0
@@ -67,11 +70,22 @@ def feedback(user, session_id, request_id, action, level=None, concept=""):
         raise APIError("El concepto no pertenece a esta configuración.", err="tutor-concept-invalid")
     context = build_context(session, submission, action, selected_level, concept)
     context_hash = hashlib.sha256(json.dumps(context, sort_keys=True, ensure_ascii=True).encode()).hexdigest()
-    # La explicación de un concepto pertenece a la versión docente, incluso si
-    # el generador está disponible. No sustituirla por contenido ajeno a esa versión.
-    generated = generate(context) if action != "concept" else None
+    history = list(session.attempts.order_by("-created_at").values("result")[:3])
+    diag = (diagnostic(submission, session.problem, history) if submission
+            else {"category": "concept", "uncertainty": "Explicación configurada por el docente."})
+    # Conceptos y pistas pertenecen a la versión docente (progresiva y revisada);
+    # el modelo solo complementa la explicación de veredictos que ejecutaron el programa.
+    generated = None
+    if action == "explain" and submission.result in MODEL_VERDICTS:
+        observation = generate(context)
+        if observation:
+            content = diag["content"] + " Observación del tutor: " + observation["content"].strip()
+            generated = {"content": content[:2000], "uncertainty": observation["uncertainty"], "model_version": observation["model_version"]}
+            try:
+                validate_output(generated)
+            except ValueError:
+                generated = None
     source = "model" if generated else "deterministic"
-    diag = diagnostic(submission) if submission else {"category": "concept", "uncertainty": "Explicación configurada por el docente."}
     if not generated:
         content = diag.get("content", "")
         if action == "hint":
@@ -90,15 +104,15 @@ def feedback(user, session_id, request_id, action, level=None, concept=""):
         except ValueError:
             raise APIError("La ayuda configurada requiere revisión del docente.", err="tutor-unavailable")
     result = TutorFeedback.objects.create(session=session, submission=submission if action != "concept" else None,
-        request_id=request_id, request_hash=request_hash, action=action, level=selected_level, concept=concept,
-        content=generated["content"], source=source, category=diag["category"], uncertainty=generated["uncertainty"],
-        model_version=generated["model_version"], context_hash=context_hash, guard_version=VERSION,
-        latency_ms=max(0, int((time.monotonic() - started) * 1000)))
+                                          request_id=request_id, request_hash=request_hash, action=action, level=selected_level, concept=concept,
+                                          content=generated["content"], source=source, category=diag["category"], uncertainty=generated["uncertainty"],
+                                          model_version=generated["model_version"], context_hash=context_hash, guard_version=VERSION,
+                                          latency_ms=max(0, int((time.monotonic() - started) * 1000)))
     if action == "hint" and level > session.highest_help_level:
         session.highest_help_level = level
         session.save(update_fields=["highest_help_level", "updated_at"])
     TutorMetric.objects.create(feedback=result, category=result.category, level=result.level, source=result.source,
-        latency_ms=result.latency_ms, model_version=result.model_version, config_version_id=session.config_version_id, outcome="completed")
+                               latency_ms=result.latency_ms, model_version=result.model_version, config_version_id=session.config_version_id, outcome="completed")
     TutorRequest.objects.create(session=session, request_id=request_id, request_hash=request_hash, feedback=result)
     return result
 

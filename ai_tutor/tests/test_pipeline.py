@@ -16,7 +16,7 @@ class PipelineTests(SimpleTestCase):
             item.update(example_id="fixture-" + str(index), problem="Problema sintético de prueba " + str(index), faulty_code="int prueba_" + str(index) + ";")
             # Identidades exclusivamente ficticias de esta prueba; no es un dataset aprobado real.
             item["review"].update(author="autor-ficticio-test", reviewer="revisor-ficticio-test", status="approved",
-                authored_at="2026-01-01T00:00:00Z", reviewed_at="2026-01-02T00:00:00Z", approved_at="2026-01-02T00:00:00Z")
+                                  authored_at="2026-01-01T00:00:00Z", reviewed_at="2026-01-02T00:00:00Z", approved_at="2026-01-02T00:00:00Z")
             items.append(item)
         return items
 

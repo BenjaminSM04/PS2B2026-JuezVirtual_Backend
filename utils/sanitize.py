@@ -5,7 +5,8 @@ TAGS = set("a img br strong b code pre p div em span h1 h2 h3 h4 h5 h6 blockquot
 ATTRS = {"*": {"class", "style"}, "img": {"src", "width", "height", "alt"},
          "a": {"href", "target", "title"}, "table": {"border", "cellpadding", "cellspacing"},
          "td": {"colspan", "rowspan"}, "th": {"colspan", "rowspan"}, "font": {"color"}}
-STYLES = {"color", "background-color", "text-align", "font-size", "font-weight", "font-style", "text-decoration", "white-space", "vertical-align", "border", "border-color", "border-width", "border-style", "padding", "margin-left"}
+STYLES = {"color", "background-color", "text-align", "font-size", "font-weight", "font-style", "text-decoration",
+          "white-space", "vertical-align", "border", "border-color", "border-width", "border-style", "padding", "margin-left"}
 
 
 def clean_html(value):

@@ -25,6 +25,62 @@ respaldo. Un valor fuera de rango o no numérico impide arrancar el backend
 ocupa un worker del backend hasta ese tiempo; por eso el tope es 30 s y existen
 cuotas por usuario y solo 2 ranuras en el motor. Medir el p95 del modelo
 (RTX 2060: p50 0,6 s, p95 2,5 s; en CPU es mayor) antes de subir los valores.
+
+Velocidad en CPU: el tiempo lo dominan el prefill y los tokens generados. El backend
+recorta el enunciado, la entrada y la salida a 1200 caracteres cada uno y el código a
+4000 (si es más largo conserva inicio y final), después de redactar datos privados; el
+motor pide como máximo 120 tokens a llama.cpp y activa `cache_prompt`. Si la
+generación se corta pero la cadena `content` ya se cerró, se aprovecha ese texto.
+
+Sugerencias para el docente: `POST /suggest` del motor (red interna) genera un borrador
+de conceptos y pistas a partir del enunciado. El backend lo expone en
+`POST /api/admin/ai_tutor/config/suggest`, lo valida con el esquema de versiones y lo
+devuelve sin guardar; el docente lo revisa y lo guarda como borrador con el flujo
+habitual, por lo que nunca llega al estudiante sin revisión. Tiene plazos propios, distintos
+de los de las observaciones: `SUGGEST_TIMEOUT_S` (servicio `oj-tutor`, defecto 90, rango
+30-100) es el plazo total de hasta dos intentos del motor y `AI_TUTOR_SUGGEST_TIMEOUT`
+(backend, defecto 100, rango 31-105) el del backend frente al motor; este **debe ser mayor**
+que el del motor. Pide 260 tokens (como máximo 200 en el reintento, que solo se hace si quedan
+al menos 20 s y si, a la velocidad medida en el primer intento, caben 80 tokens o más) para 2-3
+conceptos y tres pistas breves: a 5-8 tokens/s en CPU son 30-55 s. Un
+valor fuera de rango impide el arranque del backend o deja el motor sin readiness, igual que
+`MODEL_TIMEOUT_S`. Cuota de 6 sugerencias por usuario y minuto; sin `AI_TUTOR_MODEL_ENABLED`
+responde `tutor-suggest-unavailable`.
+
+Forma y saneado de la propuesta: el motor envía a llama.cpp un esquema JSON (se convierte en
+gramática), de modo que la salida siempre trae `concepts` como objetos `{name, explanation}` y
+las tres pistas; el modelo de 1.5B, sin esa restricción, devolvía `concepts` como lista de
+cadenas, una clave `concept` en singular, listas vacías o JSON cortado, y el motor respondía
+503. Aun así la propuesta se sanea antes de rechazarla: se repara el JSON cortado
+descartando el último elemento incompleto, se descarta solo el concepto o la pista inválidos,
+los textos largos se recortan en límite de frase (300 caracteres) y, si falta o se repite una
+sola pista, se pone un texto genérico en español que el docente revisa (si faltan dos, o si no
+queda ningún concepto válido, se reintenta). Un bloque de código, más de tres líneas de
+programa o dos textos que rechaza el filtro del estudiante descartan la propuesta entera. Cada
+petición usa una semilla nueva, de modo que repetir la sugerencia no repite el fallo.
+
+Registro: el motor escribe en `docker logs` (nivel `WARNING`; `TUTOR_LOG_LEVEL=INFO` añade las
+propuestas saneadas) una línea por propuesta rechazada con el intento, el motivo
+(`json`, `no-concepts`, `hints`, `code`, `guard`), `fin` (`length` si el modelo se quedó sin
+tokens), los tokens generados y los primeros 200 caracteres de la salida, nunca el enunciado
+completo. También registra el tipo de error cuando el modelo no responde a tiempo y una línea
+final cuando la petición queda sin propuesta válida.
+
+Cadena de plazos de una sugerencia (cada capa debe esperar más que la siguiente): llama.cpp
+y motor 90 s, backend frente al motor 100 s, nginx del backend 110 s (ruta propia
+`/api/admin/ai_tutor/config/suggest` en `deploy/nginx/nginx.conf`; el resto de `/api` sigue en
+60 s), nginx del frontend 115 s y el navegador 120 s. Gunicorn (`--threads 4`, worker gthread)
+no la corta: su `--timeout` solo vigila el bucle principal del worker, no cada petición. Si
+se suben los plazos, subir también esos proxies; los rangos de arriba existen para que el
+valor configurado nunca supere lo que los proxies toleran.
+
+Concurrencia: el modelo es uno (`-np 1`) y atiende una petición a la vez. El motor admite una
+sola sugerencia simultánea (otra recibe 429 `busy`) para que siga habiendo una ranura libre
+para las observaciones. Mientras una sugerencia genera (hasta 90 s), la observación de un
+estudiante espera en la cola de llama.cpp y puede agotar su plazo de 25-30 s: en ese caso el
+backend usa el diagnóstico determinista (y abre el circuito 30 s). Es el comportamiento
+aceptado; no se interrumpe la sugerencia en curso.
+
 Con `compose.tutor.yml` y perfil `tutor`, motor y llama comparten una red privada
 sin puertos publicados. El backend es el único puente. El motor usa usuario sin
 privilegios, raíz de solo lectura, límites CPU/memoria/PID y volúmenes de modelos

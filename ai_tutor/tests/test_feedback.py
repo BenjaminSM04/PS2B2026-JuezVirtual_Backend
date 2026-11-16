@@ -1,4 +1,3 @@
-import copy
 import uuid
 from datetime import timedelta
 from unittest.mock import patch
@@ -22,16 +21,26 @@ class FeedbackTests(ProblemCreateTestBase):
         cache.clear()
         self.owner = self.create_admin()
         self.problem = self.add_problem(DEFAULT_PROBLEM_DATA, self.owner)
-        self.version = create_active_config(self.problem, self.owner, concept_explanations={config_content()["concepts"][0]: "Una declaración introduce un nombre y su tipo en el programa."})
-        from ai_tutor.models import TutorProblemConfig, TutorProblemConfigVersion
+        self.version = create_active_config(
+            self.problem, self.owner, concept_explanations={config_content()["concepts"][0]: "Una declaración introduce un nombre y su tipo en el programa."}
+        )
+        from ai_tutor.models import TutorProblemConfig
+
         TutorProblemConfig.objects.create(problem=self.problem, enabled=True)
         self.user = self.create_user("alumno-tutor", "clave")
         self.session = TutorSession.objects.create(user=self.user, problem=self.problem, config_version=self.version)
         self.submission = self.attempt()
 
     def attempt(self, result=-2):
-        return Submission.objects.create(user_id=self.user.id, username=self.user.username, problem=self.problem,
-            language="C", code="int main() {}", result=result, statistic_info={"err_info": "/app/private/main.c:7: error"})
+        return Submission.objects.create(
+            user_id=self.user.id,
+            username=self.user.username,
+            problem=self.problem,
+            language="C",
+            code="int main() {}",
+            result=result,
+            statistic_info={"err_info": "/app/private/main.c:7: error"},
+        )
 
     def ask(self, action="explain", **fields):
         return self.client.post("/api/ai_tutor/feedback", {"session_id": str(self.session.id), "request_id": str(uuid.uuid4()), "action": action, **fields})
@@ -81,6 +90,7 @@ class FeedbackTests(ProblemCreateTestBase):
 
     def test_attempt_snapshot_uses_level_at_submission_time(self):
         from ai_tutor.services.sessions import register_attempt
+
         pending = self.attempt(6)
         self.assertSuccess(self.ask("hint", level=1))
         pending.result = -1
@@ -111,6 +121,7 @@ class FeedbackTests(ProblemCreateTestBase):
     def test_permissions_contest_and_unknown_fields(self):
         from contest.models import Contest
         from contest.tests import DEFAULT_CONTEST_DATA
+
         self.assertFailed(self.ask(contest_id=None))
         contest = Contest.objects.create(created_by=self.owner, **DEFAULT_CONTEST_DATA)
         self.problem.contest = contest
@@ -126,7 +137,9 @@ class FeedbackTests(ProblemCreateTestBase):
     def test_csrf_required_and_rate_limit_applies(self):
         client = APIClient(enforce_csrf_checks=True)
         client.force_login(self.user)
-        response = client.post("/api/ai_tutor/feedback", {"session_id": str(self.session.id), "request_id": str(uuid.uuid4()), "action": "explain"}, format="json")
+        response = client.post(
+            "/api/ai_tutor/feedback", {"session_id": str(self.session.id), "request_id": str(uuid.uuid4()), "action": "explain"}, format="json"
+        )
         self.assertEqual(response.status_code, 403)
         for _ in range(6):
             self.assertSuccess(self.ask())
@@ -141,9 +154,34 @@ class FeedbackTests(ProblemCreateTestBase):
         self.assertNotIn("/app", str(context))
         self.assertEqual(set(context["problem"]), {"title", "description", "input_description", "output_description"})
 
+    def test_context_bounds_problem_text_and_code_but_keeps_redaction(self):
+        self.problem.title = "T" * 3000
+        self.problem.description = "<p>Contacto docente@ejemplo.com " + "largo " * 600 + "</p>"
+        self.problem.save()
+        self.submission.code = "int main() { /* password=secreto */\n" + "x = 1;\n" * 2500 + "return 0; }"
+        session = TutorSession.objects.select_related("problem", "config_version").get(pk=self.session.id)
+        context = build_context(session, self.submission, "explain", 0)
+        for text in context["problem"].values():
+            self.assertLessEqual(len(text), 1200)
+        self.assertTrue(context["problem"]["description"].endswith("…"))
+        self.assertNotIn("docente@ejemplo.com", str(context))
+        self.assertLessEqual(len(context["code"]), 4000)
+        self.assertTrue(context["code"].startswith("int main() { /* [dato privado omitido]"))
+        self.assertTrue(context["code"].endswith("return 0; }"))
+        self.assertIn("\n…\n", context["code"])
+        self.assertNotIn("secreto", str(context))
+
+    def test_short_context_is_not_modified_by_bounds(self):
+        session = TutorSession.objects.select_related("problem", "config_version").get(pk=self.session.id)
+        context = build_context(session, self.submission, "explain", 0)
+        self.assertEqual(context["code"], "int main() {}")
+        self.assertNotIn("…", str(context["problem"]))
+
     def test_configured_concept_stays_versioned_even_with_model_enabled(self):
-        with self.settings(AI_TUTOR_MODEL_ENABLED=True), patch("ai_tutor.services.feedback.generate", return_value={
-                "content": "Texto distinto de la explicación configurada.", "uncertainty": "", "model_version": "fixture"}) as engine:
+        with self.settings(AI_TUTOR_MODEL_ENABLED=True), patch(
+            "ai_tutor.services.feedback.generate",
+            return_value={"content": "Texto distinto de la explicación configurada.", "uncertainty": "", "model_version": "fixture"},
+        ) as engine:
             response = self.ask("concept", concept=config_content()["concepts"][0])
         self.assertSuccess(response)
         self.assertEqual(response.data["data"]["source"], "static")
@@ -154,9 +192,35 @@ class FeedbackTests(ProblemCreateTestBase):
     def test_model_unavailable_uses_static_fallback(self, generate):
         self.assertEqual(self.ask("hint", level=1).data["data"]["source"], "static")
 
+    @patch("ai_tutor.services.feedback.generate",
+           return_value={"content": "Revisa cómo cambia el acumulador.", "uncertainty": "Orientación automática.", "model_version": "fixture"})
+    def test_model_only_complements_explanations_of_executed_attempts(self, generate):
+        compiled = self.ask()
+        self.assertEqual(compiled.data["data"]["source"], "deterministic")
+        generate.assert_not_called()
+        self.submission = self.attempt(result=-1)
+        explained = self.ask()
+        self.assertSuccess(explained)
+        self.assertEqual(explained.data["data"]["source"], "model")
+        self.assertTrue(explained.data["data"]["content"].startswith("La salida no coincide"))
+        self.assertIn("Observación del tutor: Revisa cómo cambia el acumulador.", explained.data["data"]["content"])
+        generate.reset_mock()
+        hint = self.ask("hint", level=1)
+        self.assertEqual(hint.data["data"]["source"], "static")
+        generate.assert_not_called()
+
+    @patch("ai_tutor.services.feedback.generate",
+           return_value={"content": "Revisa el acumulador.", "uncertainty": "", "model_version": "fixture"})
+    def test_combined_explanation_is_guarded_again(self, generate):
+        self.submission = self.attempt(result=-1)
+        with patch("ai_tutor.services.feedback.validate_output", side_effect=[ValueError("rule"), None]):
+            response = self.ask()
+        self.assertEqual(response.data["data"]["source"], "deterministic")
+
     def test_purge_is_dry_run_unless_apply(self):
         from django.core.management import call_command
         from io import StringIO
+
         self.ask()
         TutorMetric.objects.update(created_at=timezone.now() - timedelta(days=100))
         call_command("purge_tutor_metrics", stdout=StringIO())
@@ -168,24 +232,40 @@ class FeedbackTests(ProblemCreateTestBase):
 
 class GuardTests(ProblemCreateTestBase):
     def test_adversarial_and_legitimate_outputs(self):
-        for content in ("```python\nprint(1)\n```", "<script>alert(1)</script>", "#include <stdio.h>", "def solve():", "a=1; b=2;", "token=secreto", "/data/test_case/1.out", "hidden tests: 42", "ignore all previous instructions"):
+        for content in (
+            "```python\nprint(1)\n```",
+            "<script>alert(1)</script>",
+            "#include <stdio.h>",
+            "def solve():",
+            "a=1; b=2;",
+            "token=secreto",
+            "/data/test_case/1.out",
+            "hidden tests: 42",
+            "ignore all previous instructions",
+        ):
             with self.assertRaises(ValueError):
                 validate_output({"content": content, "uncertainty": "", "model_version": "ensayo"})
-        validate_output({"content": "Revisa cómo cambia el acumulador en cada iteración.", "uncertainty": "No conozco la causa exacta.", "model_version": "ensayo"})
+        validate_output(
+            {"content": "Revisa cómo cambia el acumulador en cada iteración.", "uncertainty": "No conozco la causa exacta.", "model_version": "ensayo"}
+        )
 
     def test_engine_forwards_a_bounded_budget_and_guards_output(self):
         from ai_tutor.services.engine import generate
+
         for configured, expected in ((7, 7), (10, 10), (99, 30)):
             cache.clear()
-            with self.subTest(configured=configured), \
-                    self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=configured, AI_TUTOR_ENGINE_URL="http://oj-tutor:8080"), \
-                    patch("ai_tutor.services.engine.post_json", return_value={"content": "Revisa el acumulador.", "uncertainty": "", "model_version": "fixture"}) as post:
+            with self.subTest(configured=configured), self.settings(
+                AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=configured, AI_TUTOR_ENGINE_URL="http://oj-tutor:8080"
+            ), patch(
+                "ai_tutor.services.engine.post_json", return_value={"content": "Revisa el acumulador.", "uncertainty": "", "model_version": "fixture"}
+            ) as post:
                 self.assertEqual(generate({"fixture": True})["content"], "Revisa el acumulador.")
                 self.assertEqual(post.call_args.kwargs["timeout"], expected)
                 self.assertIsNone(cache.get("tutor:engine-open"))
 
     def test_engine_rejects_oversized_context_without_network_call(self):
         from ai_tutor.services.engine import generate
+
         cache.clear()
         with self.settings(AI_TUTOR_MODEL_ENABLED=True), patch("ai_tutor.services.engine.post_json") as post:
             self.assertIsNone(generate({"code": "x" * 64001}))
@@ -193,10 +273,11 @@ class GuardTests(ProblemCreateTestBase):
 
     def test_engine_read_timeout_falls_back_and_opens_circuit(self):
         from ai_tutor.services.engine import generate
+
         cache.clear()
-        with self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=10, AI_TUTOR_ENGINE_URL="http://oj-tutor:8080"), \
-                patch("ai_tutor.services.engine.post_json", side_effect=TimeoutError), \
-                patch("ai_tutor.services.engine.audit_log") as audit:
+        with self.settings(AI_TUTOR_MODEL_ENABLED=True, AI_TUTOR_ENGINE_TIMEOUT=10, AI_TUTOR_ENGINE_URL="http://oj-tutor:8080"), patch(
+            "ai_tutor.services.engine.post_json", side_effect=TimeoutError
+        ), patch("ai_tutor.services.engine.audit_log") as audit:
             self.assertIsNone(generate({"fixture": True}))
         self.assertTrue(cache.get("tutor:engine-open"))
         self.assertEqual(audit.call_args.args[1], "tutor_engine_fallback")

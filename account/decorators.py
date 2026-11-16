@@ -1,15 +1,14 @@
+from .models import ProblemPermission
+from utils.constants import CONTEST_PASSWORD_SESSION_KEY
+from utils.api import JSONResponse, APIError
+from contest.models import Contest, ContestType, ContestStatus, ContestRuleType
+from problem.models import Problem
 import functools
 import hashlib
 import time
 from contextvars import ContextVar
 
 _request_context = ContextVar("permission_request")
-
-from problem.models import Problem
-from contest.models import Contest, ContestType, ContestStatus, ContestRuleType
-from utils.api import JSONResponse, APIError
-from utils.constants import CONTEST_PASSWORD_SESSION_KEY
-from .models import ProblemPermission
 
 
 class BasePermissionDecorator(object):

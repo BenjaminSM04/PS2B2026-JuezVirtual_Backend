@@ -235,6 +235,11 @@ class UserRegisterAPITest(CaptchaTest):
             self.assertEqual(response.data["error"], "invalid-password")
             self.assertFalse(User.objects.filter(username="weak_user").exists())
 
+    def test_registro_con_politica_actual_del_backend(self):
+        self.data["password"] = "ALLUPPER1"
+        response = self.client.post(self.register_url, data=self.data)
+        self.assertSuccess(response)
+
 
 class SessionManagementAPITest(APITestCase):
     def setUp(self):

@@ -1,5 +1,5 @@
 """Ajuste LoRA/QLoRA explícito sobre particiones aprobadas y selección documentada."""
-import hashlib
+
 import json
 import os
 from pathlib import Path
@@ -92,8 +92,8 @@ def train_model(dataset_directory, selection_path, output_directory, resume=Fals
     import torch
     from datasets import Dataset
     from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
-    from transformers import (AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig,
-                              DataCollatorForSeq2Seq, Trainer, TrainingArguments, set_seed)
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, DataCollatorForSeq2Seq, Trainer, TrainingArguments, set_seed
+
     if quantized and not torch.cuda.is_available():
         raise ValueError("QLoRA requiere una GPU CUDA compatible. Para un ensayo LoRA en CPU use --no-quantization.")
     output.mkdir(parents=True, exist_ok=True)
@@ -101,13 +101,19 @@ def train_model(dataset_directory, selection_path, output_directory, resume=Fals
     set_seed(2026)
     dtype = training_dtype(torch)
     config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=dtype) if quantized else None
-    tokenizer = AutoTokenizer.from_pretrained(location, revision=source["revision"], trust_remote_code=False,
-                                              token=os.environ.get("HF_TOKEN"))
+    tokenizer = AutoTokenizer.from_pretrained(location, revision=source["revision"], trust_remote_code=False, token=os.environ.get("HF_TOKEN"))
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    model = AutoModelForCausalLM.from_pretrained(location, revision=source["revision"], trust_remote_code=False,
-        use_safetensors=True, token=os.environ.get("HF_TOKEN"), quantization_config=config,
-        device_map="auto" if torch.cuda.is_available() else None, dtype=dtype)
+    model = AutoModelForCausalLM.from_pretrained(
+        location,
+        revision=source["revision"],
+        trust_remote_code=False,
+        use_safetensors=True,
+        token=os.environ.get("HF_TOKEN"),
+        quantization_config=config,
+        device_map="auto" if torch.cuda.is_available() else None,
+        dtype=dtype,
+    )
     if quantized:
         model = prepare_model_for_kbit_training(model)
     model = get_peft_model(model, LoraConfig(r=8, lora_alpha=16, lora_dropout=0.05, target_modules="all-linear", task_type="CAUSAL_LM"))
@@ -116,7 +122,10 @@ def train_model(dataset_directory, selection_path, output_directory, resume=Fals
         rows = []
         for record in records:
             for level, key in enumerate(("concept", "location", "strategy"), start=1):
-                answer = canonical({"content": record["hints"][key], "uncertainty": record["uncertainty"]["reason"], "model_version": "adapter"}) + tokenizer.eos_token
+                answer = (
+                    canonical({"content": record["hints"][key], "uncertainty": record["uncertainty"]["reason"], "model_version": "adapter"})
+                    + tokenizer.eos_token
+                )
                 source = tokenizer.apply_chat_template(training_messages(record, level), tokenize=True, add_generation_prompt=True, return_dict=False)
                 target = tokenizer.encode(answer, add_special_tokens=False)
                 if len(source) + len(target) > 2048:
@@ -124,21 +133,51 @@ def train_model(dataset_directory, selection_path, output_directory, resume=Fals
                 rows.append({"input_ids": source + target, "attention_mask": [1] * (len(source) + len(target)), "labels": [-100] * len(source) + target})
         return Dataset.from_list(rows)
 
-    arguments = TrainingArguments(output_dir=str(output), seed=2026, data_seed=2026, num_train_epochs=3,
-        per_device_train_batch_size=1, per_device_eval_batch_size=1, gradient_accumulation_steps=8,
-        learning_rate=0.0002, eval_strategy="epoch", save_strategy="epoch", save_total_limit=2,
-        report_to="none", logging_steps=10, bf16=dtype == torch.bfloat16, fp16=dtype == torch.float16, dataloader_num_workers=0)
-    trainer = Trainer(model=model, args=arguments, train_dataset=encode(partitions["train"]), eval_dataset=encode(partitions["validation"]),
-        data_collator=DataCollatorForSeq2Seq(tokenizer=tokenizer, padding=True), processing_class=tokenizer)
+    arguments = TrainingArguments(
+        output_dir=str(output),
+        seed=2026,
+        data_seed=2026,
+        num_train_epochs=3,
+        per_device_train_batch_size=1,
+        per_device_eval_batch_size=1,
+        gradient_accumulation_steps=8,
+        learning_rate=0.0002,
+        eval_strategy="epoch",
+        save_strategy="epoch",
+        save_total_limit=2,
+        report_to="none",
+        logging_steps=10,
+        bf16=dtype == torch.bfloat16,
+        fp16=dtype == torch.float16,
+        dataloader_num_workers=0,
+    )
+    trainer = Trainer(
+        model=model,
+        args=arguments,
+        train_dataset=encode(partitions["train"]),
+        eval_dataset=encode(partitions["validation"]),
+        data_collator=DataCollatorForSeq2Seq(tokenizer=tokenizer, padding=True),
+        processing_class=tokenizer,
+    )
     result = trainer.train(resume_from_checkpoint=True if resume else None)
     trainer.save_model(str(output / "adapter"))
     tokenizer.save_pretrained(str(output / "adapter"))
-    metrics = {"training": result.metrics, "validation": trainer.evaluate(), "hardware": {"platform": platform.platform(),
-        "cuda": torch.version.cuda, "device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu",
-        "dtype": str(dtype).replace("torch.", "")},
-        "scope": dataset_manifest.get("scope", "reviewed"), "human_review": "not-performed" if technical_demo else "recorded-in-selection",
-        "dataset_version": dataset_manifest["version"], "selection_sha256": sha(selection_path), "training_model": source,
-        "files": {str(file.relative_to(output)): sha(file) for file in (output / "adapter").rglob("*") if file.is_file()}}
+    metrics = {
+        "training": result.metrics,
+        "validation": trainer.evaluate(),
+        "hardware": {
+            "platform": platform.platform(),
+            "cuda": torch.version.cuda,
+            "device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu",
+            "dtype": str(dtype).replace("torch.", ""),
+        },
+        "scope": dataset_manifest.get("scope", "reviewed"),
+        "human_review": "not-performed" if technical_demo else "recorded-in-selection",
+        "dataset_version": dataset_manifest["version"],
+        "selection_sha256": sha(selection_path),
+        "training_model": source,
+        "files": {str(file.relative_to(output)): sha(file) for file in (output / "adapter").rglob("*") if file.is_file()},
+    }
     (output / "training-result.json").write_text(canonical(metrics), encoding="utf-8")
     # No publicar ni registrar variables de entorno que puedan contener credenciales.
     freeze = subprocess.check_output([os.sys.executable, "-m", "pip", "freeze"], text=True)

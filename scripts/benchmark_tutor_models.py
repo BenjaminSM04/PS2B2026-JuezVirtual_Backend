@@ -1,4 +1,5 @@
 """Compara candidatos reales con la misma muestra; no sustituye la evaluación pedagógica."""
+
 import argparse
 import hashlib
 import json
@@ -25,9 +26,18 @@ def main():
             parser.error("Cada candidato requiere URL, modelo, revisión, licencia y cuantización.")
         latencies, responses = [], []
         for item in sample:
-            payload = {"messages": [{"role": "system", "content": "Orienta sin dar una solución completa. Devuelve JSON con content y uncertainty."},
-                {"role": "user", "content": json.dumps({key: item[key] for key in ("problem", "language", "faulty_code", "verdict", "concept")}, ensure_ascii=True)}],
-                "max_tokens": 400, "temperature": 0, "seed": 2026}
+            payload = {
+                "messages": [
+                    {"role": "system", "content": "Orienta sin dar una solución completa. Devuelve JSON con content y uncertainty."},
+                    {
+                        "role": "user",
+                        "content": json.dumps({key: item[key] for key in ("problem", "language", "faulty_code", "verdict", "concept")}, ensure_ascii=True),
+                    },
+                ],
+                "max_tokens": 400,
+                "temperature": 0,
+                "seed": 2026,
+            }
             request = urllib.request.Request(candidate["url"] + "/v1/chat/completions", json.dumps(payload).encode(), {"Content-Type": "application/json"})
             started = time.monotonic()
             try:
@@ -41,15 +51,32 @@ def main():
                 response, status = "", "failed"
             elapsed = round((time.monotonic() - started) * 1000)
             latencies.append(elapsed)
-            responses.append({"example_id": item["example_id"], "content": response, "status": status, "latency_ms": elapsed,
-                              "human_review": "pending"})
+            responses.append({"example_id": item["example_id"], "content": response, "status": status, "latency_ms": elapsed, "human_review": "pending"})
         values = sorted(latencies)
-        reports.append({"candidate": {key: value for key, value in candidate.items() if key != "url"}, "responses": responses,
-            "latency_p50_ms": statistics.median(values), "latency_p95_ms": values[max(0, (len(values) * 95 + 99) // 100 - 1)],
-            "memory": "not-measured", "errors": sum(item["status"] != "completed" for item in responses)})
+        reports.append(
+            {
+                "candidate": {key: value for key, value in candidate.items() if key != "url"},
+                "responses": responses,
+                "latency_p50_ms": statistics.median(values),
+                "latency_p95_ms": values[max(0, (len(values) * 95 + 99) // 100 - 1)],
+                "memory": "not-measured",
+                "errors": sum(item["status"] != "completed" for item in responses),
+            }
+        )
     with args.output.open("x", encoding="utf-8") as stream:
-        json.dump({"sample_sha256": hashlib.sha256(args.sample.read_bytes()).hexdigest(), "hardware": platform.platform(),
-                   "seed": 2026, "rubric_version": "1.0", "reports": reports, "selection": "pending-human-and-memory-review"}, stream, indent=2, ensure_ascii=True)
+        json.dump(
+            {
+                "sample_sha256": hashlib.sha256(args.sample.read_bytes()).hexdigest(),
+                "hardware": platform.platform(),
+                "seed": 2026,
+                "rubric_version": "1.0",
+                "reports": reports,
+                "selection": "pending-human-and-memory-review",
+            },
+            stream,
+            indent=2,
+            ensure_ascii=True,
+        )
 
 
 if __name__ == "__main__":

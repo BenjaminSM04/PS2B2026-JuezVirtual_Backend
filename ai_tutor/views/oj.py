@@ -58,7 +58,7 @@ class TutorFeedbackAPI(APIView):
             # Acotar también las métricas de fallos: no crear una fila por cada abuso.
             if cache.add("tutor:failure:" + str(request.user.id) + ":" + str(error.err), True, timeout=60):
                 TutorMetric.objects.create(category="unknown", level=0, source="unavailable", latency_ms=int((time.monotonic() - started) * 1000),
-                    model_version="", config_version_id=None, outcome="denied")
+                                           model_version="", config_version_id=None, outcome="denied")
             raise
         return self.success(FeedbackSerializer(result).data)
 

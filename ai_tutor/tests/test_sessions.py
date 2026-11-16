@@ -250,7 +250,7 @@ class TutorConcurrencyTests(TransactionTestCase):
         from practice.models import Achievement
         from practice.services import record_accepted
         submission = Submission.objects.create(problem=self.problem, user_id=self.user.id, username=self.user.username,
-                                                code="x", language="C", result=0)
+                                               code="x", language="C", result=0)
         Achievement.objects.all().delete()
         self.parallel(lambda user: record_accepted(Submission.objects.get(pk=submission.id)))
         self.assertEqual(Achievement.objects.count(), 1)

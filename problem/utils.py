@@ -1,6 +1,25 @@
 import re
 from functools import lru_cache
 
+from utils.constants import Difficulty
+
+
+def difficulty_levels_from_tags(tags):
+    tag_levels = {
+        "Dificultad: Baja": Difficulty.LOW,
+        "Dificultad: Media": Difficulty.MID,
+        "Dificultad: Alta": Difficulty.HIGH,
+    }
+    return {tag_levels[tag] for tag in tags if tag in tag_levels}
+
+
+def resolve_import_difficulty(problem_info):
+    # El serializer valida el campo explícito antes de resolver las etiquetas.
+    if "difficulty" in problem_info:
+        return problem_info["difficulty"]
+    levels = difficulty_levels_from_tags(problem_info.get("tags", []))
+    return levels.pop() if len(levels) == 1 else Difficulty.MID
+
 
 TEMPLATE_BASE = """//PREPEND BEGIN
 {}

@@ -21,7 +21,7 @@ from fps.parser import FPSHelper, FPSParser
 from judge.dispatcher import SPJCompiler
 from options.options import SysOptions
 from submission.models import Submission, JudgeStatus
-from utils.api import APIView, SameOriginCSRFExemptAPIView, validate_serializer, APIError
+from utils.api import APIView, validate_serializer, APIError
 from utils.audit import audit_log
 from utils.archive import validate_archive
 from utils.constants import Difficulty
@@ -34,7 +34,7 @@ from ..serializers import (CreateContestProblemSerializer, CompileSPJSerializer,
                            AddContestProblemSerializer, ExportProblemSerializer,
                            ExportProblemRequestSerialzier, UploadProblemForm, ImportProblemSerializer,
                            FPSProblemSerializer, TextTestCasesSerializer)
-from ..utils import TEMPLATE_BASE, build_problem_template
+from ..utils import TEMPLATE_BASE, build_problem_template, resolve_import_difficulty
 
 
 class TestCaseZipProcessor(object):
@@ -601,11 +601,11 @@ class ExportProblemAPI(APIView):
             info = json.load(f)
         for k, v in info["test_cases"].items():
             zip_file.write(filename=os.path.join(problem_test_case_dir, v["input_name"]),
-                           arcname=f"{index}/testcase/{v['input_name']}",
+                           arcname="{}/testcase/{}".format(index, v["input_name"]),
                            compress_type=compression)
             if not info["spj"]:
                 zip_file.write(filename=os.path.join(problem_test_case_dir, v["output_name"]),
-                               arcname=f"{index}/testcase/{v['output_name']}",
+                               arcname="{}/testcase/{}".format(index, v["output_name"]),
                                compress_type=compression)
 
     @validate_serializer(ExportProblemRequestSerialzier)
@@ -712,7 +712,7 @@ class ImportProblemAPI(APIView, TestCaseZipProcessor):
                                                              created_by=resolved_creator,
                                                              share_mode=share_mode,
                                                              visible=True,
-                                                             difficulty=Difficulty.MID,
+                                                             difficulty=resolve_import_difficulty(problem_info),
                                                              total_score=sum(item["score"] for item in test_case_score)
                                                              if rule_type == ProblemRuleType.OI else 0,
                                                              test_case_id=test_case_id
