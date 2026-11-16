@@ -33,6 +33,8 @@ env:
 jobs:
   tutor:
     name: Probar, construir y publicar
+    # El modelo se descarga de una release privada de la organización; en las copias no existe.
+    if: github.repository_owner == 'incubadoradesarrollo-source'
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     permissions:

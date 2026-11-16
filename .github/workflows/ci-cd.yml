@@ -77,7 +77,8 @@ jobs:
   publish:
     name: Publicar SHA y promover latest
     needs: checks
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    # Solo el repositorio de la organización publica en su GHCR; las copias (forks) se limitan a comprobar.
+    if: github.repository_owner == 'incubadoradesarrollo-source' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
